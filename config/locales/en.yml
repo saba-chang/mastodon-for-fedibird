@@ -1537,6 +1537,7 @@ en:
     instance-ticker-type-3-light: Mastodon instance ticker Type-3 (Light / Favicon Images(Black Back) Style)
     instance-ticker-type-3: Mastodon instance ticker Type-3 (Dark / Favicon Images(Black back) Style)
     mastodon-light: Mastodon (Light)
+    mobile-small: Mobile Small / Mastodon (Dark)
   time:
     formats:
       default: "%b %d, %Y, %H:%M"
