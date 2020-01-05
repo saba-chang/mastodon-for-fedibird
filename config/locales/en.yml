@@ -1061,6 +1061,7 @@ en:
     add_new: Add new list
     errors:
       limit: You have reached the maximum amount of lists
+    home: Home
   login_activities:
     authentication_methods:
       otp: two-factor authentication app
