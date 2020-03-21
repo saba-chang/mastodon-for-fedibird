@@ -185,6 +185,16 @@ body.rtl {
     left: 0;
   }
 
+  .account__action-bar {
+    right: 10px;
+  
+    &.account__action-bar_home,
+    &.account__action-bar_list {
+      left: 10px;
+      right: unset;
+    }
+  }
+
   .status__relative-time,
   .status__visibility-icon,
   .activity-stream .status.light .status__header .status__meta {
