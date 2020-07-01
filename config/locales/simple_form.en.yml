@@ -55,6 +55,7 @@ en:
         setting_hide_network: Who you follow and who follows you will be hidden on your profile
         setting_noindex: Affects your public profile and post pages
         setting_show_application: The application you use to post will be displayed in the detailed view of your posts
+        setting_show_bookmark_button: When turned off, the bookmark call will be in Mastodon's standard position (in the menu on the action bar)
         setting_show_follow_button_on_timeline: You can easily check the follow status and build a follow list quickly
         setting_show_followed_by: 'The color of the follow button changes according to the follow status (gray: no follow relationship, yellow: followed, blue: following, green: mutual follow)'
         setting_show_navigation_panel: Show the navigation panel at the right end of the advanced UI
@@ -187,6 +188,7 @@ en:
         setting_noindex: Opt-out of search engine indexing
         setting_reduce_motion: Reduce motion in animations
         setting_show_application: Disclose application used to send posts
+        setting_show_bookmark_button: Show the bookmark button on the action bar
         setting_show_follow_button_on_timeline: Show follow button on timeline
         setting_show_followed_by: Reflect the following status on the follow button
         setting_show_navigation_panel: Show the navigation panel
