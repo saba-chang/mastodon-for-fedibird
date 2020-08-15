@@ -37,6 +37,10 @@ class AccountsIndex < Chewy::Index
 
       field :actor_type, type: 'keyword', analyzer: 'content'
 
+      field :text, type: 'text', value: ->(account) { account.index_text } do
+        field :stemmed, type: 'text', analyzer: 'content'
+      end
+
       field :following_count, type: 'long', value: ->(account) { account.following.local.count }
       field :followers_count, type: 'long', value: ->(account) { account.followers.local.count }
       field :subscribing_count, type: 'long', value: ->(account) { account.subscribing.local.count }
