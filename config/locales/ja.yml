@@ -1440,6 +1440,9 @@ ja:
     instance-ticker-type-3-light: Mastodon instance ticker Type-3 (ライト / Favicon Images(Black Back))
     instance-ticker-type-3: Mastodon instance ticker Type-3 (ダーク / Favicon Images(Black Back))
     mastodon-light: Mastodon (ライト)
+    missing: Mastodon-missing (ダーク)
+    missing-contrast: Mastodon-missing (ハイコントラスト)
+    missing-light: Mastodon-missing (ライト)
     mobile-small: Mobile 小 / Mastodon (ダーク)
   time:
     formats:
