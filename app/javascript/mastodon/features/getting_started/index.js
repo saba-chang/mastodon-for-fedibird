@@ -38,6 +38,7 @@ const messages = defineMessages({
   menu: { id: 'getting_started.heading', defaultMessage: 'Getting started' },
   group_directory: { id: 'getting_started.group_directory', defaultMessage: 'Group directory' },
   profile_directory: { id: 'getting_started.directory', defaultMessage: 'Profile directory' },
+  trends: { id: 'navigation_bar.trends', defaultMessage: 'Trends' },
 });
 
 const mapStateToProps = state => ({
@@ -121,7 +122,13 @@ class GettingStarted extends ImmutablePureComponent {
       }
 
       navItems.push(
-        <ColumnSubheading key='header-personal' text={intl.formatMessage(messages.personal)} />,
+        <ColumnLink key='trends' icon='line-chart' text={intl.formatMessage(messages.trends)} to='/trends' />,
+      );
+
+      height += 48;
+
+      navItems.push(
+        <ColumnSubheading key='header-personal' text={intl.formatMessage(messages.personal)} />
       );
 
       height += 34;
@@ -139,6 +146,12 @@ class GettingStarted extends ImmutablePureComponent {
 
         height += 48;
       }
+
+      navItems.push(
+        <ColumnLink key='trends' icon='line-chart' text={intl.formatMessage(messages.trends)} to='/trends' />,
+      );
+
+      height += 48;
     }
 
     if (multiColumn && !columns.find(item => item.get('id') === 'HOME')) {
