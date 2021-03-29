@@ -38,6 +38,7 @@ const messages = defineMessages({
   menu: { id: 'getting_started.heading', defaultMessage: 'Getting started' },
   group_directory: { id: 'getting_started.group_directory', defaultMessage: 'Group directory' },
   profile_directory: { id: 'getting_started.directory', defaultMessage: 'Profile directory' },
+  suggestions: { id: 'navigation_bar.suggestions', defaultMessage: 'Suggestions' },
   trends: { id: 'navigation_bar.trends', defaultMessage: 'Trends' },
 });
 
@@ -122,10 +123,11 @@ class GettingStarted extends ImmutablePureComponent {
       }
 
       navItems.push(
+        <ColumnLink key='suggestions' icon='user-plus' text={intl.formatMessage(messages.suggestions)} to='/suggestions' />,
         <ColumnLink key='trends' icon='line-chart' text={intl.formatMessage(messages.trends)} to='/trends' />,
       );
 
-      height += 48;
+      height += 48*2;
 
       navItems.push(
         <ColumnSubheading key='header-personal' text={intl.formatMessage(messages.personal)} />
@@ -148,10 +150,11 @@ class GettingStarted extends ImmutablePureComponent {
       }
 
       navItems.push(
+        <ColumnLink key='suggestions' icon='user-plus' text={intl.formatMessage(messages.suggestions)} to='/suggestions' />,
         <ColumnLink key='trends' icon='line-chart' text={intl.formatMessage(messages.trends)} to='/trends' />,
       );
 
-      height += 48;
+      height += 48*2;
     }
 
     if (multiColumn && !columns.find(item => item.get('id') === 'HOME')) {

@@ -30,6 +30,7 @@ import {
   GroupDirectory,
   Directory,
   Trends,
+  Suggestions,
 } from '../../ui/util/async-components';
 import Icon from 'mastodon/components/icon';
 import ComposePanel from './compose_panel';
@@ -58,6 +59,7 @@ const componentMap = {
   'GROUP_DIRECTORY': GroupDirectory,
   'DIRECTORY': Directory,
   'TRENDS': Trends,
+  'SUGGESTIONS': Suggestions,
 };
 
 const messages = defineMessages({
