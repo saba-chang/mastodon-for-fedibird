@@ -7257,8 +7257,7 @@ noscript {
         color: $primary-text-color;
         font-weight: 500;
         overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        word-break: break-all;
         flex: 1 1 auto;
 
         small {
