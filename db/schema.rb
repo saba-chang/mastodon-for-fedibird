@@ -641,6 +641,7 @@ ActiveRecord::Schema.define(version: 2021_08_08_071221) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "replies_policy", default: 0, null: false
+    t.boolean "favourite", default: false, null: false
     t.index ["account_id"], name: "index_lists_on_account_id"
   end
 

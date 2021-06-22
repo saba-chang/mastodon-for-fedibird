@@ -9,7 +9,6 @@ import ImmutablePropTypes from 'react-immutable-proptypes';
 import ImmutablePureComponent from 'react-immutable-pure-component';
 import { me, profile_directory, showTrends, enable_limited_timeline } from '../../initial_state';
 import { fetchFollowRequests } from 'mastodon/actions/accounts';
-import { fetchLists } from 'mastodon/actions/lists';
 import { fetchFavouriteDomains } from 'mastodon/actions/favourite_domains';
 import { fetchFavouriteTags } from 'mastodon/actions/favourite_tags';
 import { List as ImmutableList } from 'immutable';
@@ -48,7 +47,7 @@ const messages = defineMessages({
   profile_directory: { id: 'getting_started.directory', defaultMessage: 'Profile directory' },
   suggestions: { id: 'navigation_bar.suggestions', defaultMessage: 'Suggestions' },
   trends: { id: 'navigation_bar.trends', defaultMessage: 'Trends' },
-  lists_subheading: { id: 'column_subheading.lists', defaultMessage: 'Lists' },
+  lists_subheading: { id: 'column_subheading.favourite_lists', defaultMessage: 'Favourite Lists' },
   favourite_domains_subheading: { id: 'column_subheading.favourite_domains', defaultMessage: 'Favourite domains' },
   favourite_tags_subheading: { id: 'column_subheading.favourite_tags', defaultMessage: 'Favourite tags' },
 });
@@ -64,7 +63,6 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   fetchFollowRequests: () => dispatch(fetchFollowRequests()),
-  fetchLists: () => dispatch(fetchLists()),
   fetchFavouriteDomains: () => dispatch(fetchFavouriteDomains()),
   fetchFavouriteTags: () => dispatch(fetchFavouriteTags()),
 });
@@ -95,7 +93,6 @@ class GettingStarted extends ImmutablePureComponent {
     columns: ImmutablePropTypes.list,
     multiColumn: PropTypes.bool,
     fetchFollowRequests: PropTypes.func.isRequired,
-    fetchLists: PropTypes.func.isRequired,
     fetchFavouriteDomains: PropTypes.func.isRequired,
     fetchFavouriteTags: PropTypes.func.isRequired,
     unreadFollowRequests: PropTypes.number,
@@ -106,7 +103,7 @@ class GettingStarted extends ImmutablePureComponent {
   };
 
   componentDidMount () {
-    const { fetchFollowRequests, fetchLists, fetchFavouriteDomains, fetchFavouriteTags, multiColumn } = this.props;
+    const { fetchFollowRequests, fetchFavouriteDomains, fetchFavouriteTags, multiColumn } = this.props;
 
     if (!multiColumn && window.innerWidth >= NAVIGATION_PANEL_BREAKPOINT) {
       this.context.router.history.replace('/timelines/home');
@@ -114,7 +111,6 @@ class GettingStarted extends ImmutablePureComponent {
     }
 
     fetchFollowRequests();
-    fetchLists();
     fetchFavouriteDomains();
     fetchFavouriteTags();
   }
@@ -206,7 +202,7 @@ class GettingStarted extends ImmutablePureComponent {
       <ColumnLink key='circles' icon='user-circle' text={intl.formatMessage(messages.circles)} to='/circles' />,
     );
 
-    height += 48*5;
+    height += 48*6;
 
     if (lists && !lists.isEmpty()) {
       navItems.push(<ColumnSubheading key='header-lists' text={intl.formatMessage(messages.lists_subheading)} />);
