@@ -941,6 +941,7 @@ ActiveRecord::Schema.define(version: 2021_08_08_071221) do
     t.bigint "favourites_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "emoji_reactions_cache", default: "", null: false
     t.index ["status_id"], name: "index_status_stats_on_status_id", unique: true
   end
 
