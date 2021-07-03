@@ -33,7 +33,7 @@ class AccountSearchFilter
   end
 
   def blocking_domain?
-    @preloaded_relations[:domain_blocking_by_domain] ? @preloaded_relations[:domain_blocking_by_domain][target_account.domain] : account.domain_blocking?(target_account.domain)
+    @preloaded_relations[:domain_blocking] ? @preloaded_relations[:domain_blocking][target_account.id] : account.domain_blocking?(target_account.domain)
   end
 
   def muting_account?
