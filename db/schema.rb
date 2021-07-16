@@ -926,6 +926,16 @@ ActiveRecord::Schema.define(version: 2021_08_08_071221) do
     t.index ["status_id"], name: "index_status_capability_tokens_on_status_id"
   end
 
+  create_table "status_expires", force: :cascade do |t|
+    t.bigint "status_id", null: false
+    t.datetime "expires_at", null: false
+    t.integer "action", default: 0, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["expires_at"], name: "index_status_expires_on_expires_at"
+    t.index ["status_id"], name: "index_status_expires_on_status_id", unique: true
+  end
+
   create_table "status_pins", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "status_id", null: false
@@ -964,11 +974,10 @@ ActiveRecord::Schema.define(version: 2021_08_08_071221) do
     t.bigint "application_id"
     t.bigint "in_reply_to_account_id"
     t.bigint "poll_id"
-    t.bigint "quote_id"
     t.datetime "deleted_at"
-    t.datetime "expires_at", default: ::Float::INFINITY, null: false
-    t.integer "expires_action", default: 0, null: false
-    t.index ["account_id", "id", "visibility", "updated_at", "expires_at"], name: "index_statuses_20210627", order: { id: :desc }, where: "(deleted_at IS NULL)"
+    t.bigint "quote_id"
+    t.datetime "expired_at"
+    t.index ["account_id", "id", "visibility", "updated_at"], name: "index_statuses_20210710", order: { id: :desc }, where: "((deleted_at IS NULL) AND (expired_at IS NULL))"
     t.index ["id", "account_id"], name: "index_statuses_local_20190824", order: { id: :desc }, where: "((local OR (uri IS NULL)) AND (deleted_at IS NULL) AND (visibility = 0) AND (reblog_of_id IS NULL) AND ((NOT reply) OR (in_reply_to_account_id = account_id)))"
     t.index ["id", "account_id"], name: "index_statuses_public_20200119", order: { id: :desc }, where: "((deleted_at IS NULL) AND (visibility = 0) AND (reblog_of_id IS NULL) AND ((NOT reply) OR (in_reply_to_account_id = account_id)))"
     t.index ["in_reply_to_account_id"], name: "index_statuses_on_in_reply_to_account_id"
@@ -1219,6 +1228,7 @@ ActiveRecord::Schema.define(version: 2021_08_08_071221) do
   add_foreign_key "session_activations", "oauth_access_tokens", column: "access_token_id", name: "fk_957e5bda89", on_delete: :cascade
   add_foreign_key "session_activations", "users", name: "fk_e5fda67334", on_delete: :cascade
   add_foreign_key "status_capability_tokens", "statuses"
+  add_foreign_key "status_expires", "statuses", on_delete: :cascade
   add_foreign_key "status_pins", "accounts", name: "fk_d4cb435b62", on_delete: :cascade
   add_foreign_key "status_pins", "statuses", on_delete: :cascade
   add_foreign_key "status_stats", "statuses", on_delete: :cascade

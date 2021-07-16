@@ -71,12 +71,12 @@ describe TimeLimit do
 
     context 'invalid time' do
       it 'returns false' do
-        result = TimeLimit.new('exp8d').valid?
+        result = TimeLimit.new('exp431d').valid?
         expect(result).to be false
       end
 
       it 'returns false' do
-        result = TimeLimit.new("exp#{24 * 8}h").valid?
+        result = TimeLimit.new("exp#{24 * 431}h").valid?
         expect(result).to be false
       end
     end

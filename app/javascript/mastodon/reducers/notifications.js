@@ -27,7 +27,7 @@ import {
   APP_UNFOCUS,
 } from '../actions/app';
 import { DOMAIN_BLOCK_SUCCESS } from 'mastodon/actions/domain_blocks';
-import { TIMELINE_DELETE, TIMELINE_DISCONNECT } from '../actions/timelines';
+import { TIMELINE_DELETE, TIMELINE_EXPIRE, TIMELINE_DISCONNECT } from '../actions/timelines';
 import { Map as ImmutableMap, List as ImmutableList } from 'immutable';
 import compareId from '../compare_id';
 

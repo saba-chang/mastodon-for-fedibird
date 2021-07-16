@@ -2,7 +2,7 @@
 
 class TimeLimit
   TIME_LIMIT_RE = /^exp(?<value>\d+)(?<unit>[mhd])$/
-  VALID_DURATION = (1.minute..7.days)
+  VALID_DURATION = (1.minute..430.days)
 
   def self.from_tags(tags, created_at = Time.now.utc)
     return unless tags
@@ -19,7 +19,7 @@ class TimeLimit
     from_tags(status.tags, status.created_at)
   end
 
-  def initialize(name, created_at)
+  def initialize(name, created_at = Time.now.utc)
     @name       = name
     @created_at = created_at
   end

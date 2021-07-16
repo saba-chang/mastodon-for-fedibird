@@ -1323,6 +1323,11 @@ en:
     statuses_cleanup: Automated post deletion
     two_factor_authentication: Two-factor Auth
     webauthn_authentication: Security keys
+  status_expire:
+    validations:
+      expire_in_the_past: It is already past expires. You cannot specify expires before the posting time.
+      invalid_expire_action: Invalid expires_action are specified.
+      invalid_expire_at: Invalid expires are specified.
   statuses:
     attached:
       audio:

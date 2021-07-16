@@ -1,5 +1,5 @@
 import { MODAL_OPEN, MODAL_CLOSE } from '../actions/modal';
-import { TIMELINE_DELETE } from '../actions/timelines';
+import { TIMELINE_DELETE, TIMELINE_EXPIRE } from '../actions/timelines';
 import { COMPOSE_UPLOAD_CHANGE_SUCCESS } from '../actions/compose';
 import { Stack as ImmutableStack, Map as ImmutableMap } from 'immutable';
 
@@ -12,6 +12,7 @@ export default function modal(state = ImmutableStack(), action) {
   case COMPOSE_UPLOAD_CHANGE_SUCCESS:
     return state.getIn([0, 'modalType']) === 'FOCAL_POINT' ? state.shift() : state;
   case TIMELINE_DELETE:
+  case TIMELINE_EXPIRE:
     return state.filterNot((modal) => modal.get('modalProps').statusId === action.id);
   default:
     return state;

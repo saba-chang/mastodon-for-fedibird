@@ -4,6 +4,7 @@ import { connectStream } from '../stream';
 import {
   updateTimeline,
   deleteFromTimelines,
+  expireFromTimelines,
   expandHomeTimeline,
   connectTimeline,
   disconnectTimeline,
@@ -79,6 +80,9 @@ export const connectTimelineStream = (timelineId, channelName, params = {}, opti
           break;
         case 'delete':
           dispatch(deleteFromTimelines(data.payload));
+          break;
+        case 'expire':
+          dispatch(expireFromTimelines(data.payload));
           break;
         case 'notification':
           dispatch(updateNotifications(JSON.parse(data.payload), messages, locale));
