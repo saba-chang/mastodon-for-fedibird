@@ -10,6 +10,7 @@ import { uniq } from '../utils/uniq';
 
 export const TIMELINE_UPDATE  = 'TIMELINE_UPDATE';
 export const TIMELINE_DELETE  = 'TIMELINE_DELETE';
+export const TIMELINE_EXPIRE  = 'TIMELINE_EXPIRE';
 export const TIMELINE_CLEAR   = 'TIMELINE_CLEAR';
 
 export const TIMELINE_EXPAND_REQUEST = 'TIMELINE_EXPAND_REQUEST';
@@ -80,6 +81,22 @@ export function deleteFromTimelines(id) {
 
     dispatch({
       type: TIMELINE_DELETE,
+      id,
+      accountId,
+      references,
+      quotes,
+    });
+  };
+};
+
+export function expireFromTimelines(id) {
+  return (dispatch, getState) => {
+    const accountId  = getState().getIn(['statuses', id, 'account']);
+    const references = getState().get('statuses').filter(status => status.get('reblog') === id).map(status => status.get('id'));
+    const quotes     = getState().get('statuses').filter(status => status.get('quote_id') === id).map(status => status.get('id'));
+
+    dispatch({
+      type: TIMELINE_EXPIRE,
       id,
       accountId,
       references,

@@ -66,10 +66,10 @@ class FeedManager
   # @param [Account] account
   # @param [Status] status
   # @return [Boolean]
-  def unpush_from_home(account, status)
+  def unpush_from_home(account, status, **options)
     return false unless remove_from_feed(:home, account.id, status, account.user&.aggregates_reblogs?)
 
-    redis.publish("timeline:#{account.id}", Oj.dump(event: :delete, payload: status.id.to_s))
+    redis.publish("timeline:#{account.id}", Oj.dump(event: options[:mark_expired] ? :expire : :delete, payload: status.id.to_s))
     true
   end
 
@@ -89,10 +89,10 @@ class FeedManager
   # @param [List] list
   # @param [Status] status
   # @return [Boolean]
-  def unpush_from_list(list, status)
+  def unpush_from_list(list, status, **options)
     return false unless remove_from_feed(:list, list.id, status, list.account.user&.aggregates_reblogs?)
 
-    redis.publish("timeline:list:#{list.id}", Oj.dump(event: :delete, payload: status.id.to_s))
+    redis.publish("timeline:list:#{list.id}", Oj.dump(event: options[:mark_expired] ? :expire : :delete, payload: status.id.to_s))
     true
   end
 

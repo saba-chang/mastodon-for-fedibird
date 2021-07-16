@@ -1,6 +1,7 @@
 import {
   TIMELINE_UPDATE,
   TIMELINE_DELETE,
+  TIMELINE_EXPIRE,
   TIMELINE_CLEAR,
   TIMELINE_EXPAND_SUCCESS,
   TIMELINE_EXPAND_REQUEST,
@@ -107,6 +108,22 @@ const deleteStatus = (state, id, references, exclude_account = null) => {
   return state;
 };
 
+const expireStatus = (state, id, references, exclude_account) => {
+  state.keySeq().forEach(timeline => {
+    if (exclude_account === null || (timeline !== `account:${exclude_account}` && !timeline.startsWith(`account:${exclude_account}:`))) {
+      const helper = list => list.filterNot(item => item === id);
+      state = state.updateIn([timeline, 'items'], helper).updateIn([timeline, 'pendingItems'], helper);
+    }
+  });
+
+  // Remove reblogs of deleted status
+  references.forEach(ref => {
+    state = deleteStatus(state, ref, []);
+  });
+
+  return state;
+};
+
 const clearTimeline = (state, timeline) => {
   return state.set(timeline, initialTimeline);
 };
@@ -153,6 +170,8 @@ export default function timelines(state = initialState, action) {
     return updateTimeline(state, action.timeline, fromJS(action.status), action.usePendingItems);
   case TIMELINE_DELETE:
     return deleteStatus(state, action.id, action.references);
+  case TIMELINE_EXPIRE:
+    return expireStatus(state, action.id, action.references, action.accountId);
   case TIMELINE_CLEAR:
     return clearTimeline(state, action.timeline);
   case ACCOUNT_BLOCK_SUCCESS:

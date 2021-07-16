@@ -1436,6 +1436,11 @@ en:
     min_favs_hint: Doesn't delete any of your posts that has received more than this amount of favourites. Leave blank to delete posts regardless of their number of favourites
     min_reblogs: Keep posts boosted more than
     min_reblogs_hint: Doesn't delete any of your posts that has been boosted more than this number of times. Leave blank to delete posts regardless of their number of boosts
+  status_expire:
+    validations:
+      expire_in_the_past: It is already past expires. You cannot specify expires before the posting time.
+      invalid_expire_at: Invalid expires are specified.
+      invalid_expire_action: Invalid expires_action are specified.
   stream_entries:
     pinned: Pinned post
     reblogged: boosted

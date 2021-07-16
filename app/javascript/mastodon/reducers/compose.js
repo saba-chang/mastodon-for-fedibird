@@ -46,7 +46,7 @@ import {
   COMPOSE_CHANGE_MEDIA_DESCRIPTION,
   COMPOSE_CHANGE_MEDIA_FOCUS,
 } from '../actions/compose';
-import { TIMELINE_DELETE } from '../actions/timelines';
+import { TIMELINE_DELETE, TIMELINE_EXPIRE } from '../actions/timelines';
 import { STORE_HYDRATE } from '../actions/store';
 import { REDRAFT } from '../actions/statuses';
 import { Map as ImmutableMap, List as ImmutableList, OrderedSet as ImmutableOrderedSet, fromJS } from 'immutable';
@@ -476,6 +476,7 @@ export default function compose(state = initialState, action) {
   case COMPOSE_TAG_HISTORY_UPDATE:
     return state.set('tagHistory', fromJS(action.tags));
   case TIMELINE_DELETE:
+  case TIMELINE_EXPIRE:
     if (action.id === state.get('in_reply_to')) {
       return state.set('in_reply_to', null);
     } else {
