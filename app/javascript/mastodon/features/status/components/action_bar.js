@@ -7,7 +7,7 @@ import DropdownMenuContainer from '../../../containers/dropdown_menu_container';
 import { defineMessages, injectIntl } from 'react-intl';
 import { me, isStaff, show_quote_button, enableReaction } from '../../../initial_state';
 import classNames from 'classnames';
-import ReactionPickerDropdown from 'mastodon/containers/reaction_picker_dropdown_container';
+import ReactionPickerDropdownContainer from 'mastodon/containers/reaction_picker_dropdown_container';
 
 const messages = defineMessages({
   delete: { id: 'status.delete', defaultMessage: 'Delete' },
@@ -325,10 +325,22 @@ class ActionBar extends React.PureComponent {
         <div className='detailed-status__button'><IconButton className={classNames({ reblogPrivate })} disabled={!publicStatus && !reblogPrivate || expired} active={status.get('reblogged')} title={reblogTitle} icon='retweet' onClick={this.handleReblogClick} /></div>
         <div className='detailed-status__button'><IconButton className='star-icon' animate active={status.get('favourited')} disabled={!status.get('favourited') && expired} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} /></div>
         {show_quote_button && <div className='detailed-status__button'><IconButton disabled={!publicStatus || expired} title={!publicStatus ? intl.formatMessage(messages.cannot_quote) : intl.formatMessage(messages.quote)} icon='quote-right' onClick={this.handleQuoteClick} /></div>}
-        {enableReaction && <div className='detailed-status__button'><ReactionPickerDropdown disabled={expired} active={status.get('emoji_reactioned')} pressed={status.get('emoji_reactioned')} iconButtonClass='detailed-status__action-bar-button' onPickEmoji={this.handleEmojiPick} onRemoveEmoji={this.handleEmojiRemove} /></div>}
         {shareButton}
         <div className='detailed-status__button'><IconButton className='bookmark-icon' active={status.get('bookmarked')} disabled={!status.get('bookmarked') && expired} title={intl.formatMessage(messages.bookmark)} icon='bookmark' onClick={this.handleBookmarkClick} /></div>
-
+        {enableReaction && <div className='status__action-bar-dropdown'>
+          <ReactionPickerDropdownContainer
+            disabled={expired}
+            active={status.get('emoji_reactioned')}
+            pressed={status.get('emoji_reactioned')}
+            className='status__action-bar-button'
+            status={status}
+            icon='smile-o'
+            size={18}
+            direction='right'
+            onPickEmoji={this.handleEmojiPick}
+            onRemoveEmoji={this.handleEmojiRemove}
+          />
+        </div>}
         <div className='detailed-status__action-bar-dropdown'>
           <DropdownMenuContainer size={18} icon='ellipsis-h' status={status} items={menu} direction='left' title={intl.formatMessage(messages.more)} />
         </div>
