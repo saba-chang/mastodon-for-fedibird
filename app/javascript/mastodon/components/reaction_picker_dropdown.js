@@ -149,7 +149,7 @@ class ReactionPicker extends React.PureComponent {
     const { loading, style, intl, custom_emojis, skinTone, frequentlyUsedEmojis } = this.props;
 
     if (loading) {
-      return <div style={{ width: 299}} />;
+      return <div style={{height: 349,width: 299}} />;
     }
 
     const title = intl.formatMessage(messages.emoji);
