@@ -75,7 +75,7 @@ class PostStatusService < BaseService
     @visibility     = :unlisted if @visibility&.to_sym == :public && @account.silenced?
     @visibility     = :limited if @circle.present?
     @visibility     = :limited if @visibility&.to_sym != :direct && @in_reply_to&.limited_visibility?
-    @scheduled_at   = @options[:scheduled_at]&.to_datetime
+    @scheduled_at   = @options[:scheduled_at].is_a?(Time) ? @options[:scheduled_at] : @options[:scheduled_at]&.to_time
     @scheduled_at   = nil if scheduled_in_the_past?
     if @quote_id.nil? && md = @text.match(/QT:\s*\[\s*(https:\/\/.+?)\s*\]/)
       @quote_id = quote_from_url(md[1])&.id
@@ -149,10 +149,10 @@ class PostStatusService < BaseService
   def validate_expires!
     return if @options[:expires_at].blank?
 
-    @expires_at = @options[:expires_at].is_a?(Time) ? @options[:expires_at] : @options[:expires_at].to_time rescue nil
+    @expires_at = @options[:expires_at].is_a?(Time) ? @options[:expires_at] : @options[:expires_at]&.to_time
 
     raise Mastodon::ValidationError, I18n.t('status_expire.validations.invalid_expire_at') if @expires_at.nil?
-    raise Mastodon::ValidationError, I18n.t('status_expire.validations.expire_in_the_past') if @expires_at <= Time.now.utc + MIN_EXPIRE_OFFSET
+    raise Mastodon::ValidationError, I18n.t('status_expire.validations.expire_in_the_past') if @expires_at <= (@options[:scheduled_at]&.to_time || Time.now.utc) + MIN_EXPIRE_OFFSET
 
     @expires_action = begin
       case @options[:expires_action]&.to_sym
@@ -195,7 +195,7 @@ class PostStatusService < BaseService
   end
 
   def scheduled_in_the_past?
-    @scheduled_at.present? && @scheduled_at <= Time.now.utc + MIN_SCHEDULE_OFFSET
+    @scheduled_at.present? && @scheduled_at <= Time.now.utc + MIN_SCHEDULE_OFFSET - 20.seconds
   end
 
   def bump_potential_friendship!

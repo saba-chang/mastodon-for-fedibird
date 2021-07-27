@@ -9,6 +9,7 @@ class Api::V1::StatusesController < Api::BaseController
   before_action :set_status, only:       [:show, :context]
   before_action :set_thread, only:       [:create]
   before_action :set_circle, only:       [:create]
+  before_action :set_schedule, only:     [:create]
   before_action :set_expire, only:       [:create]
 
   override_rate_limit_headers :create, family: :statuses
@@ -46,7 +47,7 @@ class Api::V1::StatusesController < Api::BaseController
                                          sensitive: status_params[:sensitive],
                                          spoiler_text: status_params[:spoiler_text],
                                          visibility: status_params[:visibility],
-                                         scheduled_at: status_params[:scheduled_at],
+                                         scheduled_at: @scheduled_at,
                                          expires_at: @expires_at,
                                          expires_action: status_params[:expires_action],
                                          application: doorkeeper_token.application,
@@ -99,8 +100,12 @@ class Api::V1::StatusesController < Api::BaseController
     render json: { error: I18n.t('statuses.errors.circle_not_found') }, status: 404
   end
 
+  def set_schedule
+    @scheduled_at = status_params[:scheduled_at]&.to_time || (status_params[:scheduled_in].blank? ? nil : Time.now.utc + status_params[:scheduled_in].to_i.seconds)
+  end
+
   def set_expire
-    @expires_at = status_params[:expires_at] || status_params[:expires_in].blank? ? nil : status_params[:expires_in].to_i.seconds.from_now
+    @expires_at = status_params[:expires_at] || (status_params[:expires_in].blank? ? nil : (@scheduled_at || Time.now.utc) + status_params[:expires_in].to_i.seconds)
   end
 
   def status_params
@@ -111,6 +116,7 @@ class Api::V1::StatusesController < Api::BaseController
       :sensitive,
       :spoiler_text,
       :visibility,
+      :scheduled_in,
       :scheduled_at,
       :quote_id,
       :expires_in,
