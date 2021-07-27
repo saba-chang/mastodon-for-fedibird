@@ -8,11 +8,13 @@ import QuoteIndicatorContainer from '../containers/quote_indicator_container';
 import AutosuggestTextarea from '../../../components/autosuggest_textarea';
 import AutosuggestInput from '../../../components/autosuggest_input';
 import PollButtonContainer from '../containers/poll_button_container';
+import DateTimeButtonContainer from '../containers/datetime_button_container';
 import UploadButtonContainer from '../containers/upload_button_container';
 import { defineMessages, injectIntl } from 'react-intl';
 import SpoilerButtonContainer from '../containers/spoiler_button_container';
 import PrivacyDropdownContainer from '../containers/privacy_dropdown_container';
 import CircleDropdownContainer from '../containers/circle_dropdown_container';
+import DateTimeFormContainer from '../containers/datetime_form_container';
 import EmojiPickerDropdown from '../containers/emoji_picker_dropdown_container';
 import PollFormContainer from '../containers/poll_form_container';
 import UploadFormContainer from '../containers/upload_form_container';
@@ -251,6 +253,7 @@ class ComposeForm extends ImmutablePureComponent {
           <div className='compose-form__modifiers'>
             <UploadFormContainer />
             <PollFormContainer />
+            <DateTimeFormContainer />
           </div>
         </AutosuggestTextarea>
 
@@ -260,6 +263,7 @@ class ComposeForm extends ImmutablePureComponent {
             <PollButtonContainer />
             <PrivacyDropdownContainer />
             <SpoilerButtonContainer />
+            <DateTimeButtonContainer />
           </div>
           <div className='character-counter__wrapper'><CharacterCounter max={500} text={this.getFulltextForCharacterCounting()} /></div>
         </div>

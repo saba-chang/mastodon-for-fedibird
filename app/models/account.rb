@@ -406,7 +406,7 @@ class Account < ApplicationRecord
         account:     account,
         name:        attributes['name'].strip[0, string_limit],
         value:       attributes['value'].strip[0, string_limit],
-        verified_at: attributes['verified_at']&.to_datetime,
+        verified_at: attributes['verified_at']&.to_time,
       )
     end
 

@@ -122,7 +122,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
   end
 
   def process_expiry_params
-    expiry = @object['expiry'].to_time rescue nil
+    expiry = @object['expiry']&.to_time
 
     if expiry.nil?
       @params

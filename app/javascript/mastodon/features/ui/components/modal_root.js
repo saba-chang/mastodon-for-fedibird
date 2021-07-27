@@ -12,6 +12,7 @@ import BoostModal from './boost_modal';
 import AudioModal from './audio_modal';
 import ConfirmationModal from './confirmation_modal';
 import FocalPointModal from './focal_point_modal';
+import CalendarModal from './calendar_modal';
 import {
   MuteModal,
   BlockModal,
@@ -39,6 +40,7 @@ const MODAL_COMPONENTS = {
   'LIST_ADDER': ListAdder,
   'CIRCLE_EDITOR': CircleEditor,
   'CIRCLE_ADDER': CircleAdder,
+  'CALENDAR': () => Promise.resolve({ default: CalendarModal }),
 };
 
 export default class ModalRoot extends React.PureComponent {
@@ -72,7 +74,7 @@ export default class ModalRoot extends React.PureComponent {
   }
 
   renderLoading = modalId => () => {
-    return ['MEDIA', 'VIDEO', 'BOOST', 'CONFIRM', 'ACTIONS'].indexOf(modalId) === -1 ? <ModalLoading /> : null;
+    return ['MEDIA', 'VIDEO', 'BOOST', 'CONFIRM', 'ACTIONS', 'CALENDAR'].indexOf(modalId) === -1 ? <ModalLoading /> : null;
   }
 
   renderError = (props) => {
