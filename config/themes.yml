@@ -17,3 +17,11 @@ instance-ticker-type-3-light: styles/instance-ticker-type-3-light.scss
 missing: styles/missing.scss
 missing-contrast: styles/missing-contrast.scss
 missing-light: styles/missing-light.scss
+mastodon-material: styles/mastodon-material.scss
+mastodon-material-v1-dark: styles/mastodon-material-v1-dark.scss
+mastodon-material-v1-black: styles/mastodon-material-v1-black.scss
+mastodon-material-v2-light: styles/mastodon-material-v2-light.scss
+mastodon-material-v2-dark: styles/mastodon-material-v2-dark.scss
+mastodon-material-mastodon-light: styles/mastodon-material-mastodon-light.scss
+mastodon-material-mastodon-dark: styles/mastodon-material-mastodon-dark.scss
+mastodon-material-google-plus: styles/mastodon-material-google-plus.scss
