@@ -1,0 +1,63 @@
+$name: "Fedibird";
+$plugin-version: "1.0.0";
+$target-version: "1.0.0";
+$website: "";
+@include version-check($name, $plugin-version, $target-version, $website);
+
+.drawer__tab {
+    flex: unset;
+    height: unset;
+    width: unset;
+    text-align: center;
+}
+
+.tabs-bar__wrapper .tabs-bar__link .fa {
+    &.fa-list-ul {
+        &.fa-fw { vertical-align: text-bottom }
+    }
+}
+
+@media screen and (max-width: 600px - 1px) {
+    .tabs-bar__wrapper .tabs-bar__link .fa {
+        &.fa-home,
+        &.fa-list-ul,
+        &.fa-bell,
+        &.fa-users,
+        &.fa-globe,
+        &.fa-search {
+            &.fa-fw { vertical-align: baseline }
+        }
+    }
+
+    .tabs-bar__link span {
+        margin-left: unset;
+    }
+}
+
+@media screen and (max-width: 600px + (285px * 2) + (10px * 2)) {
+    .tabs-bar__wrapper .tabs-bar.bottom-bar {
+        width: 100%;
+    }
+}
+
+.account__action-bar {
+    width: 48px;
+    top: 66px;
+    left: 16px;
+}
+
+.status__action-bar-button {
+    flex: 0 0 auto;
+}
+
+.status__action-bar-dropdown {
+    flex: 0 0 auto;
+    margin-right: 4px;
+}
+
+body.rtl {
+    .status__action-bar-dropdown {
+        margin-right: 0;
+        margin-left: 4px;
+    }
+}
