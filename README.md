@@ -1,61 +1,47 @@
-![Mastodon](https://i.imgur.com/NhZc40l.png)
+Fedibird
 ========
 
-[![GitHub release](https://img.shields.io/github/release/mastodon/mastodon.svg)][releases]
-[![Build Status](https://img.shields.io/circleci/project/github/mastodon/mastodon.svg)][circleci]
-[![Code Climate](https://img.shields.io/codeclimate/maintainability/mastodon/mastodon.svg)][code_climate]
-[![Crowdin](https://d322cqt584bo4o.cloudfront.net/mastodon/localized.svg)][crowdin]
-[![Docker Pulls](https://img.shields.io/docker/pulls/tootsuite/mastodon.svg)][docker]
+[![GitHub release](https://img.shields.io/github/release/fedibird/mastodon.svg)][releases]
+[![Build Status](https://img.shields.io/circleci/project/github/fedibird/mastodon.svg)][circleci]
+[![Code Climate](https://img.shields.io/codeclimate/maintainability/fedibird/mastodon.svg)][code_climate]
 
-[releases]: https://github.com/mastodon/mastodon/releases
-[circleci]: https://circleci.com/gh/mastodon/mastodon
-[code_climate]: https://codeclimate.com/github/mastodon/mastodon
-[crowdin]: https://crowdin.com/project/mastodon
-[docker]: https://hub.docker.com/r/tootsuite/mastodon/
+[releases]: https://github.com/fedibird/mastodon/releases
+[circleci]: https://circleci.com/gh/fedibird/mastodon
+[code_climate]: https://codeclimate.com/github/fedibird/mastodon
 
-Mastodon is a **free, open-source social network server** based on ActivityPub where users can follow friends and discover new ones. On Mastodon, users can publish anything they want: links, pictures, text, video. All Mastodon servers are interoperable as a federated network (users on one server can seamlessly communicate with users from another one, including non-Mastodon software that implements ActivityPub)!
+Fedibird is a **free, open-source social network server** based on ActivityPub, which is a fork of Mastodon arranged with features maintained by Takeshi Umeda (noellabo). For the official version of Mastodon, please visit the [official website](https://joinmastodon.org) and the [upstream repository](https://github.com/mastodon/mastodon).
 
-Click below to **learn more** in a video:
+This document describes the differences from Mastodon. Please also refer to the upstream [README.md](https://github.com/mastodon/mastodon/blob/main/README.md).
 
-[![Screenshot](https://blog.joinmastodon.org/2018/06/why-activitypub-is-the-future/ezgif-2-60f1b00403.gif)][youtube_demo]
+## Mission
 
-[youtube_demo]: https://www.youtube.com/watch?v=IPSbNdBmWKE
+Fedibird's mission is to expand the possibilities of Mastodon and the Fediverse by providing features that the official Mastodon is unable to adopt for various reasons.
 
-## Navigation
+Some features are intentionally left out of the official Mastodon. Some features also bring a different user experience. Some features are simply in an experimental status.
 
-- [Project homepage 🐘](https://joinmastodon.org)
-- [Support the development via Patreon][patreon]
-- [View sponsors](https://joinmastodon.org/sponsors)
-- [Blog](https://blog.joinmastodon.org)
-- [Documentation](https://docs.joinmastodon.org)
-- [Browse Mastodon servers](https://joinmastodon.org/#getting-started)
-- [Browse Mastodon apps](https://joinmastodon.org/apps)
+Fedibird will follow the official Mastodon and provide feedback on the results obtained here.
 
-[patreon]: https://www.patreon.com/mastodon
+## Highlighted features
 
-## Features
+### Subscriptions
 
-<img src="https://docs.joinmastodon.org/elephant.svg" align="right" width="30%" />
+Feeds information of interest to your timeline in a different way than following. Accounts, hashtags, keywords, domains, and more.
 
-**No vendor lock-in: Fully interoperable with any conforming platform**
+### Emoji Reactions
 
-It doesn't have to be Mastodon, whatever implements ActivityPub is part of the social network! [Learn more](https://blog.joinmastodon.org/2018/06/why-activitypub-is-the-future/)
+Emoji reactions are available, compatible with Misskey and Pleroma.
 
-**Real-time, chronological timeline updates**
+### Quotes
 
-See the updates of people you're following appear in real-time in the UI via WebSockets. There's a firehose view as well!
+Allows quotes that are reachable to the original post, not dead copies.
 
-**Media attachments like images and short videos**
+### Groups
 
-Upload and view images and WebM/MP4 videos attached to the updates. Videos with no audio track are treated like GIFs; normal videos are looped - like vines!
+Allows you to create and manage groups, discover groups, a timeline dedicated to groups, and post to groups. You can join a group from your existing Fediverse account.
 
-**Safety and moderation tools**
+### Posts expiry
 
-Private posts, locked accounts, phrase filtering, muting, blocking and all sorts of other features, along with a reporting and moderation system. [Learn more](https://blog.joinmastodon.org/2018/07/cage-the-mastodon/)
-
-**OAuth2 and a straightforward REST API**
-
-Mastodon acts as an OAuth2 provider so 3rd party apps can use the REST and Streaming APIs, resulting in a rich app ecosystem with a lot of choices!
+Posts can be made private when they expire. People who have favorited, bookmarked, or emoji-reacted to your posts will still be able to see them.
 
 ## Deployment
 
@@ -67,26 +53,21 @@ Mastodon acts as an OAuth2 provider so 3rd party apps can use the REST and Strea
 
 **Requirements:**
 
-- **PostgreSQL** 9.5+
+- **PostgreSQL** 10+ (Note: Requires a newer version than Mastodon)
 - **Redis** 4+
 - **Ruby** 2.5+
 - **Node.js** 12+
 
-The repository includes deployment configurations for **Docker and docker-compose**, but also a few specific platforms like **Heroku**, **Scalingo**, and **Nanobox**. The [**stand-alone** installation guide](https://docs.joinmastodon.org/admin/install/) is available in the documentation.
-
-A **Vagrant** configuration is included for development purposes.
-
 ## Contributing
 
-Mastodon is **free, open-source software** licensed under **AGPLv3**.
+Fedibird is **free, open-source software** licensed under **AGPLv3**.
 
-You can open issues for bugs you've found or features you think are missing. You can also submit pull requests to this repository, or submit translations using Crowdin. To get started, take a look at [CONTRIBUTING.md](CONTRIBUTING.md). If your contributions are accepted into Mastodon, you can request to be paid through [our OpenCollective](https://opencollective.com/mastodon).
-
-**IRC channel**: #mastodon on irc.libera.chat
+However, if you are not targeting Fedibird-specific features, please consider contributing to the upstream first; see Mastodon's [CONTRIBUTING.md](CONTRIBUTING.md). If you want to make an issue or pull request to Fedibird, please do so to the default branch of fedibird/mastodon.
 
 ## License
 
-Copyright (C) 2016-2021 Eugen Rochko & other Mastodon contributors (see [AUTHORS.md](AUTHORS.md))
+Copyright (C) 2018-2021 Takeshi Umeda  
+based on code by Mastodon Copyright (C) 2016-2021 Eugen Rochko & other Mastodon contributors (see [AUTHORS.md](AUTHORS.md))
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
