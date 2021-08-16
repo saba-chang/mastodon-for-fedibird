@@ -27,7 +27,7 @@ class AccountSubscribe < ApplicationRecord
   scope :home, -> { where(list_id: nil) }
   scope :list, -> { where.not(list_id: nil) }
   scope :with_reblog, ->(reblog) { where(show_reblogs: true) if reblog }
-  scope :with_media, ->(status) { where(media_only: false) unless status.with_media? }
+  scope :with_media, ->(status) { where(media_only: false) unless status&.with_media? }
 
   after_create :increment_cache_counters
   after_destroy :decrement_cache_counters
