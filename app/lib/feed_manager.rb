@@ -65,6 +65,7 @@ class FeedManager
   # Remove a status from a home feed and send a streaming API update
   # @param [Account] account
   # @param [Status] status
+  # @param [Hash] options
   # @return [Boolean]
   def unpush_from_home(account, status, **options)
     return false unless remove_from_feed(:home, account.id, status, account.user&.aggregates_reblogs?)
@@ -88,6 +89,7 @@ class FeedManager
   # Remove a status from a list feed and send a streaming API update
   # @param [List] list
   # @param [Status] status
+  # @param [Hash] options
   # @return [Boolean]
   def unpush_from_list(list, status, **options)
     return false unless remove_from_feed(:list, list.id, status, list.account.user&.aggregates_reblogs?)
@@ -99,8 +101,9 @@ class FeedManager
   # Fill a home feed with an account's statuses
   # @param [Account] from_account
   # @param [Account] into_account
+  # @param [Hash] options
   # @return [void]
-  def merge_into_home(from_account, into_account, options = {})
+  def merge_into_home(from_account, into_account, **options)
     options = { show_reblogs: true }.merge(options)
 
     if options[:list_id].nil?
@@ -153,8 +156,9 @@ class FeedManager
   # Fill a list feed with an account's statuses
   # @param [Account] from_account
   # @param [List] list
+  # @param [Hash] options
   # @return [void]
-  def merge_into_list(from_account, list, options = {})
+  def merge_into_list(from_account, list, **options)
     merge_into_home(from_account, list.account, options.merge(list_id: list.id))
   end
 

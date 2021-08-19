@@ -5,7 +5,7 @@ class UnmergeWorker
 
   sidekiq_options queue: 'pull'
 
-  def perform(from_account_id, into_account_id, options = {})
+  def perform(from_account_id, into_account_id, **options)
     options.symbolize_keys!
 
     if options[:list_id].nil?
