@@ -3,6 +3,11 @@ name: Crowdin Action
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'app/javascript/mastodon/locales-fedibird/**'
+      - 'config/locales-fedibird/**'
+  schedule:
+    - cron:  '30 5,17 * * *'
 
 jobs:
   synchronize-with-crowdin:
