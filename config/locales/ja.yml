@@ -49,12 +49,6 @@ ja:
       other: 人
     user_count_before: ユーザー数
     what_is_mastodon: Mastodon とは？
-  account_subscribes:
-    edit:
-      title: 編集
-    hint_html: "<strong>アカウントの購読とは何ですか？</strong> 指定したアカウントの公開投稿をホームタイムラインまたはリストに挿入します。サーバが受け取っている投稿（連合タイムライン）が対象です。"
-    new:
-      title: 新規アカウント購読を追加
   accounts:
     choices_html: "%{name} によるおすすめ:"
     endorsements_hint: あなたがフォローしている中でおすすめしたい人をここで紹介できます。
@@ -860,12 +854,6 @@ ja:
     directory: ディレクトリ
     explanation: 関心を軸にユーザーを発見しよう
     explore_mastodon: "%{title}を探索"
-  domain_subscribes:
-    edit:
-      title: 編集
-    hint_html: "<strong>ドメインの購読とは何ですか？</strong> 指定したドメインの公開投稿をホームタイムラインまたはリストに挿入します。サーバが受け取っている投稿（連合タイムライン）が対象です。"
-    new:
-      title: 新規ドメイン購読を追加
   domain_validator:
     invalid_domain: は無効なドメイン名です
   errors:
@@ -901,16 +889,6 @@ ja:
     lists: リスト
     mutes: ミュート
     storage: メディア
-  favourite_domains:
-    add_new: 追加
-    errors:
-      limit: お気に入りドメインの上限に達しました
-    hint_html: "<strong>お気に入りのドメインとは何ですか？</strong> それらはあなた自身のためにだけ使用される、ドメインを活用したブラウジングを助けるためのツールです。すばやくタイムラインを切り替えることができます。"
-  favourite_tags:
-    add_new: 追加
-    errors:
-      limit: お気に入りハッシュタグの上限に達しました
-    hint_html: "<strong>お気に入りのハッシュタグとは何ですか？</strong> それらはあなた自身のためにだけ使用される、ハッシュタグを活用したブラウジングを助けるためのツールです。すばやくタイムラインを切り替えることができます。"
   featured_tags:
     add_new: 追加
     errors:
@@ -934,12 +912,6 @@ ja:
       title: フィルター
     new:
       title: 新規フィルターを追加
-  follow_tags:
-    edit:
-      title: 編集
-    hint_html: "<strong>ハッシュタグのフォローとは何ですか？</strong> それらはあなたがフォローするハッシュタグのコレクションです。サーバが受け取ったハッシュタグ付きの投稿の中から、ここで指定したハッシュタグのついた投稿をホームタイムラインまたはリストに挿入します。"
-    new:
-      title: ハッシュタグのフォローを追加
   footer:
     developers: 開発者向け
     more: さらに…
@@ -971,7 +943,7 @@ ja:
     i_am_html: 私は %{service} の %{username} です。
     identity: 所属
     inactive: 非アクティブ
-    publicize_checkbox: 'そしてこれを投稿します:'
+    publicize_checkbox: 'そしてこれをトゥートします:'
     publicize_toot: '証明されました！私は %{service} の %{username} です: %{url}'
     remove: アカウントから証明書を削除
     removed: アカウントから証明書を削除することに成功しました
@@ -1016,33 +988,9 @@ ja:
       expires_at: 有効期限
       uses: 使用
     title: 新規ユーザーの招待
-  keyword_subscribes:
-    disabled: 無効
-    edit:
-      title: 編集
-    enabled: 有効
-    errors:
-      duplicate: 既に同じ内容が登録されています
-      limit: キーワード購読の登録可能数の上限に達しました
-      regexp: '正規表現に誤りがあります: %{message}'
-    hint_html: "<strong>キーワードの購読とは何ですか？</strong> 指定した単語のいずれか、または正規表現に一致する公開投稿をホームタイムラインまたはリストに挿入します。サーバが受け取っている投稿（連合タイムライン）が対象です。"
-    ignore_block: 無視
-    ignorecase:
-      disabled: 区別
-      enabled: 無視
-    index:
-      delete: 削除
-      title: キーワードの購読
-    new:
-      title: 新規キーワード購読を追加
-    regexp:
-      disabled: キーワード
-      enabled: 正規表現
   lists:
-    add_new: 新しいリストを追加
     errors:
       limit: リストの上限に達しました
-    home: ホーム
   media_attachments:
     validations:
       images_and_video: 既に画像が追加されているため、動画を追加することはできません
@@ -1095,10 +1043,6 @@ ja:
       subject:
         other: "新しい%{count}件の通知 \U0001F418"
       title: 不在の間に…
-    emoji_reaction:
-      body: "%{name} さんに絵文字リアクションされた、あなたの投稿があります:"
-      subject: "%{name} さんに絵文字リアクションされました"
-      title: 新たな絵文字リアクション
     favourite:
       body: "%{name} さんにお気に入り登録された、あなたの投稿があります:"
       subject: "%{name} さんにお気に入りに登録されました"
@@ -1165,7 +1109,6 @@ ja:
       too_few_options: は複数必要です
       too_many_options: は%{max}個までです
   preferences:
-    fedibird_features: Fedibirdの機能
     other: その他
     posting_defaults: デフォルトの投稿設定
     public_timelines: 公開タイムライン
@@ -1179,13 +1122,11 @@ ja:
     follow_selected_followers: 選択したフォロワーをフォロー
     followers: フォロワー
     following: フォロー中
-    interrelationship: 相互関係
     invited: 招待済み
     last_active: 最後の活動
     most_recent: 新着
     moved: 引っ越し済み
     mutual: 相互
-    one_way: 片方向
     primary: 標準
     relationship: 関係性
     remove_selected_domains: 選択したドメインのフォロワーを全て解除
@@ -1257,25 +1198,18 @@ ja:
   settings:
     account: アカウント
     account_settings: アカウント設定
-    account_subscribes: アカウントの購読
     aliases: アカウントエイリアス
     appearance: 外観
     authorized_apps: 認証済みアプリ
     back: Mastodon に戻る
     delete: アカウントの削除
     development: 開発
-    domain_subscribes: ドメインの購読
     edit_profile: プロフィールを編集
     export: データのエクスポート
-    favourite_domains: お気に入りドメイン
-    favourite_tags: お気に入りハッシュタグ
     featured_tags: 注目のハッシュタグ
-    follow_and_subscriptions: フォロー・購読
-    follow_tags: ハッシュタグのフォロー
     identity_proofs: Identity proofs
     import: データのインポート
     import_and_export: インポート・エクスポート
-    keyword_subscribes: キーワードの購読
     migrate: アカウントの引っ越し
     notifications: 通知
     preferences: ユーザー設定
@@ -1283,11 +1217,6 @@ ja:
     relationships: フォロー・フォロワー
     two_factor_authentication: 二段階認証
     webauthn_authentication: セキュリティキー
-  status_expire:
-    validations:
-      expire_in_the_past: 既に公開期限を過ぎています。投稿時間より前の公開期限は指定できません
-      invalid_expire_action: 不正な公開期限時のアクションが指定されています
-      invalid_expire_at: 不正な公開期限が指定されています
   statuses:
     attached:
       audio:
@@ -1302,8 +1231,6 @@ ja:
     disallowed_hashtags:
       other: '許可されていないハッシュタグが含まれています: %{tags}'
     errors:
-      duration_too_long: が長過ぎます
-      duration_too_short: が短過ぎます
       in_reply_not_found: あなたが返信しようとしている投稿は存在しないようです。
     language_detection: 自動検出
     open_in_web: Webで開く
@@ -1327,11 +1254,6 @@ ja:
     title: '%{name}: "%{quote}"'
     visibilities:
       direct: ダイレクト
-      direct_long: 送信した相手のみ閲覧可
-      limited: サークル
-      limited_long: サークルで指定したユーザーのみ閲覧可
-      mutual: 相互フォロー限定
-      mutual_long: 相互フォロー相手にのみ表示されます
       private: フォロワー限定
       private_long: フォロワーにのみ表示されます
       public: 公開

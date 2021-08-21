@@ -53,12 +53,6 @@ en:
       other: users
     user_count_before: Home to
     what_is_mastodon: What is Mastodon?
-  account_subscribes:
-    edit:
-      title: Edit
-    hint_html: "<strong>What are account subscription?</strong> Insert public posts from the specified account into the home or list timeline. Posts received by the server (federated timeline) are targets."
-    new:
-      title: Add new account subscription
   accounts:
     choices_html: "%{name}'s choices:"
     endorsements_hint: You can endorse people you follow from the web interface, and they will show up here.
@@ -882,12 +876,6 @@ en:
     directory: Profile directory
     explanation: Discover users based on their interests
     explore_mastodon: Explore %{title}
-  domain_subscribes:
-    edit:
-      title: Edit
-    hint_html: "<strong>What are domain subscription?</strong> Insert public posts from the specified domain into the home or list timeline. Posts received by the server (federated timeline) are targets."
-    new:
-      title: Add new domain subscription
   domain_validator:
     invalid_domain: is not a valid domain name
   errors:
@@ -923,16 +911,6 @@ en:
     lists: Lists
     mutes: You mute
     storage: Media storage
-  favourite_domains:
-    add_new: Add new
-    errors:
-      limit: You have already favourite the maximum amount of domains
-    hint_html: "<strong>What are favourite domains?</strong> They are used only for you, and are tools to help you browse using domains. You can quickly switch between timelines."
-  favourite_tags:
-    add_new: Add new
-    errors:
-      limit: You have already favourite the maximum amount of hashtags
-    hint_html: "<strong>What are favourite hashtags?</strong> They are used only for you, and are tools to help you browse using hashtags. You can quickly switch between timelines."
   featured_tags:
     add_new: Add new
     errors:
@@ -956,12 +934,6 @@ en:
       title: Filters
     new:
       title: Add new filter
-  follow_tags:
-    edit:
-      title: Edit
-    hint_html: "<strong>What are follow hashtags?</strong> They are a collection of hashtags you follow. From the posts with hashtags received by the server, the one with the hashtag specified here is inserted into the home or list timeline."
-    new:
-      title: Add new hashtag follow
   footer:
     developers: Developers
     more: More…
@@ -994,7 +966,7 @@ en:
     i_am_html: I am %{username} on %{service}.
     identity: Identity
     inactive: Inactive
-    publicize_checkbox: 'And post this:'
+    publicize_checkbox: 'And toot this:'
     publicize_toot: 'It is proven! I am %{username} on %{service}: %{url}'
     remove: Remove proof from account
     removed: Successfully removed proof from account
@@ -1040,33 +1012,9 @@ en:
       expires_at: Expires
       uses: Uses
     title: Invite people
-  keyword_subscribes:
-    disabled: Disabled
-    edit:
-      title: Edit
-    enabled: Enabled
-    errors:
-      duplicate: The same content has already been registered
-      limit: You have reached the maximum number of "Keyword subscribes" that can be registered
-      regexp: 'Regular expression error: %{message}'
-    hint_html: "<strong>What is a keyword subscribes?</strong> Inserts a public post that matches one of the specified words or a regular expression into the home or list timeline. Posts received by the server (federated timeline) are targets."
-    ignore_block: Ignore
-    ignorecase:
-      disabled: Sensitive
-      enabled: Ignore
-    index:
-      delete: Delete
-      title: Keyword subscribe
-    new:
-      title: Add new keyword subscribe
-    regexp:
-      disabled: Keyword
-      enabled: Regex
   lists:
-    add_new: Add new list
     errors:
       limit: You have reached the maximum amount of lists
-    home: Home
   login_activities:
     authentication_methods:
       otp: two-factor authentication app
@@ -1132,10 +1080,6 @@ en:
         one: "1 new notification since your last visit \U0001F418"
         other: "%{count} new notifications since your last visit \U0001F418"
       title: In your absence...
-    emoji_reaction:
-      body: 'Your post was emoji reactioned by %{name}:'
-      subject: "%{name} emoji reactioned your post"
-      title: New emoji reaction
     favourite:
       body: 'Your post was favourited by %{name}:'
       subject: "%{name} favourited your post"
@@ -1203,7 +1147,6 @@ en:
       too_few_options: must have more than one item
       too_many_options: can't contain more than %{max} items
   preferences:
-    fedibird_features: Fedibird features
     other: Other
     posting_defaults: Posting defaults
     public_timelines: Public timelines
@@ -1217,13 +1160,11 @@ en:
     follow_selected_followers: Follow selected followers
     followers: Followers
     following: Following
-    interrelationship: Interrelationship
     invited: Invited
     last_active: Last active
     most_recent: Most recent
     moved: Moved
     mutual: Mutual
-    one_way: One-way
     primary: Primary
     relationship: Relationship
     remove_selected_domains: Remove all followers from the selected domains
@@ -1296,25 +1237,18 @@ en:
   settings:
     account: Account
     account_settings: Account settings
-    account_subscribes: Account subscribes
     aliases: Account aliases
     appearance: Appearance
     authorized_apps: Authorized apps
     back: Back to Mastodon
     delete: Account deletion
     development: Development
-    domain_subscribes: Domain subscribes
     edit_profile: Edit profile
     export: Data export
-    favourite_domains: Favourite domains
-    favourite_tags: Favourite hashtags
     featured_tags: Featured hashtags
-    follow_and_subscriptions: Follows and subscriptions
-    follow_tags: Following hashtags
     identity_proofs: Identity proofs
     import: Import
     import_and_export: Import and export
-    keyword_subscribes: Keyword subscribes
     migrate: Account migration
     notifications: Notifications
     preferences: Preferences
@@ -1323,11 +1257,6 @@ en:
     statuses_cleanup: Automated post deletion
     two_factor_authentication: Two-factor Auth
     webauthn_authentication: Security keys
-  status_expire:
-    validations:
-      expire_in_the_past: It is already past expires. You cannot specify expires before the posting time.
-      invalid_expire_action: Invalid expires_action are specified.
-      invalid_expire_at: Invalid expires are specified.
   statuses:
     attached:
       audio:
@@ -1346,8 +1275,6 @@ en:
       one: 'contained a disallowed hashtag: %{tags}'
       other: 'contained the disallowed hashtags: %{tags}'
     errors:
-      duration_too_long: is too far into the future
-      duration_too_short: is too soon
       in_reply_not_found: The post you are trying to reply to does not appear to exist.
     language_detection: Automatically detect language
     open_in_web: Open in web
@@ -1373,11 +1300,6 @@ en:
     title: '%{name}: "%{quote}"'
     visibilities:
       direct: Direct
-      direct_long: Only show to mentioned users
-      limited: Circle
-      limited_long: Only show to circle users
-      mutual: Mutual
-      mutual_long: Only show to mutual followers
       private: Followers-only
       private_long: Only show to followers
       public: Public
