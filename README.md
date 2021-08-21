@@ -4,10 +4,12 @@ Fedibird
 [![GitHub release](https://img.shields.io/github/release/fedibird/mastodon.svg)][releases]
 [![Build Status](https://img.shields.io/circleci/project/github/fedibird/mastodon.svg)][circleci]
 [![Code Climate](https://img.shields.io/codeclimate/maintainability/fedibird/mastodon.svg)][code_climate]
+[![Crowdin](https://badges.crowdin.net/fedibird/localized.svg)][crowdin]
 
 [releases]: https://github.com/fedibird/mastodon/releases
 [circleci]: https://circleci.com/gh/fedibird/mastodon
 [code_climate]: https://codeclimate.com/github/fedibird/mastodon
+[crowdin]: https://crowdin.com/project/fedibird
 
 Fedibird is a **free, open-source social network server** based on ActivityPub, which is a fork of Mastodon arranged with features maintained by Takeshi Umeda (noellabo). For the official version of Mastodon, please visit the [official website](https://joinmastodon.org) and the [upstream repository](https://github.com/mastodon/mastodon).
 
@@ -37,7 +39,7 @@ Allows quotes that are reachable to the original post, not dead copies.
 
 ### Groups
 
-Allows you to create and manage groups, discover groups, a timeline dedicated to groups, and post to groups. You can join a group from your existing Fediverse account.
+Allows you to create[WIP] and manage[WIP] groups, discover groups, a timeline dedicated to groups, and post to groups. You can join a group from your existing Fediverse account.
 
 ### Posts expiry
 
@@ -63,6 +65,10 @@ Posts can be made private when they expire. People who have favorited, bookmarke
 Fedibird is **free, open-source software** licensed under **AGPLv3**.
 
 However, if you are not targeting Fedibird-specific features, please consider contributing to the upstream first; see Mastodon's [CONTRIBUTING.md](CONTRIBUTING.md). If you want to make an issue or pull request to Fedibird, please do so to the default branch of fedibird/mastodon.
+
+### Translations
+
+The translation specific to Fedibird has been separated from Mastodon. You can submit translations via [Fedibird translation in Crowdin](https://crowdin.com/project/fedibird). They are periodically merged into the codebase.
 
 ## License
 
