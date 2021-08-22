@@ -1,4 +1,3 @@
----
 ja:
   account_subscribes:
     edit:
@@ -28,8 +27,6 @@ ja:
     hint_html: "<strong>ハッシュタグのフォローとは何ですか？</strong> それらはあなたがフォローするハッシュタグのコレクションです。サーバが受け取ったハッシュタグ付きの投稿の中から、ここで指定したハッシュタグのついた投稿をホームタイムラインまたはリストに挿入します。"
     new:
       title: ハッシュタグのフォローを追加
-  identity_proofs:
-    publicize_checkbox: 'そしてこれを投稿します:'
   keyword_subscribes:
     disabled: 無効
     edit:
@@ -57,7 +54,7 @@ ja:
     home: ホーム
   notification_mailer:
     emoji_reaction:
-      body: "%{name} さんに絵文字リアクションされた、あなたの投稿があります:"
+      body: '%{name} さんに絵文字リアクションされた、あなたの投稿があります:'
       subject: "%{name} さんに絵文字リアクションされました"
       title: 新たな絵文字リアクション
   preferences:
