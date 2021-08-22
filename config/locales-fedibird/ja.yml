@@ -1,3 +1,4 @@
+---
 ja:
   account_subscribes:
     edit:
@@ -28,7 +29,7 @@ ja:
     new:
       title: ハッシュタグのフォローを追加
   identity_proofs:
-    publicize_checkbox: "そしてこれを投稿します:"
+    publicize_checkbox: 'そしてこれを投稿します:'
   keyword_subscribes:
     disabled: 無効
     edit:
@@ -37,7 +38,7 @@ ja:
     errors:
       duplicate: 既に同じ内容が登録されています
       limit: キーワード購読の登録可能数の上限に達しました
-      regexp: "正規表現に誤りがあります: %{message}"
+      regexp: '正規表現に誤りがあります: %{message}'
     hint_html: "<strong>キーワードの購読とは何ですか？</strong> 指定した単語のいずれか、または正規表現に一致する公開投稿をホームタイムラインまたはリストに挿入します。サーバが受け取っている投稿（連合タイムライン）が対象です。"
     ignore_block: 無視
     ignorecase:
