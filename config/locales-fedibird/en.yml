@@ -1,3 +1,4 @@
+---
 en:
   account_subscribes:
     edit:
@@ -27,8 +28,6 @@ en:
     hint_html: "<strong>What are follow hashtags?</strong> They are a collection of hashtags you follow. From the posts with hashtags received by the server, the one with the hashtag specified here is inserted into the home or list timeline."
     new:
       title: Add new hashtag follow
-  identity_proofs:
-    publicize_checkbox: "And post this:"
   keyword_subscribes:
     disabled: Disabled
     edit:
@@ -37,7 +36,7 @@ en:
     errors:
       duplicate: The same content has already been registered
       limit: You have reached the maximum number of "Keyword subscribes" that can be registered
-      regexp: "Regular expression error: %{message}"
+      regexp: 'Regular expression error: %{message}'
     hint_html: "<strong>What is a keyword subscribes?</strong> Inserts a public post that matches one of the specified words or a regular expression into the home or list timeline. Posts received by the server (federated timeline) are targets."
     ignore_block: Ignore
     ignorecase:
@@ -56,7 +55,7 @@ en:
     home: Home
   notification_mailer:
     emoji_reaction:
-      body: "Your post was emoji reactioned by %{name}:"
+      body: 'Your post was emoji reactioned by %{name}:'
       subject: "%{name} emoji reactioned your post"
       title: New emoji reaction
   preferences:

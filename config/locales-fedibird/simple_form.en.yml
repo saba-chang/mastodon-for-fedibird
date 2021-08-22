@@ -1,3 +1,4 @@
+---
 en:
   simple_form:
     hints:
@@ -8,7 +9,7 @@ en:
         setting_place_tab_bar_at_bottom: When using a touch device, you can operate tabs within the reach of your fingers.
         setting_show_bookmark_button: When turned off, the bookmark call will be in Mastodon's standard position (in the menu on the action bar)
         setting_show_follow_button_on_timeline: You can easily check the follow status and build a follow list quickly
-        setting_show_followed_by: "The color of the follow button changes according to the follow status (gray: no follow relationship, yellow: followed, blue: following, green: mutual follow)"
+        setting_show_followed_by: 'The color of the follow button changes according to the follow status (gray: no follow relationship, yellow: followed, blue: following, green: mutual follow)'
         setting_show_navigation_panel: Show the navigation panel at the right end of the advanced UI
         setting_show_quote_button: Selects whether to display the button on the action bar. It does not enable/disable the citation function.
         setting_show_reply_tree_button: When turned off, the "Show thread" button will only appear if the poster is replying to themselves in a series of posts
@@ -21,7 +22,7 @@ en:
         media_only: Target only statuses with media attached
       follow_tag:
         media_only: Target only statuses with media attached
-        name: "Specify the name of the hashtag without '#' you want to follow"
+        name: Specify the name of the hashtag without '#' you want to follow
       form_account_subscribe:
         acct: Specify the username@domain of the account you want to subscribe
         media_only: Target only statuses with media attached
