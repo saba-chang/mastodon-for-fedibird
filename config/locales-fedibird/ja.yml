@@ -55,7 +55,7 @@ ja:
     home: ホーム
   notification_mailer:
     emoji_reaction:
-      body: '%{name} さんに絵文字リアクションされた、あなたの投稿があります:'
+      body: "%{name} さんに絵文字リアクションされた、あなたの投稿があります:"
       subject: "%{name} さんに絵文字リアクションされました"
       title: 新たな絵文字リアクション
   preferences:

@@ -22,7 +22,7 @@ ja:
         media_only: メディアが添付された投稿だけを対象にします
       follow_tag:
         media_only: メディアが添付された投稿だけを対象にします
-        name: 'フォローしたいハッシュタグを ''#'' 抜きで指定します'
+        name: フォローしたいハッシュタグを '#' 抜きで指定します
       form_account_subscribe:
         acct: 購読したいアカウントを username@domain 形式で指定します
         media_only: メディアが添付された投稿だけを対象にします
