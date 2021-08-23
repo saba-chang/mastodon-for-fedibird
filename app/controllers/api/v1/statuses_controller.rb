@@ -101,7 +101,7 @@ class Api::V1::StatusesController < Api::BaseController
   end
 
   def set_schedule
-    @scheduled_at = status_params[:scheduled_at]&.to_time || (status_params[:scheduled_in].blank? ? nil : Time.now.utc + status_params[:scheduled_in].to_i.seconds)
+    @scheduled_at = status_params[:scheduled_at]&.to_datetime&.to_time || (status_params[:scheduled_in].blank? ? nil : Time.now.utc + status_params[:scheduled_in].to_i.seconds)
   end
 
   def set_expire
