@@ -47,11 +47,22 @@ locales.forEach(locale => {
 const mergedMessages = messages;
 `;
 
+  const fedibirdSourcePath = '../../app/javascript/mastodon/locales-fedibird/en.json';
   const fedibirdPath = `../../app/javascript/mastodon/locales-fedibird/${locale}.json`;
-  if (fs.existsSync(path.join(outPath, fedibirdPath))) {
-    fedibirdInject = `
-import fedibirdMessages from ${JSON.stringify(fedibirdPath)};
+  fedibirdInject = `
 let mergedMessages = messages;
+`;
+  if (fedibirdSourcePath !== fedibirdPath && fs.existsSync(path.join(outPath, fedibirdSourcePath))) {
+    fedibirdInject += `
+import fedibirdSourceMessages from ${JSON.stringify(fedibirdSourcePath)};
+Object.keys(fedibirdSourceMessages).forEach(function (key) {
+    mergedMessages[key] = fedibirdSourceMessages[key];
+});
+`;
+  }
+  if (fs.existsSync(path.join(outPath, fedibirdPath))) {
+    fedibirdInject += `
+import fedibirdMessages from ${JSON.stringify(fedibirdPath)};
 Object.keys(fedibirdMessages).forEach(function (key) {
     mergedMessages[key] = fedibirdMessages[key];
 });
