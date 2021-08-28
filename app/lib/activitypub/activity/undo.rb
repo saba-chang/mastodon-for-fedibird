@@ -110,7 +110,7 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
   def undo_like
     status = status_from_uri(target_uri)
 
-    return if status.nil? || !status.account.local?
+    return if status.nil?
 
     if shortcode.present?
       emoji_tag = @object['tag'].is_a?(Array) ? @object['tag']&.first : @object['tag']
@@ -121,6 +121,10 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
 
       if @account.reacted?(status, shortcode, emoji)
         status.emoji_reactions.where(account: @account, name: shortcode, custom_emoji: emoji).first&.destroy
+
+        if status.account.local?
+          ActivityPub::RawDistributionWorker.perform_async(Oj.dump(@json), status.account.id, [@account.preferred_inbox_url])
+        end
       else
         delete_later!(object_uri)
       end

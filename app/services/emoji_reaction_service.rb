@@ -5,6 +5,8 @@ class EmojiReactionService < BaseService
   include Payloadable
 
   def call(account, status, emoji)
+    @account = account
+
     emoji_reaction = EmojiReaction.find_by(account_id: account.id, status_id: status.id)
 
     return emoji_reaction unless emoji_reaction.nil?
@@ -27,7 +29,8 @@ class EmojiReactionService < BaseService
     status = emoji_reaction.status
 
     if status.account.local?
-      NotifyService.new.call(status.account, :emoji_reaction, emoji_reaction)
+      NotifyService.new.call(status.account, :emoji_reaction, emoji_reaction) if status.account.local?
+      ActivityPub::RawDistributionWorker.perform_async(build_json(emoji_reaction), status.account.id, [@account.preferred_inbox_url])
     elsif status.account.activitypub?
       ActivityPub::DeliveryWorker.perform_async(build_json(emoji_reaction), emoji_reaction.account_id, status.account.inbox_url)
     end
@@ -40,6 +43,6 @@ class EmojiReactionService < BaseService
   end
 
   def build_json(emoji_reaction)
-    Oj.dump(serialize_payload(emoji_reaction, ActivityPub::EmojiReactionSerializer))
+    Oj.dump(serialize_payload(emoji_reaction, ActivityPub::EmojiReactionSerializer, signer: @account))
   end
 end

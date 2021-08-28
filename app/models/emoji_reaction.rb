@@ -33,6 +33,10 @@ class EmojiReaction < ApplicationRecord
     self.status = status.reblog if status&.reblog?
   end
 
+  def sign?
+    true
+  end
+
   private
 
   def queue_publish
