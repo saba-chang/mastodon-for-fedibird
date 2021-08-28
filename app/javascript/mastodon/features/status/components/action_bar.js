@@ -24,6 +24,7 @@ const messages = defineMessages({
   quote: { id: 'status.quote', defaultMessage: 'Quote' },
   favourite: { id: 'status.favourite', defaultMessage: 'Favourite' },
   bookmark: { id: 'status.bookmark', defaultMessage: 'Bookmark' },
+  emoji_reaction: { id: 'status.emoji_reaction', defaultMessage: 'Emoji reaction' },
   more: { id: 'status.more', defaultMessage: 'More' },
   mute: { id: 'status.mute', defaultMessage: 'Mute @{name}' },
   muteConversation: { id: 'status.mute_conversation', defaultMessage: 'Mute conversation' },
@@ -327,13 +328,15 @@ class ActionBar extends React.PureComponent {
         {show_quote_button && <div className='detailed-status__button'><IconButton disabled={!publicStatus || expired} title={!publicStatus ? intl.formatMessage(messages.cannot_quote) : intl.formatMessage(messages.quote)} icon='quote-right' onClick={this.handleQuoteClick} /></div>}
         {shareButton}
         <div className='detailed-status__button'><IconButton className='bookmark-icon' active={status.get('bookmarked')} disabled={!status.get('bookmarked') && expired} title={intl.formatMessage(messages.bookmark)} icon='bookmark' onClick={this.handleBookmarkClick} /></div>
-        {enableReaction && <div className='status__action-bar-dropdown'>
+
+        {enableReaction && <div className='detailed-status__action-bar-dropdown'>
           <ReactionPickerDropdownContainer
             disabled={expired}
             active={status.get('emoji_reactioned')}
             pressed={status.get('emoji_reactioned')}
             className='status__action-bar-button'
             status={status}
+            title={intl.formatMessage(messages.emoji_reaction)}
             icon='smile-o'
             size={18}
             direction='right'
@@ -341,6 +344,7 @@ class ActionBar extends React.PureComponent {
             onRemoveEmoji={this.handleEmojiRemove}
           />
         </div>}
+
         <div className='detailed-status__action-bar-dropdown'>
           <DropdownMenuContainer size={18} icon='ellipsis-h' status={status} items={menu} direction='left' title={intl.formatMessage(messages.more)} />
         </div>

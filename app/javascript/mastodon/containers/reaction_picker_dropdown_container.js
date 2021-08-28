@@ -101,6 +101,9 @@ const mapDispatchToProps = (dispatch, { status, onPickEmoji, scrollKey }) => ({
       dispatch(isUserTouching() ? openModal('REACTION', {
         status: status,
         onPickEmoji: onPickEmoji,
+        onSkinTone: skinTone => {
+          dispatch(changeSetting(['skinTone'], skinTone));
+        },
         custom_emojis: getCustomEmojis(state),
         skinTone: state.getIn(['settings', 'skinTone']),
         frequentlyUsedEmojis: getFrequentlyUsedEmojis(state),

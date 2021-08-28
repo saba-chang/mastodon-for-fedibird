@@ -269,7 +269,7 @@ class ReactionPickerDropdownMenu extends React.PureComponent {
           // It should not be transformed when mounting because the resulting
           // size will be used to determine the coordinate of the menu by
           // react-overlays
-          <div className={`dropdown-menu ${placement}`} style={{ ...style, opacity: opacity, transform: mounted ? `scale(${scaleX}, ${scaleY})` : null }} ref={this.setRef}>
+          <div className={`dropdown-menu dropdown-menu-reaction ${placement}`} style={{ ...style, opacity: opacity, transform: mounted ? `scale(${scaleX}, ${scaleY})` : null }} ref={this.setRef}>
             <div className={`dropdown-menu__arrow ${placement}`} style={{ left: arrowOffsetLeft, top: arrowOffsetTop }} />
             <ReactionPicker
               custom_emojis={custom_emojis}
@@ -297,6 +297,7 @@ export default class ReactionPickerDropdown extends React.PureComponent {
   static propTypes = {
     icon: PropTypes.string.isRequired,
     size: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
     active: PropTypes.bool,
     pressed: PropTypes.bool,
     iconButtonClass: PropTypes.string,
@@ -393,7 +394,7 @@ export default class ReactionPickerDropdown extends React.PureComponent {
     const open = this.state.id === openDropdownId;
 
     return (
-      <div>
+      <div className='emoji-picker-dropdown'>
         <IconButton
           icon={icon}
           title={title}

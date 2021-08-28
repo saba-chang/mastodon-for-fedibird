@@ -6,14 +6,11 @@ import StatusContent from '../../../components/status_content';
 import Avatar from '../../../components/avatar';
 import RelativeTimestamp from '../../../components/relative_timestamp';
 import DisplayName from '../../../components/display_name';
-import IconButton from '../../../components/icon_button';
-import classNames from 'classnames';
 
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import { supportsPassiveEvents } from 'detect-passive-events';
 import { EmojiPicker as EmojiPickerAsync } from '../util/async-components';
 import { buildCustomEmojis, categoriesFromEmojis } from '../../emoji/emoji';
-import { assetHost } from 'mastodon/utils/config';
 
 const messages = defineMessages({
   emoji: { id: 'emoji_button.label', defaultMessage: 'Insert emoji' },
@@ -188,7 +185,6 @@ class ReactionPicker extends React.PureComponent {
           showPreview={false}
           showSkinTones={false}
           notFound={notFoundFn}
-          autoFocus
           emojiTooltip
           style={{width: '100%'}}
         />
