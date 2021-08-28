@@ -5430,7 +5430,31 @@ a.status-card.compact:hover {
   }
 }
 
-.reaction-modal,
+.dropdown-menu.dropdown-menu-reaction {
+  padding: 0;
+  background-color: $white;
+  .emoji-mart {
+    border-radius: 4px;
+  }
+}
+
+.reaction-modal {
+  max-height: 80vh;
+  max-width: 80vw;
+
+  .status {
+    overflow-y: auto;
+    max-height: 300px;
+    border-bottom-width: 0;
+  }
+
+  .status + .emoji-mart .emoji-mart-bar:first-child {
+    border-top-width: 1px;
+    border-top-left-radius: unset;
+    border-top-right-radius: unset;
+  }
+}
+
 .actions-modal {
   max-height: 80vh;
   max-width: 80vw;

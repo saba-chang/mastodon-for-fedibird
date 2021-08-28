@@ -32,6 +32,7 @@ const messages = defineMessages({
   favourite: { id: 'status.favourite', defaultMessage: 'Favourite' },
   bookmark: { id: 'status.bookmark', defaultMessage: 'Bookmark' },
   removeBookmark: { id: 'status.remove_bookmark', defaultMessage: 'Remove bookmark' },
+  emoji_reaction: { id: 'status.emoji_reaction', defaultMessage: 'Emoji reaction' },
   open: { id: 'status.open', defaultMessage: 'Expand this status' },
   report: { id: 'status.report', defaultMessage: 'Report @{name}' },
   muteConversation: { id: 'status.mute_conversation', defaultMessage: 'Mute conversation' },
@@ -390,6 +391,7 @@ class StatusActionBar extends ImmutablePureComponent {
             className='status__action-bar-button'
             disabled={anonymousAccess}
             status={status}
+            title={intl.formatMessage(messages.emoji_reaction)}
             icon='smile-o'
             size={18}
             direction='right'

@@ -102,6 +102,7 @@
   "privacy.mutual.short": "Mutual-followers-only",
   "quote_indicator.cancel": "Cancel",
   "status.cannot_quote": "This post cannot be quoted",
+  "status.emoji_reaction": "Emoji reaction",
   "status.muted_quote": "Muted quote",
   "status.quote": "Quote",
   "status.show_member_list": "Show member list",
