@@ -44,7 +44,10 @@ class ActivityPub::Activity::Like < ActivityPub::Activity
     EmojiReaction.find_by(account: @account, status: @original_status)&.destroy! 
     reaction = @original_status.emoji_reactions.create!(account: @account, name: shortcode, custom_emoji: emoji, uri: @json['id'])
 
-    NotifyService.new.call(@original_status.account, :emoji_reaction, reaction) if @original_status.account.local?
+    if @original_status.account.local?
+      NotifyService.new.call(@original_status.account, :emoji_reaction, reaction)
+      ActivityPub::RawDistributionWorker.perform_async(Oj.dump(@json), @original_status.account.id, [@account.preferred_inbox_url])
+    end
   rescue Seahorse::Client::NetworkingError
     nil
   end
