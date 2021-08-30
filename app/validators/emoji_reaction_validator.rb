@@ -2,7 +2,7 @@
 
 class EmojiReactionValidator < ActiveModel::Validator
   SUPPORTED_EMOJIS = Oj.load(File.read(Rails.root.join('app', 'javascript', 'mastodon', 'features', 'emoji', 'emoji_map.json'))).keys.freeze
-  LIMIT = 8
+  LIMIT = 20
 
   def validate(reaction)
     return if reaction.name.blank?
