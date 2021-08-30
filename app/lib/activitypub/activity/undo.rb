@@ -63,11 +63,19 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
   end
 
   def try_undo_react
-    @account.emoji_reactions.find_by(uri: object_uri)&.destroy
+    emoji_reactions = @account.emoji_reactions.find_by(uri: object_uri)
+    
+    if emoji_reactions.present?
+      emoji_reactions.destroy
+      true
+    else
+      false
+    end
   end
 
   def try_undo_block
     block = @account.block_relationships.find_by(uri: object_uri)
+
     if block.present?
       UnblockService.new.call(@account, block.target_account)
       true
@@ -108,9 +116,9 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
   end
 
   def undo_like
-    status = status_from_uri(target_uri)
+    @original_status = status_from_uri(target_uri)
 
-    return if status.nil?
+    return if @original_status.nil?
 
     if shortcode.present?
       emoji_tag = @object['tag'].is_a?(Array) ? @object['tag']&.first : @object['tag']
@@ -119,21 +127,36 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
         emoji = CustomEmoji.find_by(shortcode: shortcode, domain: @account.domain)
       end
 
-      if @account.reacted?(status, shortcode, emoji)
-        status.emoji_reactions.where(account: @account, name: shortcode, custom_emoji: emoji).first&.destroy
-
-        if status.account.local?
-          ActivityPub::RawDistributionWorker.perform_async(Oj.dump(@json), status.account.id, [@account.preferred_inbox_url])
+      if @account.reacted?(@original_status, shortcode, emoji)
+        @original_status.emoji_reactions.where(account: @account, name: shortcode, custom_emoji: emoji).first&.destroy
+  
+        if @original_status.account.local?
+          forward_for_undo_emoji_reaction
+          relay_for_undo_emoji_reaction
         end
       else
         delete_later!(object_uri)
       end
     else
-      if @account.favourited?(status)
-        status.favourites.where(account: @account).first&.destroy
+      if @account.favourited?(@original_status)
+        @original_status.favourites.where(account: @account).first&.destroy
       else
         delete_later!(object_uri)
       end
+    end
+  end
+
+  def forward_for_undo_emoji_reaction
+    return unless @json['signature'].present?
+
+    ActivityPub::RawDistributionWorker.perform_async(Oj.dump(@json), @original_status.account.id, [@account.preferred_inbox_url])
+  end
+
+  def relay_for_undo_emoji_reaction
+    return unless @json['signature'].present? && @original_status.public_visibility?
+
+    ActivityPub::DeliveryWorker.push_bulk(Relay.enabled.pluck(:inbox_url)) do |inbox_url|
+      [Oj.dump(@json), @original_status.account.id, inbox_url]
     end
   end
 
