@@ -97,7 +97,7 @@ class Notification < ApplicationRecord
   end
 
   def reblog_visibility
-    type == :reblog ? status.visibility : :public
+    type == :reblog && status.present? ? status.visibility : :public
   end
 
   class << self
