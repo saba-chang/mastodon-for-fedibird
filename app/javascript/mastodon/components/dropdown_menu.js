@@ -180,7 +180,7 @@ export default class Dropdown extends React.PureComponent {
     onOpen: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
     dropdownPlacement: PropTypes.string,
-    openDropdownId: PropTypes.number,
+    openDropdownId: PropTypes.string,
     openedViaKeyboard: PropTypes.bool,
   };
 
@@ -189,7 +189,7 @@ export default class Dropdown extends React.PureComponent {
   };
 
   state = {
-    id: id++,
+    id: `action:${id++}`,
   };
 
   handleClick = ({ target, type }) => {
@@ -211,9 +211,7 @@ export default class Dropdown extends React.PureComponent {
   }
 
   handleMouseDown = () => {
-    if (!this.state.open) {
-      this.activeElement = document.activeElement;
-    }
+    this.activeElement = document.activeElement;
   }
 
   handleButtonKeyDown = (e) => {

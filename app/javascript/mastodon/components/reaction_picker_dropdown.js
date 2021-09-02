@@ -30,7 +30,7 @@ const messages = defineMessages({
 });
 
 const listenerOptions = supportsPassiveEvents ? { passive: true } : false;
-let id = 100;
+let id = 0;
 
 let EmojiPicker, Emoji; // load asynchronously
 
@@ -307,7 +307,7 @@ export default class ReactionPickerDropdown extends React.PureComponent {
     onOpen: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
     dropdownPlacement: PropTypes.string,
-    openDropdownId: PropTypes.number,
+    openDropdownId: PropTypes.string,
     openedViaKeyboard: PropTypes.bool,
     custom_emojis: ImmutablePropTypes.list,
     onPickEmoji: PropTypes.func.isRequired,
@@ -325,7 +325,7 @@ export default class ReactionPickerDropdown extends React.PureComponent {
   };
 
   state = {
-    id: id++,
+    id: `reaction:${id++}`,
   };
 
   handleClick = ({ target, type }) => {
@@ -349,9 +349,7 @@ export default class ReactionPickerDropdown extends React.PureComponent {
   }
 
   handleMouseDown = () => {
-    if (!this.state.open) {
-      this.activeElement = document.activeElement;
-    }
+    this.activeElement = document.activeElement;
   }
 
   handleButtonKeyDown = (e) => {
