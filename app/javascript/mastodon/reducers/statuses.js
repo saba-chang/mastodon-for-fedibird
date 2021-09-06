@@ -23,6 +23,7 @@ import {
 } from '../actions/statuses';
 import { TIMELINE_DELETE } from '../actions/timelines';
 import { STATUS_IMPORT, STATUSES_IMPORT } from '../actions/importer';
+import { me } from '../initial_state';
 import { Map as ImmutableMap, fromJS } from 'immutable';
 
 const importStatus = (state, status) => {
@@ -55,15 +56,15 @@ const updateEmojiReaction = (state, id, name, domain, url, static_url, updater) 
       return emojiReactions.update(idx, emojiReactions => updater(emojiReactions));
     }
 
-    return emojiReactions.push(updater(fromJS({ name, domain, url, static_url, count: 0 })));
+    return emojiReactions.push(updater(fromJS({ name, domain, url, static_url, count: 0, account_ids: [] })));
   });
 });
 
 const updateEmojiReactionCount = (state, emojiReaction) => updateEmojiReaction(state, emojiReaction.status_id, emojiReaction.name, emojiReaction.domain, emojiReaction.url, emojiReaction.static_url, x => x.set('count', emojiReaction.count));
 
-const addEmojiReaction = (state, id, name, domain, url, static_url) => updateEmojiReaction(state, id, name, domain, url, static_url, x => x.set('me', true).update('count', y => y + 1));
+const addEmojiReaction = (state, id, name, domain, url, static_url) => updateEmojiReaction(state, id, name, domain, url, static_url, x => x.update('count', y => y + 1).update('account_ids', z => z.push(me)));
 
-const removeEmojiReaction = (state, id, name, domain, url, static_url) => updateEmojiReaction(state, id, name, domain, url, static_url, x => x.set('me', false).update('count', y => y - 1));
+const removeEmojiReaction = (state, id, name, domain, url, static_url) => updateEmojiReaction(state, id, name, domain, url, static_url, x => x.update('count', y => y - 1).update('account_ids', z => z.deleteIn([me])));
 
 const initialState = ImmutableMap();
 

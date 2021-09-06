@@ -1,5 +1,6 @@
 import api from '../api';
 import { importFetchedAccounts, importFetchedStatus } from './importer';
+import { me } from '../initial_state';
 
 export const REBLOG_REQUEST = 'REBLOG_REQUEST';
 export const REBLOG_SUCCESS = 'REBLOG_SUCCESS';
@@ -552,7 +553,7 @@ export function emojiReactionFail(status, name, domain, url, static_url, error) 
 };
 
 const findMyEmojiReaction = (status) => {
-  return status.get('emoji_reactions').find(emoji_reaction => emoji_reaction.get('me') === true);
+  return status.get('emoji_reactioned') && status.get('emoji_reactions').find(emoji_reaction => emoji_reaction.get('account_ids').includes(me));
 };
 
 export function removeEmojiReaction(status) {
