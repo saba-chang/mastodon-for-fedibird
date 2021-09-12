@@ -50,7 +50,7 @@ const deleteStatus = (state, id, references, quotes) => {
 
 const updateEmojiReaction = (state, id, name, domain, url, static_url, updater) => state.update(id, status => {
   return status.update('emoji_reactions', emojiReactions => {
-    const idx = emojiReactions.findIndex(emojiReaction => !domain && !emojiReaction.get('domain') && emojiReaction.get('name') === name || emojiReaction.get('name') === name && emojiReaction.get('domain', null) === domain);
+    const idx = emojiReactions.findIndex(emojiReaction => emojiReaction.get('name') === name);
 
     if (idx > -1) {
       return emojiReactions.update(idx, emojiReactions => updater(emojiReactions));
@@ -60,11 +60,11 @@ const updateEmojiReaction = (state, id, name, domain, url, static_url, updater) 
   });
 });
 
-const updateEmojiReactionCount = (state, emojiReaction) => updateEmojiReaction(state, emojiReaction.status_id, emojiReaction.name, emojiReaction.domain, emojiReaction.url, emojiReaction.static_url, x => x.set('count', emojiReaction.count));
+const updateEmojiReactionCount = (state, emojiReaction) => updateEmojiReaction(state, emojiReaction.status_id, emojiReaction.name, emojiReaction.domain, emojiReaction.url, emojiReaction.static_url, x => x.set('count', emojiReaction.count).set('account_ids', emojiReaction.account_ids));
 
 const addEmojiReaction = (state, id, name, domain, url, static_url) => updateEmojiReaction(state, id, name, domain, url, static_url, x => x.update('count', y => y + 1).update('account_ids', z => z.push(me)));
 
-const removeEmojiReaction = (state, id, name, domain, url, static_url) => updateEmojiReaction(state, id, name, domain, url, static_url, x => x.update('count', y => y - 1).update('account_ids', z => z.deleteIn([me])));
+const removeEmojiReaction = (state, id, name, domain, url, static_url) => updateEmojiReaction(state, id, name, domain, url, static_url, x => x.update('count', y => y - 1).update('account_ids', z => z.filter(id => id != me)));
 
 const initialState = ImmutableMap();
 

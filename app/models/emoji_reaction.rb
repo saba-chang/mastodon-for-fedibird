@@ -40,7 +40,7 @@ class EmojiReaction < ApplicationRecord
   private
 
   def queue_publish
-    PublishEmojiReactionWorker.perform_async(status_id, name, custom_emoji_id) unless status.destroyed?
+    PublishEmojiReactionWorker.perform_async(status_id, name) unless status.destroyed?
   end
 
   def refresh_status
