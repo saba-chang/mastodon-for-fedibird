@@ -1,6 +1,6 @@
 import api, { getLinks } from '../api';
 import IntlMessageFormat from 'intl-messageformat';
-import { fetchRelationships } from './accounts';
+import { fetchRelationships, fetchAccounts, fetchAccountsFromStatuses } from './accounts';
 import {
   importFetchedAccount,
   importFetchedAccounts,
@@ -85,6 +85,7 @@ export function updateNotifications(notification, intlMessages, intlLocale) {
 
       if (notification.status) {
         dispatch(importFetchedStatus(notification.status));
+        dispatch(fetchAccounts(notification.status.emoji_reactions.map(emoji_reaction => emoji_reaction.account_ids).flat()));
       }
 
       dispatch({
@@ -169,6 +170,7 @@ export function expandNotifications({ maxId } = {}, done = noOp) {
 
       dispatch(expandNotificationsSuccess(response.data, next ? next.uri : null, isLoadingMore, isLoadingRecent, isLoadingRecent && preferPendingItems));
       fetchRelatedRelationships(dispatch, response.data);
+      dispatch(fetchAccountsFromStatuses(response.data.map(item => item.status).filter(status => !!status)));
       dispatch(submitMarkers());
     }).catch(error => {
       dispatch(expandNotificationsFail(error, isLoadingMore));

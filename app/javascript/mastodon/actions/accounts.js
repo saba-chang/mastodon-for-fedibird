@@ -1,9 +1,14 @@
 import api, { getLinks } from '../api';
 import { importFetchedAccount, importFetchedAccounts } from './importer';
+import { uniq } from '../utils/uniq';
 
 export const ACCOUNT_FETCH_REQUEST = 'ACCOUNT_FETCH_REQUEST';
 export const ACCOUNT_FETCH_SUCCESS = 'ACCOUNT_FETCH_SUCCESS';
 export const ACCOUNT_FETCH_FAIL    = 'ACCOUNT_FETCH_FAIL';
+
+export const ACCOUNTS_FETCH_REQUEST = 'ACCOUNTS_FETCH_REQUEST';
+export const ACCOUNTS_FETCH_SUCCESS = 'ACCOUNTS_FETCH_SUCCESS';
+export const ACCOUNTS_FETCH_FAIL    = 'ACCOUNTS_FETCH_FAIL';
 
 export const ACCOUNT_FOLLOW_REQUEST = 'ACCOUNT_FOLLOW_REQUEST';
 export const ACCOUNT_FOLLOW_SUCCESS = 'ACCOUNT_FOLLOW_SUCCESS';
@@ -122,6 +127,65 @@ export function fetchAccountFail(id, error) {
     id,
     error,
     skipAlert: true,
+  };
+};
+
+export function fetchAccountsFromStatus(status) {
+  return fetchAccountsFromStatuses([status]);
+};
+
+export function fetchAccountsFromStatuses(statuses) {
+  return fetchAccounts(
+    uniq(
+      statuses
+      .flatMap(item => item.emoji_reactions)
+      .flatMap(emoji_reaction => emoji_reaction.account_ids)
+    )
+  );
+};
+
+export function fetchAccounts(accountIds) {
+  return (dispatch, getState) => {
+    dispatch(fetchRelationships(accountIds));
+
+    const loadedAccounts = getState().get('accounts', new Map());
+    const newAccountIds = Array.from(new Set(accountIds)).filter(id => loadedAccounts.get(id, null) === null);
+
+    if (newAccountIds.length === 0) {
+      return;
+    }
+
+    dispatch(fetchAccountsRequest(accountIds));
+
+    api(getState).get(`/api/v1/accounts?${newAccountIds.map(id => `id[]=${id}`).join('&')}`).then(response => {
+      dispatch(importFetchedAccounts(response.data));
+      dispatch(fetchAccountsSuccess());
+    }).catch(error => {
+      dispatch(fetchAccountsFail(accountIds, error));
+    });
+  };
+};
+
+export function fetchAccountsRequest(accountIds) {
+  return {
+    type: ACCOUNTS_FETCH_REQUEST,
+    accountIds,
+  };
+};
+
+export function fetchAccountsSuccess() {
+  return {
+    type: ACCOUNTS_FETCH_SUCCESS,
+  };
+};
+
+export function fetchAccountsFail(accountIds, error) {
+  return {
+    type: ACCOUNTS_FETCH_FAIL,
+    accountIds,
+    error,
+    skipAlert: true,
+    skipNotFound: true,
   };
 };
 
@@ -679,6 +743,24 @@ export function expandSubscribeFail(id, error) {
     id,
     error,
   };
+};
+
+export function fetchRelationshipsFromStatus(status) {
+  return fetchRelationshipsFromStatuses([status]);
+};
+
+export function fetchRelationshipsFromStatuses(statuses) {
+  return fetchRelationships(
+    uniq(
+      statuses
+      .map(status => status.reblog ? status.reblog.account.id : status.account.id)
+      .concat(
+        statuses
+        .map(status => status.quote ? status.quote.account.id : null)
+      )
+      .filter(e => !!e)
+    )
+  );
 };
 
 export function fetchRelationships(accountIds) {

@@ -1,4 +1,4 @@
-import { fetchRelationships } from './accounts';
+import { fetchRelationshipsFromStatus, fetchAccountsFromStatus, fetchRelationshipsFromStatuses, fetchAccountsFromStatuses } from './accounts';
 import { importFetchedStatus, importFetchedStatuses } from './importer';
 import { submitMarkers } from './markers';
 import api, { getLinks } from 'mastodon/api';
@@ -43,7 +43,8 @@ export function updateTimeline(timeline, status, accept) {
     }
 
     dispatch(importFetchedStatus(status));
-    dispatch(fetchRelationships([status.reblog ? status.reblog.account.id : status.account.id, status.quote ? status.quote.account.id : null].filter(function(e){return e})));
+    dispatch(fetchRelationshipsFromStatus(status));
+    dispatch(fetchAccountsFromStatus(status));
 
     const insertTimeline = timeline => {
       dispatch({
@@ -146,9 +147,11 @@ export function expandTimeline(timelineId, path, params = {}, done = noOp) {
 
     api(getState).get(path, { params }).then(response => {
       const next = getLinks(response).refs.find(link => link.rel === 'next');
-      dispatch(importFetchedStatuses(response.data));
-      dispatch(fetchRelationships(uniq(response.data.map(item => item.reblog ? item.reblog.account.id : item.account.id).concat(response.data.map(item => item.quote ? item.quote.account.id : null)).filter(function(e){return e}))));
-      dispatch(expandTimelineSuccess(timelineId, response.data, next ? next.uri : null, response.status === 206, isLoadingRecent, isLoadingMore, isLoadingRecent && preferPendingItems));
+      const statuses = response.data;
+      dispatch(importFetchedStatuses(statuses));
+      dispatch(fetchRelationshipsFromStatuses(statuses));
+      dispatch(fetchAccountsFromStatuses(statuses));
+      dispatch(expandTimelineSuccess(timelineId, statuses, next ? next.uri : null, response.status === 206, isLoadingRecent, isLoadingMore, isLoadingRecent && preferPendingItems));
 
       if (timelineId === 'home') {
         dispatch(submitMarkers());

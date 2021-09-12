@@ -1,4 +1,4 @@
-import { fetchRelationships } from './accounts';
+import { fetchRelationshipsFromStatuses, fetchAccountsFromStatuses } from './accounts';
 import api, { getLinks } from '../api';
 import { importFetchedStatuses } from './importer';
 import { uniq } from '../utils/uniq';
@@ -21,9 +21,11 @@ export function fetchBookmarkedStatuses() {
 
     api(getState).get('/api/v1/bookmarks').then(response => {
       const next = getLinks(response).refs.find(link => link.rel === 'next');
-      dispatch(importFetchedStatuses(response.data));
-      dispatch(fetchRelationships(uniq(response.data.map(item => item.reblog ? item.reblog.account.id : item.account.id))));
-      dispatch(fetchBookmarkedStatusesSuccess(response.data, next ? next.uri : null));
+      const statuses = response.data;
+      dispatch(importFetchedStatuses(statuses));
+      dispatch(fetchRelationshipsFromStatuses(statuses));
+      dispatch(fetchAccountsFromStatuses(statuses));
+      dispatch(fetchBookmarkedStatusesSuccess(statuses, next ? next.uri : null));
     }).catch(error => {
       dispatch(fetchBookmarkedStatusesFail(error));
     });
@@ -63,9 +65,11 @@ export function expandBookmarkedStatuses() {
 
     api(getState).get(url).then(response => {
       const next = getLinks(response).refs.find(link => link.rel === 'next');
-      dispatch(importFetchedStatuses(response.data));
-      dispatch(fetchRelationships(uniq(response.data.map(item => item.reblog ? item.reblog.account.id : item.account.id))));
-      dispatch(expandBookmarkedStatusesSuccess(response.data, next ? next.uri : null));
+      const statuses = response.data;
+      dispatch(importFetchedStatuses(statuses));
+      dispatch(fetchRelationshipsFromStatuses(statuses));
+      dispatch(fetchAccountsFromStatuses(statuses));
+      dispatch(expandBookmarkedStatusesSuccess(statuses, next ? next.uri : null));
     }).catch(error => {
       dispatch(expandBookmarkedStatusesFail(error));
     });

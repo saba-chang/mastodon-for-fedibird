@@ -1,5 +1,5 @@
 import api from '../api';
-import { fetchRelationships } from './accounts';
+import { fetchRelationships, fetchAccountsFromStatuses } from './accounts';
 import { importFetchedAccounts, importFetchedStatuses } from './importer';
 
 export const SEARCH_CHANGE = 'SEARCH_CHANGE';
@@ -51,6 +51,7 @@ export function submitSearch() {
 
       if (response.data.statuses) {
         dispatch(importFetchedStatuses(response.data.statuses));
+        dispatch(fetchAccountsFromStatuses(response.data.statuses));
       }
 
       dispatch(fetchSearchSuccess(response.data, value));
@@ -101,6 +102,7 @@ export const expandSearch = type => (dispatch, getState) => {
 
     if (data.statuses) {
       dispatch(importFetchedStatuses(data.statuses));
+      dispatch(fetchAccountsFromStatuses(data.statuses));
     }
 
     dispatch(expandSearchSuccess(data, value, type));

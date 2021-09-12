@@ -1,4 +1,4 @@
-import { fetchRelationships } from './accounts';
+import { fetchRelationshipsFromStatuses, fetchAccountsFromStatuses } from './accounts';
 import api, { getLinks } from '../api';
 import { importFetchedStatuses } from './importer';
 import { uniq } from '../utils/uniq';
@@ -21,9 +21,11 @@ export function fetchFavouritedStatuses() {
 
     api(getState).get('/api/v1/favourites').then(response => {
       const next = getLinks(response).refs.find(link => link.rel === 'next');
-      dispatch(importFetchedStatuses(response.data));
-      dispatch(fetchRelationships(uniq(response.data.map(item => item.reblog ? item.reblog.account.id : item.account.id))));
-      dispatch(fetchFavouritedStatusesSuccess(response.data, next ? next.uri : null));
+      const statuses = response.data;
+      dispatch(importFetchedStatuses(statuses));
+      dispatch(fetchRelationshipsFromStatuses(statuses));
+      dispatch(fetchAccountsFromStatuses(statuses));
+      dispatch(fetchFavouritedStatusesSuccess(statuses, next ? next.uri : null));
     }).catch(error => {
       dispatch(fetchFavouritedStatusesFail(error));
     });
@@ -66,9 +68,11 @@ export function expandFavouritedStatuses() {
 
     api(getState).get(url).then(response => {
       const next = getLinks(response).refs.find(link => link.rel === 'next');
-      dispatch(importFetchedStatuses(response.data));
-      dispatch(fetchRelationships(uniq(response.data.map(item => item.reblog ? item.reblog.account.id : item.account.id))));
-      dispatch(expandFavouritedStatusesSuccess(response.data, next ? next.uri : null));
+      const statuses = response.data;
+      dispatch(importFetchedStatuses(statuses));
+      dispatch(fetchRelationshipsFromStatuses(statuses));
+      dispatch(fetchAccountsFromStatuses(statuses));
+      dispatch(expandFavouritedStatusesSuccess(statuses, next ? next.uri : null));
     }).catch(error => {
       dispatch(expandFavouritedStatusesFail(error));
     });
