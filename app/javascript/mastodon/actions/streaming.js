@@ -9,6 +9,7 @@ import {
   connectTimeline,
   disconnectTimeline,
 } from './timelines';
+import { fetchRelationships, fetchAccounts } from './accounts';
 import { getHomeVisibilities } from 'mastodon/selectors';
 import { updateNotifications, expandNotifications } from './notifications';
 import { updateConversations } from './conversations';
@@ -94,7 +95,10 @@ export const connectTimelineStream = (timelineId, channelName, params = {}, opti
           dispatch(fetchFilters());
           break;
         case 'emoji_reaction':
-          dispatch(updateEmojiReaction(JSON.parse(data.payload)));
+          const emojiReaction = JSON.parse(data.payload);
+          dispatch(fetchRelationships(emojiReaction.account_ids));
+          dispatch(fetchAccounts(emojiReaction.account_ids));
+          dispatch(updateEmojiReaction(emojiReaction));
           break;
         case 'announcement':
           dispatch(updateAnnouncements(JSON.parse(data.payload)));

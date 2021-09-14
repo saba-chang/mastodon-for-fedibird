@@ -119,6 +119,11 @@ body.rtl {
     float: right;
   }
 
+  .account-popup__avatar-wrapper {
+    padding-left: 4px;
+    padding-right: 0;
+  }
+  
   .column-header__back-button {
     padding-left: 5px;
     padding-right: 0;

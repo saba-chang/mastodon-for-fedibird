@@ -138,8 +138,13 @@ export function fetchAccountsFromStatuses(statuses) {
   return fetchAccounts(
     uniq(
       statuses
-      .flatMap(item => item.emoji_reactions)
-      .flatMap(emoji_reaction => emoji_reaction.account_ids)
+      .flatMap(status => status.reblog ? status.reblog.emoji_reactions : status.emoji_reactions)
+      .concat(
+        statuses
+        .flatMap(status => status.quote ? status.quote.emoji_reactions : null)
+      )
+      .flatMap(emoji_reaction => emoji_reaction?.account_ids)
+      .filter(e => !!e)
     )
   );
 };

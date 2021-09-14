@@ -34,6 +34,7 @@ const messages = defineMessages({
   removeBookmark: { id: 'status.remove_bookmark', defaultMessage: 'Remove bookmark' },
   emoji_reaction: { id: 'status.emoji_reaction', defaultMessage: 'Emoji reaction' },
   open: { id: 'status.open', defaultMessage: 'Expand this status' },
+  open_emoji_reactions: { id: 'status.open_emoji_reactions', defaultMessage: 'Open emoji reactions list to this post' },
   report: { id: 'status.report', defaultMessage: 'Report @{name}' },
   muteConversation: { id: 'status.mute_conversation', defaultMessage: 'Mute conversation' },
   unmuteConversation: { id: 'status.unmute_conversation', defaultMessage: 'Unmute conversation' },
@@ -224,6 +225,10 @@ class StatusActionBar extends ImmutablePureComponent {
     this.props.onEmbed(this.props.status);
   }
 
+  handleEmojiReactions = () => {
+    this.context.router.history.push(`/statuses/${this.props.status.get('id')}/emoji_reactions`);
+  }
+
   handleReport = () => {
     this.props.onReport(this.props.status);
   }
@@ -279,6 +284,8 @@ class StatusActionBar extends ImmutablePureComponent {
       menu.push({ text: intl.formatMessage(messages.copy), action: this.handleCopy });
       menu.push({ text: intl.formatMessage(messages.embed), action: this.handleEmbed });
     }
+
+    menu.push({ text: intl.formatMessage(messages.open_emoji_reactions), action: this.handleEmojiReactions });
 
     menu.push(null);
 

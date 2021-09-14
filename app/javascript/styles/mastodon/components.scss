@@ -1471,6 +1471,56 @@
   }
 }
 
+.account-popup {
+  max-width: min(100vw, 600px);
+
+  &.dropdown-menu {
+    background: $white;
+  }
+
+  &__arrow.dropdown-menu__arrow {
+    &.left {
+      border-left-color: $white;
+    }
+  
+    &.top {
+      border-top-color: $white;
+    }
+  
+    &.bottom {
+      border-bottom-color: $white;
+    }
+  
+    &.right {
+      border-right-color: $white;
+    }
+  }
+
+  &__wapper {
+    padding: 2px 6px;
+    white-space: nowrap;
+    overflow-x: hidden;
+  }
+
+  &__avatar-wrapper,
+  &__display-name__html {
+    display: inline-block;
+    vertical-align: bottom;
+    height: 20px;
+  }
+
+  &__avatar-wrapper {
+    padding-left: 0;
+    padding-right: 4px;
+  }
+
+  &__display-name__html {
+    color: $black;
+    text-decoration: none;
+    font-size: 13px;
+  }
+}
+
 .follow-recommendations-account {
   .icon-button {
     color: $ui-primary-color;
@@ -7841,6 +7891,11 @@ noscript {
       padding: 0;
     }
   }
+}
+
+.emoji-reactions-bar.reactions-bar {
+  margin-left: 0;
+  width: auto;
 }
 
 .notification,

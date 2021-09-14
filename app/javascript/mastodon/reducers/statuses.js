@@ -24,7 +24,7 @@ import {
 import { TIMELINE_DELETE } from '../actions/timelines';
 import { STATUS_IMPORT, STATUSES_IMPORT } from '../actions/importer';
 import { me } from '../initial_state';
-import { Map as ImmutableMap, fromJS } from 'immutable';
+import { Map as ImmutableMap, List, fromJS } from 'immutable';
 
 const importStatus = (state, status) => {
   if (state.getIn([status.in_reply_to_id, 'replies_count'], null) == 0) {
@@ -60,7 +60,7 @@ const updateEmojiReaction = (state, id, name, domain, url, static_url, updater) 
   });
 });
 
-const updateEmojiReactionCount = (state, emojiReaction) => updateEmojiReaction(state, emojiReaction.status_id, emojiReaction.name, emojiReaction.domain, emojiReaction.url, emojiReaction.static_url, x => x.set('count', emojiReaction.count).set('account_ids', emojiReaction.account_ids));
+const updateEmojiReactionCount = (state, emojiReaction) => updateEmojiReaction(state, emojiReaction.status_id, emojiReaction.name, emojiReaction.domain, emojiReaction.url, emojiReaction.static_url, x => x.set('count', emojiReaction.count).set('account_ids', new List(emojiReaction.account_ids)));
 
 const addEmojiReaction = (state, id, name, domain, url, static_url) => updateEmojiReaction(state, id, name, domain, url, static_url, x => x.update('count', y => y + 1).update('account_ids', z => z.push(me)));
 
