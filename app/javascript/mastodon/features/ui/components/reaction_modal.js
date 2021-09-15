@@ -11,6 +11,7 @@ import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import { supportsPassiveEvents } from 'detect-passive-events';
 import { EmojiPicker as EmojiPickerAsync } from '../util/async-components';
 import { buildCustomEmojis, categoriesFromEmojis } from '../../emoji/emoji';
+import { assetHost } from 'mastodon/utils/config';
 
 const messages = defineMessages({
   emoji: { id: 'emoji_button.label', defaultMessage: 'Insert emoji' },
@@ -32,6 +33,8 @@ const messages = defineMessages({
 let EmojiPicker, Emoji; // load asynchronously
 
 const listenerOptions = supportsPassiveEvents ? { passive: true } : false;
+
+const backgroundImageFn = () => `${assetHost}/emoji/sheet_13.png`;
 
 const notFoundFn = () => (
   <div className='emoji-mart-no-results'>
