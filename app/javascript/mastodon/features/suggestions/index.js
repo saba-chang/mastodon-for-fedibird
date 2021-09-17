@@ -43,13 +43,13 @@ class Suggestions extends ImmutablePureComponent {
   fetchSuggestions = () => {
     const { dispatch } = this.props;
 
-    dispatch(fetchSuggestions());
+    dispatch(fetchSuggestions(true));
   }
 
   dismissSuggestion = account => {
     const { dispatch } = this.props;
 
-    dispatch(dismissSuggestion(account.get('id')));
+    dispatch(dismissSuggestion(account.get('id'), true));
   }
 
   handlePin = () => {

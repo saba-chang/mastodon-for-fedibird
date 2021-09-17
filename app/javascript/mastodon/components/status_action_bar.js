@@ -34,7 +34,9 @@ const messages = defineMessages({
   removeBookmark: { id: 'status.remove_bookmark', defaultMessage: 'Remove bookmark' },
   emoji_reaction: { id: 'status.emoji_reaction', defaultMessage: 'Emoji reaction' },
   open: { id: 'status.open', defaultMessage: 'Expand this status' },
-  open_emoji_reactions: { id: 'status.open_emoji_reactions', defaultMessage: 'Open emoji reactions list to this post' },
+  show_reblogs: { id: 'status.show_reblogs', defaultMessage: 'Show boosted users' },
+  show_favourites: { id: 'status.show_favourites', defaultMessage: 'Show favourited users' },
+  show_emoji_reactions: { id: 'status.show_emoji_reactions', defaultMessage: 'Show emoji reactioned users' },
   report: { id: 'status.report', defaultMessage: 'Report @{name}' },
   muteConversation: { id: 'status.mute_conversation', defaultMessage: 'Mute conversation' },
   unmuteConversation: { id: 'status.unmute_conversation', defaultMessage: 'Unmute conversation' },
@@ -225,10 +227,6 @@ class StatusActionBar extends ImmutablePureComponent {
     this.props.onEmbed(this.props.status);
   }
 
-  handleEmojiReactions = () => {
-    this.context.router.history.push(`/statuses/${this.props.status.get('id')}/emoji_reactions`);
-  }
-
   handleReport = () => {
     this.props.onReport(this.props.status);
   }
@@ -256,6 +254,18 @@ class StatusActionBar extends ImmutablePureComponent {
     }
   }
 
+  handleReblogs = () => {
+    this.context.router.history.push(`/statuses/${this.props.status.get('id')}/reblogs`);
+  }
+
+  handleFavourites = () => {
+    this.context.router.history.push(`/statuses/${this.props.status.get('id')}/favourites`);
+  }
+
+  handleEmojiReactions = () => {
+    this.context.router.history.push(`/statuses/${this.props.status.get('id')}/emoji_reactions`);
+  }
+
   handleEmojiPick = data => {
     const { addEmojiReaction, status } = this.props;
     addEmojiReaction(status, data.native.replace(/:/g, ''), null, null, null);
@@ -275,6 +285,13 @@ class StatusActionBar extends ImmutablePureComponent {
     const account            = status.get('account');
     const writtenByMe        = status.getIn(['account', 'id']) === me;
     const limitedByMe        = status.get('visibility') === 'limited' && status.get('circle_id');
+    const reblogged          = status.get('reblogged');
+    const favourited         = status.get('favourited');
+    const bookmarked         = status.get('bookmarked');
+    const emoji_reactioned   = status.get('emoji_reactioned');
+    const reblogsCount       = status.get('reblogs_count');
+    const favouritesCount    = status.get('favourites_count');
+    const [ _, domain ]      = account.get('acct').split('@');
 
     let menu = [];
 
@@ -285,19 +302,38 @@ class StatusActionBar extends ImmutablePureComponent {
       menu.push({ text: intl.formatMessage(messages.embed), action: this.handleEmbed });
     }
 
-    menu.push({ text: intl.formatMessage(messages.open_emoji_reactions), action: this.handleEmojiReactions });
+    if (reblogsCount > 0 || favouritesCount > 0 || !status.get('emoji_reactions').isEmpty()) {
+      menu.push(null);
+    }
+
+    if (reblogsCount > 0) {
+      menu.push({ text: intl.formatMessage(messages.show_reblogs), action: this.handleReblogs });
+    }
+
+    if (favouritesCount > 0) {
+      menu.push({ text: intl.formatMessage(messages.show_favourites), action: this.handleFavourites });
+    }
+
+    if (!status.get('emoji_reactions').isEmpty()) {
+      menu.push({ text: intl.formatMessage(messages.show_emoji_reactions), action: this.handleEmojiReactions });
+    }
+
+    if (domain) {
+      menu.push(null);
+      menu.push({ text: intl.formatMessage(messages.openDomainTimeline, { domain }), action: this.handleOpenDomainTimeline });
+    }
 
     menu.push(null);
 
+    if (!show_bookmark_button) {
+      menu.push({ text: intl.formatMessage(bookmarked ? messages.removeBookmark : messages.bookmark), action: this.handleBookmarkClick });
+    }
+
+    if (writtenByMe && publicStatus && !expired) {
+      menu.push({ text: intl.formatMessage(status.get('pinned') ? messages.unpin : messages.pin), action: this.handlePinClick });
+    }
+
     if (!show_bookmark_button || writtenByMe && publicStatus && !expired) {
-      if (!show_bookmark_button) {
-        menu.push({ text: intl.formatMessage(status.get('bookmarked') ? messages.removeBookmark : messages.bookmark), action: this.handleBookmarkClick });
-      }
-
-      if (writtenByMe && publicStatus && !expired) {
-        menu.push({ text: intl.formatMessage(status.get('pinned') ? messages.unpin : messages.pin), action: this.handlePinClick });
-      }
-
       menu.push(null);
     }
 
@@ -333,9 +369,7 @@ class StatusActionBar extends ImmutablePureComponent {
 
       menu.push({ text: intl.formatMessage(messages.report, { name: account.get('username') }), action: this.handleReport });
 
-      if (account.get('acct') !== account.get('username')) {
-        const domain = account.get('acct').split('@')[1];
-
+      if (domain) {
         menu.push(null);
 
         if (relationship && relationship.get('domain_blocking')) {
@@ -343,7 +377,6 @@ class StatusActionBar extends ImmutablePureComponent {
         } else {
           menu.push({ text: intl.formatMessage(messages.blockDomain, { domain }), action: this.handleBlockDomain });
         }
-        menu.push({ text: intl.formatMessage(messages.openDomainTimeline, { domain }), action: this.handleOpenDomainTimeline });
       }
 
       if (isStaff) {
@@ -366,7 +399,7 @@ class StatusActionBar extends ImmutablePureComponent {
     const reblogPrivate = status.getIn(['account', 'id']) === me && status.get('visibility') === 'private';
 
     let reblogTitle = '';
-    if (status.get('reblogged')) {
+    if (reblogged) {
       reblogTitle = intl.formatMessage(messages.cancel_reblog_private);
     } else if (publicStatus) {
       reblogTitle = intl.formatMessage(messages.reblog);
@@ -383,18 +416,18 @@ class StatusActionBar extends ImmutablePureComponent {
     return (
       <div className='status__action-bar'>
         <IconButton className='status__action-bar-button' disabled={expired} title={replyTitle} icon={status.get('in_reply_to_account_id') === status.getIn(['account', 'id']) ? 'reply' : replyIcon} onClick={this.handleReplyClick} counter={status.get('replies_count')} obfuscateCount />
-        <IconButton className={classNames('status__action-bar-button', { reblogPrivate })} disabled={!publicStatus && !reblogPrivate || expired}  active={status.get('reblogged')} pressed={status.get('reblogged')} title={reblogTitle} icon='retweet' onClick={this.handleReblogClick} />
-        <IconButton className='status__action-bar-button star-icon' animate disabled={!status.get('favourited') && expired} active={status.get('favourited')} pressed={status.get('favourited')} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} />
+        <IconButton className={classNames('status__action-bar-button', { reblogPrivate })} disabled={!publicStatus && !reblogPrivate || expired}  active={reblogged} pressed={reblogged} title={reblogTitle} icon='retweet' onClick={this.handleReblogClick} />
+        <IconButton className='status__action-bar-button star-icon' animate disabled={!favourited && expired} active={favourited} pressed={favourited} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} />
         {show_quote_button && <IconButton className='status__action-bar-button' disabled={anonymousAccess || !publicStatus || expired} title={!publicStatus ? intl.formatMessage(messages.cannot_quote) : intl.formatMessage(messages.quote)} icon='quote-right' onClick={this.handleQuoteClick} />}
         {shareButton}
-        {show_bookmark_button && <IconButton className='status__action-bar-button bookmark-icon' disabled={!status.get('bookmarked') && expired} active={status.get('bookmarked')} pressed={status.get('bookmarked')} title={intl.formatMessage(status.get('bookmarked') ? messages.removeBookmark : messages.bookmark)} icon='bookmark' onClick={this.handleBookmarkClick} />}
+        {show_bookmark_button && <IconButton className='status__action-bar-button bookmark-icon' disabled={!bookmarked && expired} active={bookmarked} pressed={bookmarked} title={intl.formatMessage(bookmarked ? messages.removeBookmark : messages.bookmark)} icon='bookmark' onClick={this.handleBookmarkClick} />}
 
         {enableReaction && <div className='status__action-bar-dropdown'>
           <ReactionPickerDropdownContainer
             scrollKey={scrollKey}
             disabled={expired}
-            active={status.get('emoji_reactioned')}
-            pressed={status.get('emoji_reactioned')}
+            active={emoji_reactioned}
+            pressed={emoji_reactioned}
             className='status__action-bar-button'
             disabled={anonymousAccess}
             status={status}

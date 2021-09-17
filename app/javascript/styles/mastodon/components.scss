@@ -1619,8 +1619,15 @@ a .account__avatar {
 
 .account__relationship {
   height: 18px;
-  padding: 10px;
+  padding: 9px;
   white-space: nowrap;
+}
+
+.account__emoji_reaction {
+  .emojione {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 .account__disclaimer {
@@ -3057,6 +3064,11 @@ a.account__display-name {
   &:hover {
     text-decoration: underline;
   }
+}
+
+.status-reactioned__back-to-post-button {
+  padding: 12px 14px;
+  background: lighten($ui-base-color, 4%);
 }
 
 .column-header__back-button {
@@ -6534,7 +6546,8 @@ a.status-card.compact:hover {
 }
 
 .notification__filter-bar,
-.account__section-headline {
+.account__section-headline,
+.status-reactioned__section-headline {
   background: darken($ui-base-color, 4%);
   border-bottom: 1px solid lighten($ui-base-color, 8%);
   cursor: default;

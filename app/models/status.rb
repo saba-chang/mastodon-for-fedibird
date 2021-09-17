@@ -311,7 +311,7 @@ class Status < ApplicationRecord
 
   def generate_grouped_emoji_reactions
     records = emoji_reactions.group(:name).order(Arel.sql('MIN(created_at) ASC')).select('name, min(custom_emoji_id) as custom_emoji_id, count(*) as count, array_agg(account_id::text order by created_at) as account_ids')
-    Oj.dump(ActiveModelSerializers::SerializableResource.new(records, each_serializer: REST::EmojiReactionSerializer, scope: nil, scope_name: :current_user))
+    Oj.dump(ActiveModelSerializers::SerializableResource.new(records, each_serializer: REST::GroupedEmojiReactionSerializer, scope: nil, scope_name: :current_user))
   end
 
   def refresh_grouped_emoji_reactions!

@@ -24,7 +24,7 @@ class REST::NotificationSerializer < ActiveModel::Serializer
     object.type == :emoji_reaction
   end
 
-  class EmojiReactionSerializer < REST::EmojiReactionSerializer
+  class EmojiReactionSerializer < REST::GroupedEmojiReactionSerializer
     attributes :me
 
     def me

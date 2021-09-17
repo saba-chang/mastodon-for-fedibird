@@ -20,7 +20,7 @@ class InlineRenderer
     when :reaction
       serializer = REST::ReactionSerializer
     when :emoji_reaction
-      serializer = REST::EmojiReactionSerializer
+      serializer = REST::GroupedEmojiReactionSerializer
     when :encrypted_message
       serializer = REST::EncryptedMessageSerializer
     else

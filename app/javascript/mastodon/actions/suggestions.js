@@ -47,7 +47,7 @@ export function fetchSuggestionsFail(error) {
   };
 };
 
-export const dismissSuggestion = accountId => (dispatch, getState) => {
+export const dismissSuggestion = (accountId, withRelationships = false) => (dispatch, getState) => {
   dispatch({
     type: SUGGESTIONS_DISMISS,
     id: accountId,
@@ -59,6 +59,10 @@ export const dismissSuggestion = accountId => (dispatch, getState) => {
     api(getState).get('/api/v2/suggestions').then(response => {
       dispatch(importFetchedAccounts(response.data.map(x => x.account)));
       dispatch(fetchSuggestionsSuccess(response.data));
+
+      if (withRelationships) {
+        dispatch(fetchRelationships(response.data.map(item => item.account.id)));
+      }
     }).catch(error => dispatch(fetchSuggestionsFail(error)));
   }).catch(() => {});
 };

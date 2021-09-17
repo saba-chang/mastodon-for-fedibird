@@ -25,6 +25,9 @@ const messages = defineMessages({
   favourite: { id: 'status.favourite', defaultMessage: 'Favourite' },
   bookmark: { id: 'status.bookmark', defaultMessage: 'Bookmark' },
   emoji_reaction: { id: 'status.emoji_reaction', defaultMessage: 'Emoji reaction' },
+  show_reblogs: { id: 'status.show_reblogs', defaultMessage: 'Show boosted users' },
+  show_favourites: { id: 'status.show_favourites', defaultMessage: 'Show favourited users' },
+  show_emoji_reactions: { id: 'status.show_emoji_reactions', defaultMessage: 'Show emoji reactioned users' },
   more: { id: 'status.more', defaultMessage: 'More' },
   mute: { id: 'status.mute', defaultMessage: 'Mute @{name}' },
   muteConversation: { id: 'status.mute_conversation', defaultMessage: 'Mute conversation' },
@@ -209,6 +212,18 @@ class ActionBar extends React.PureComponent {
     }
   }
 
+  handleReblogs = () => {
+    this.context.router.history.push(`/statuses/${this.props.status.get('id')}/reblogs`);
+  }
+
+  handleFavourites = () => {
+    this.context.router.history.push(`/statuses/${this.props.status.get('id')}/favourites`);
+  }
+
+  handleEmojiReactions = () => {
+    this.context.router.history.push(`/statuses/${this.props.status.get('id')}/emoji_reactions`);
+  }
+
   handleEmojiPick = data => {
     const { addEmojiReaction, status } = this.props;
     addEmojiReaction(status, data.native.replace(/:/g, ''), null, null, null);
@@ -227,6 +242,13 @@ class ActionBar extends React.PureComponent {
     const account            = status.get('account');
     const writtenByMe        = status.getIn(['account', 'id']) === me;
     const limitedByMe        = status.get('visibility') === 'limited' && status.get('circle_id');
+    const reblogged          = status.get('reblogged');
+    const favourited         = status.get('favourited');
+    const bookmarked         = status.get('bookmarked');
+    const emoji_reactioned   = status.get('emoji_reactioned');
+    const reblogsCount       = status.get('reblogs_count');
+    const favouritesCount    = status.get('favourites_count');
+    const [ _, domain ]      = account.get('acct').split('@');
 
     const expires_at = status.get('expires_at')
     const expires_date = expires_at && new Date(expires_at)
@@ -237,8 +259,30 @@ class ActionBar extends React.PureComponent {
     if (publicStatus && !expired) {
       menu.push({ text: intl.formatMessage(messages.copy), action: this.handleCopy });
       menu.push({ text: intl.formatMessage(messages.embed), action: this.handleEmbed });
+    }
+
+    if (reblogsCount > 0 || favouritesCount > 0 || !status.get('emoji_reactions').isEmpty()) {
       menu.push(null);
     }
+
+    if (reblogsCount > 0) {
+      menu.push({ text: intl.formatMessage(messages.show_reblogs), action: this.handleReblogs });
+    }
+
+    if (favouritesCount > 0) {
+      menu.push({ text: intl.formatMessage(messages.show_favourites), action: this.handleFavourites });
+    }
+
+    if (!status.get('emoji_reactions').isEmpty()) {
+      menu.push({ text: intl.formatMessage(messages.show_emoji_reactions), action: this.handleEmojiReactions });
+    }
+
+    if (domain) {
+      menu.push(null);
+      menu.push({ text: intl.formatMessage(messages.openDomainTimeline, { domain }), action: this.handleOpenDomainTimeline });
+    }
+
+    menu.push(null);
 
     if (writtenByMe) {
       if (publicStatus && !expired) {
@@ -248,9 +292,9 @@ class ActionBar extends React.PureComponent {
 
       if (limitedByMe) {
         menu.push({ text: intl.formatMessage(messages.showMemberList), action: this.handleMemberListClick });
+        menu.push(null);
       }
 
-      menu.push(null);
       if (!expired) {
         menu.push({ text: intl.formatMessage(mutingConversation ? messages.unmuteConversation : messages.muteConversation), action: this.handleConversationMuteClick });
         menu.push(null);
@@ -276,9 +320,7 @@ class ActionBar extends React.PureComponent {
 
       menu.push({ text: intl.formatMessage(messages.report, { name: status.getIn(['account', 'username']) }), action: this.handleReport });
 
-      if (account.get('acct') !== account.get('username')) {
-        const domain = account.get('acct').split('@')[1];
-
+      if (domain) {
         menu.push(null);
 
         if (relationship && relationship.get('domain_blocking')) {
@@ -286,7 +328,6 @@ class ActionBar extends React.PureComponent {
         } else {
           menu.push({ text: intl.formatMessage(messages.blockDomain, { domain }), action: this.handleBlockDomain });
         }
-        menu.push({ text: intl.formatMessage(messages.openDomainTimeline, { domain }), action: this.handleOpenDomainTimeline });
       }
 
       if (isStaff) {
@@ -310,7 +351,7 @@ class ActionBar extends React.PureComponent {
     const reblogPrivate = status.getIn(['account', 'id']) === me && status.get('visibility') === 'private';
 
     let reblogTitle;
-    if (status.get('reblogged')) {
+    if (reblogged) {
       reblogTitle = intl.formatMessage(messages.cancel_reblog_private);
     } else if (publicStatus) {
       reblogTitle = intl.formatMessage(messages.reblog);
@@ -323,17 +364,17 @@ class ActionBar extends React.PureComponent {
     return (
       <div className='detailed-status__action-bar'>
         <div className='detailed-status__button'><IconButton disabled={expired} title={intl.formatMessage(messages.reply)} icon={status.get('in_reply_to_account_id') === status.getIn(['account', 'id']) ? 'reply' : replyIcon} onClick={this.handleReplyClick} /></div>
-        <div className='detailed-status__button'><IconButton className={classNames({ reblogPrivate })} disabled={!publicStatus && !reblogPrivate || expired} active={status.get('reblogged')} title={reblogTitle} icon='retweet' onClick={this.handleReblogClick} /></div>
-        <div className='detailed-status__button'><IconButton className='star-icon' animate active={status.get('favourited')} disabled={!status.get('favourited') && expired} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} /></div>
+        <div className='detailed-status__button'><IconButton className={classNames({ reblogPrivate })} disabled={!publicStatus && !reblogPrivate || expired} active={reblogged} title={reblogTitle} icon='retweet' onClick={this.handleReblogClick} /></div>
+        <div className='detailed-status__button'><IconButton className='star-icon' animate active={favourited} disabled={!favourited && expired} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} /></div>
         {show_quote_button && <div className='detailed-status__button'><IconButton disabled={!publicStatus || expired} title={!publicStatus ? intl.formatMessage(messages.cannot_quote) : intl.formatMessage(messages.quote)} icon='quote-right' onClick={this.handleQuoteClick} /></div>}
         {shareButton}
-        <div className='detailed-status__button'><IconButton className='bookmark-icon' active={status.get('bookmarked')} disabled={!status.get('bookmarked') && expired} title={intl.formatMessage(messages.bookmark)} icon='bookmark' onClick={this.handleBookmarkClick} /></div>
+        <div className='detailed-status__button'><IconButton className='bookmark-icon' active={bookmarked} disabled={!bookmarked && expired} title={intl.formatMessage(messages.bookmark)} icon='bookmark' onClick={this.handleBookmarkClick} /></div>
 
         {enableReaction && <div className='detailed-status__action-bar-dropdown'>
           <ReactionPickerDropdownContainer
             disabled={expired}
-            active={status.get('emoji_reactioned')}
-            pressed={status.get('emoji_reactioned')}
+            active={emoji_reactioned}
+            pressed={emoji_reactioned}
             className='status__action-bar-button'
             status={status}
             title={intl.formatMessage(messages.emoji_reaction)}

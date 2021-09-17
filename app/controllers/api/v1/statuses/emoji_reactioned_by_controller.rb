@@ -1,31 +1,28 @@
 # frozen_string_literal: true
 
-class Api::V1::Statuses::EmojiReactionedByAccountsController < Api::BaseController
+class Api::V1::Statuses::EmojiReactionedByController < Api::BaseController
   include Authorization
 
-  before_action -> { authorize_if_got_token! :read, :'read:accounts' }
+  before_action -> { authorize_if_got_token! :read, :'read:favourites' }
   before_action :set_status
   after_action :insert_pagination_headers
 
   def index
-    @accounts = load_accounts
-    render json: @accounts, each_serializer: REST::AccountSerializer
+    @emoji_reactions = load_emoji_reactions
+    render json: @emoji_reactions, each_serializer: REST::EmojiReactionSerializer
   end
 
   private
 
-  def load_accounts
-    scope = default_accounts
-    scope = scope.where.not(id: current_account.excluded_from_timeline_account_ids) unless current_account.nil?
+  def load_emoji_reactions
+    scope = default_emoji_reactions
+    scope = scope.where.not(account_id: current_account.excluded_from_timeline_account_ids) unless current_account.nil?
     scope.merge(paginated_emoji_reactions).to_a
   end
 
-  def default_accounts
-    Account
-      .without_suspended
-      .includes(:emoji_reactions, :account_stat)
-      .references(:emoji_reactions)
-      .where(emoji_reactions: { status_id: @status.id })
+  def default_emoji_reactions
+    EmojiReaction
+      .where(status_id: @status.id)
   end
 
   def paginated_emoji_reactions
@@ -47,21 +44,21 @@ class Api::V1::Statuses::EmojiReactionedByAccountsController < Api::BaseControll
   end
 
   def prev_path
-    unless @accounts.empty?
+    unless @emoji_reactions.empty?
       api_v1_status_emoji_reactioned_by_index_url pagination_params(since_id: pagination_since_id)
     end
   end
 
   def pagination_max_id
-    @accounts.last.emoji_reactions.last.id
+    @emoji_reactions.last.id
   end
 
   def pagination_since_id
-    @accounts.first.emoji_reactions.first.id
+    @emoji_reactions.first.id
   end
 
   def records_continue?
-    @accounts.size == limit_param(DEFAULT_ACCOUNTS_LIMIT)
+    @emoji_reactions.size == limit_param(DEFAULT_ACCOUNTS_LIMIT)
   end
 
   def set_status

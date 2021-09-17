@@ -38,6 +38,7 @@ class Account extends ImmutablePureComponent {
     actionIcon: PropTypes.string,
     actionTitle: PropTypes.string,
     onActionClick: PropTypes.func,
+    append: PropTypes.node,
   };
 
   handleFollow = (e) => {
@@ -77,7 +78,7 @@ class Account extends ImmutablePureComponent {
   }
 
   render () {
-    const { account, intl, hidden, onActionClick, actionIcon, actionTitle } = this.props;
+    const { account, intl, hidden, onActionClick, actionIcon, actionTitle, append } = this.props;
 
     if (!account) {
       return <div />;
@@ -175,6 +176,8 @@ class Account extends ImmutablePureComponent {
           <div className='account__relationship'>
             {buttons}
           </div>
+
+          {append}
         </div>
       </div>
     );

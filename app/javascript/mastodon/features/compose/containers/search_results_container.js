@@ -10,9 +10,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchSuggestions: () => dispatch(fetchSuggestions()),
+  fetchSuggestions: () => dispatch(fetchSuggestions(true)),
   expandSearch: type => dispatch(expandSearch(type)),
-  dismissSuggestion: account => dispatch(dismissSuggestion(account.get('id'))),
+  dismissSuggestion: account => dispatch(dismissSuggestion(account.get('id'), true)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchResults);
