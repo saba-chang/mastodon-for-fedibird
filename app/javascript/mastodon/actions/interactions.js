@@ -821,5 +821,6 @@ export const updateEmojiReaction = emoji_reaction => {
   return {
     type: EMOJI_REACTION_UPDATE,
     emojiReaction: emoji_reaction,
+    skipLoading: true,
   };
 };

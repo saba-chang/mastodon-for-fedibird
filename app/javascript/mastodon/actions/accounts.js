@@ -175,12 +175,14 @@ export function fetchAccountsRequest(accountIds) {
   return {
     type: ACCOUNTS_FETCH_REQUEST,
     accountIds,
+    skipLoading: true,
   };
 };
 
 export function fetchAccountsSuccess() {
   return {
     type: ACCOUNTS_FETCH_SUCCESS,
+    skipLoading: true,
   };
 };
 
@@ -191,6 +193,7 @@ export function fetchAccountsFail(accountIds, error) {
     error,
     skipAlert: true,
     skipNotFound: true,
+    skipLoading: true,
   };
 };
 
