@@ -6,6 +6,7 @@ class ActivityPub::Activity::EmojiReact < ActivityPub::Activity
     shortcode       = @json['content']
 
     return if original_status.nil? || !original_status.account.local? || delete_arrived_first?(@json['id']) || @account.reacted?(original_status, shortcode)
+    return if original_status.account.blocking?(@account) || @account.blocking?(original_status.account) || original_status.account.domain_blocking?(@account.domain)
 
     reaction = original_status.emoji_reactions.create!(account: @account, name: shortcode, uri: @json['id'])
 

@@ -5,6 +5,7 @@ class ActivityPub::Activity::Like < ActivityPub::Activity
     @original_status = status_from_uri(object_uri)
 
     return if @original_status.nil? || delete_arrived_first?(@json['id'])
+    return if @original_status.account.local? && (@original_status.account.blocking?(@account) || @account.blocking?(@original_status.account) || @original_status.account.domain_blocking?(@account.domain))
 
     lock_or_fail("like:#{object_uri}") do
       if shortcode.nil?

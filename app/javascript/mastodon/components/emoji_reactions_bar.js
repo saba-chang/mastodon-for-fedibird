@@ -1,8 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { makeGetAccount } from 'mastodon/selectors';
-import ImmutablePropTypes, { list } from 'react-immutable-proptypes';
+import ImmutablePropTypes from 'react-immutable-proptypes';
 import ImmutablePureComponent from 'react-immutable-pure-component';
 import { List } from 'immutable';
 import classNames from 'classnames';
@@ -12,91 +11,47 @@ import TransitionMotion from 'react-motion/lib/TransitionMotion';
 import AnimatedNumber from 'mastodon/components/animated_number';
 import { reduceMotion, me } from 'mastodon/initial_state';
 import spring from 'react-motion/lib/spring';
-import Avatar from 'mastodon/components/avatar';
 import Overlay from 'react-overlays/lib/Overlay';
-import { FormattedMessage, injectIntl } from 'react-intl';
 import { isUserTouching } from 'mastodon/is_mobile';
+import AccountPopup from 'mastodon/components/account_popup';
 
-const makeMapStateToProps = () => {
-  const getAccount = makeGetAccount();
+const getFilteredEmojiReaction = (emojiReaction, relationships) => {
+  let filteredEmojiReaction = emojiReaction.update('account_ids', accountIds => accountIds.filterNot( accountId => {
+    const relationship = relationships.get(accountId);
+    return relationship?.get('blocking') || relationship?.get('blocked_by') || relationship?.get('domain_blocking') || relationship?.get('muting')
+  }));
 
-  const mapStateToProps = (state, { accountId }) => ({
-    account: getAccount(state, accountId),
-  });
+  const count = filteredEmojiReaction.get('account_ids').size;
 
-  return mapStateToProps;
+  if (count > 0) {
+    return filteredEmojiReaction.set('count', count);
+  } else {
+    return null;
+  }
 };
 
-@connect(makeMapStateToProps)
-class Account extends ImmutablePureComponent {
+const mapStateToProps = (state, { emojiReaction }) => {
+  const relationship = new Map();
+  emojiReaction.get('account_ids').forEach(accountId => relationship.set(accountId, state.getIn(['relationships', accountId])));
 
-  static propTypes = {
-    account: ImmutablePropTypes.map,
+  return {
+    emojiReaction: emojiReaction,
+    relationships: relationship,
   };
+};
 
-  render () {
-    const { account } = this.props;
+const mergeProps = ({ emojiReaction, relationships }, dispatchProps, ownProps) => ({
+  ...ownProps,
+  ...dispatchProps,
+  emojiReaction: getFilteredEmojiReaction(emojiReaction, relationships),
+});
 
-    if ( !account ) {
-      return <Fragment></Fragment>;
-    }
-
-    return (
-      <div className='account-popup__wapper'>
-        <div className='account-popup__avatar-wrapper'><Avatar account={account} size={14} /></div>
-        <bdi><strong className='account-popup__display-name__html' dangerouslySetInnerHTML={{ __html: account.get('display_name_html') }} /></bdi>
-      </div>
-    );
-  }
-}
-
-const ACCOUNT_POPUP_ROWS_MAX = 10;
-
-@injectIntl
-class AccountPopup extends ImmutablePureComponent {
-
-  static propTypes = {
-    accountIds: ImmutablePropTypes.list.isRequired,
-    style: PropTypes.object,
-    placement: PropTypes.string,
-    arrowOffsetLeft: PropTypes.string,
-    arrowOffsetTop: PropTypes.string,
-  };
-
-  render () {
-    const { accountIds, placement } = this.props;
-    var { arrowOffsetLeft, arrowOffsetTop, style } = this.props;
-    const OFFSET = 6;
-
-    if (placement === 'top') {
-      arrowOffsetTop = String(parseInt(arrowOffsetTop ?? '0') - OFFSET);
-      style = { ...style, top: style.top - OFFSET };
-    } else if (placement === 'bottom') {
-      arrowOffsetTop = String(parseInt(arrowOffsetTop ?? '0') + OFFSET);
-      style = { ...style, top: style.top + OFFSET };
-    } else if (placement === 'left') {
-      arrowOffsetLeft = String(parseInt(arrowOffsetLeft ?? '0') - OFFSET);
-      style = { ...style, left: style.left - OFFSET };
-    } else if (placement === 'right') {
-      arrowOffsetLeft = String(parseInt(arrowOffsetLeft ?? '0') + OFFSET);
-      style = { ...style, left: style.left + OFFSET };
-    }
-  
-    return (
-      <div className={`dropdown-menu account-popup ${placement}`} style={{ ...style}}>
-        <div className={`dropdown-menu__arrow account-popup__arrow ${placement}`} style={{ left: arrowOffsetLeft, top: arrowOffsetTop }} />
-        {accountIds.take(ACCOUNT_POPUP_ROWS_MAX).map(accountId => <Account key={accountId} accountId={accountId} />)}
-        {accountIds.size > ACCOUNT_POPUP_ROWS_MAX && <div className='account-popup__wapper'><bdi><strong className='account-popup__display-name__html'><FormattedMessage id='account_popup.more_users' defaultMessage='({number, plural, one {# other user} other {# other users}})' values={{ number: accountIds.size - ACCOUNT_POPUP_ROWS_MAX}} children={msg=> <>{msg}</>} /></strong></bdi></div>}
-      </div>
-    );
-  }
-}
-
+@connect(mapStateToProps, null, mergeProps)
 class EmojiReaction extends ImmutablePureComponent {
 
   static propTypes = {
     status: ImmutablePropTypes.map.isRequired,
-    emojiReaction: ImmutablePropTypes.map.isRequired,
+    emojiReaction: ImmutablePropTypes.map,
     myReaction: PropTypes.bool.isRequired,
     addEmojiReaction: PropTypes.func.isRequired,
     removeEmojiReaction: PropTypes.func.isRequired,
@@ -154,6 +109,10 @@ class EmojiReaction extends ImmutablePureComponent {
   render () {
     const { emojiReaction, status, myReaction } = this.props;
 
+    if (!emojiReaction) {
+      return <Fragment></Fragment>;
+    }
+
     let shortCode = emojiReaction.get('name');
 
     if (unicodeMapping[shortCode]) {
@@ -198,7 +157,7 @@ export default class EmojiReactionsBar extends ImmutablePureComponent {
 
   render () {
     const { status } = this.props;
-    const emoji_reactions = status.get("emoji_reactions")
+    const emoji_reactions = status.get("emoji_reactions");
     const visibleReactions = emoji_reactions.filter(x => x.get('count') > 0);
 
     if (visibleReactions.isEmpty() ) {
