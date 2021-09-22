@@ -4,20 +4,26 @@ class PublishEmojiReactionWorker
   include Sidekiq::Worker
   include Redisable
   include RoutingHelper
+  include PublishScope
 
-  def perform(status_id, name)
-    status  = Status.find(status_id)
-    payload = status.grouped_emoji_reactions.find { |emoji_reaction| emoji_reaction['name'] == name }
-    payload ||= { name: name, count: 0, account_ids: [] }
+  def perform(status_id, account_id, name)
+    @status     = Status.find(status_id)
+    @account_id = account_id
+    @name       = name
 
-    payload['status_id'] = status_id.to_s
-
-    json = Oj.dump(event: :'emoji_reaction', payload: payload)
-
-    FeedManager.instance.with_active_accounts do |account|
-      redis.publish("timeline:#{account.id}", json) if redis.exists?("subscribed:timeline:#{account.id}")
+    FeedManager.instance.active_accounts.merge(visibility_scope).find_each do |account|
+      redis.publish("timeline:#{account.id}", payload_json) if redis.exists?("subscribed:timeline:#{account.id}")
     end
   rescue ActiveRecord::RecordNotFound
     true
+  end
+
+  def payload_json
+    payload = @status.grouped_emoji_reactions.find { |emoji_reaction| emoji_reaction['name'] == @name }
+    payload ||= { name: @name, count: 0, account_ids: [] }
+
+    payload['status_id'] = @status.id.to_s
+
+    Oj.dump(event: :'emoji_reaction', payload: payload)
   end
 end

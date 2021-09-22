@@ -14,11 +14,16 @@ class FeedManager
   # or the tracking sets will grow forever
   REBLOG_FALLOFF = 40
 
+  # Get active account
+  def active_accounts
+    Account.joins(:user).where('users.current_sign_in_at > ?', User::ACTIVE_DURATION.ago)
+  end
+
   # Execute block for every active account
   # @yield [Account]
   # @return [void]
   def with_active_accounts(&block)
-    Account.joins(:user).where('users.current_sign_in_at > ?', User::ACTIVE_DURATION.ago).find_each(&block)
+    active_accounts.find_each(&block)
   end
 
   # Redis key of a feed
