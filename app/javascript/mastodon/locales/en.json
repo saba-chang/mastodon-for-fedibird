@@ -510,6 +510,7 @@
   "status.open": "Expand this post",
   "status.pin": "Pin on profile",
   "status.pinned": "Pinned post",
+  "status.post_by_acct": "Post by @{acct}",
   "status.quote": "Quote",
   "status.read_more": "Read more",
   "status.reblog": "Boost",

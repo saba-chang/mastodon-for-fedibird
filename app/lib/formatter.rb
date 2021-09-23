@@ -26,6 +26,7 @@ class Formatter
 
     unless status.local?
       html = reformat(raw_content)
+      html = apply_inner_link(html)
       html = encode_custom_emojis(html, status.emojis, options[:autoplay]) if options[:custom_emojify]
       return html.html_safe # rubocop:disable Rails/OutputSafety
     end
@@ -52,7 +53,7 @@ class Formatter
     html.sub!(/^<p>(.+)<\/p>$/, '\1')
     html = Sanitize.clean(html).delete("\n").truncate(150)
     html = encode_custom_emojis(html, status.emojis) if options[:custom_emojify]
-    html.html_safe
+    html.html_safe # rubocop:disable Rails/OutputSafety
   end
 
   def reformat(html)
@@ -248,9 +249,40 @@ class Formatter
 
     html_attrs[:rel] = "me #{html_attrs[:rel]}" if options[:me]
 
+    status, account = url_to_holding_status_and_account(url.normalize.to_s)
+
+    if account.present?
+      html_attrs[:class] = 'status-url-link'
+      html_attrs[:'data-status-id'] = status.id
+      html_attrs[:'data-status-account-acct'] = account.acct
+    end
+
     Twitter::TwitterText::Autolink.send(:link_to_text, entity, link_html(entity[:url]), url, html_attrs)
   rescue Addressable::URI::InvalidURIError, IDN::Idna::IdnaError
     encode(entity[:url])
+  end
+
+  def apply_inner_link(html)
+    doc = Nokogiri::HTML.parse(html, nil, 'utf-8')
+    doc.css('a').map do |x|
+      status, account = url_to_holding_status_and_account(x['href'])
+
+      if account.present?
+        x.add_class('status-url-link')
+        x['data-status-id'] = status.id
+        x['data-status-account-acct'] = account.acct
+      end
+    end
+    html = doc.css('body')[0]&.inner_html || ''
+    html.html_safe # rubocop:disable Rails/OutputSafety
+  end
+
+  def url_to_holding_status_and_account(url)
+    url = url.split('#').first
+
+    return if url.nil?
+
+    EntityCache.instance.holding_status_and_account(url)
   end
 
   def link_to_mention(entity, linkable_accounts, options = {})

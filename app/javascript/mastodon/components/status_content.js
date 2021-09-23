@@ -1,15 +1,20 @@
 import React from 'react';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import PropTypes from 'prop-types';
-import { FormattedMessage } from 'react-intl';
+import { injectIntl, defineMessages, FormattedMessage } from 'react-intl';
 import Permalink from './permalink';
 import classnames from 'classnames';
 import PollContainer from 'mastodon/containers/poll_container';
 import Icon from 'mastodon/components/icon';
 import { autoPlayGif, show_reply_tree_button } from 'mastodon/initial_state';
 
+const messages = defineMessages({
+  postByAcct: { id: 'status.post_by_acct', defaultMessage: 'Post by @{acct}' },
+});
+
 const MAX_HEIGHT = 642; // 20px * 32 (+ 2px padding at the top)
 
+@injectIntl
 export default class StatusContent extends React.PureComponent {
 
   static contextTypes = {
@@ -25,6 +30,7 @@ export default class StatusContent extends React.PureComponent {
     collapsable: PropTypes.bool,
     onCollapsedToggle: PropTypes.func,
     quote: PropTypes.bool,
+    intl: PropTypes.object.isRequired,
   };
 
   state = {
@@ -58,6 +64,9 @@ export default class StatusContent extends React.PureComponent {
         link.setAttribute('title', mention.get('acct'));
       } else if (link.textContent[0] === '#' || (link.previousSibling && link.previousSibling.textContent && link.previousSibling.textContent[link.previousSibling.textContent.length - 1] === '#')) {
         link.addEventListener('click', this.onHashtagClick.bind(this, link.text), false);
+      } else if (link.classList.contains('status-url-link')) {
+        link.setAttribute('title', this.props.intl.formatMessage(messages.postByAcct, { acct: link.dataset.statusAccountAcct }));
+        link.addEventListener('click', this.onStatusUrlClick.bind(this, link.dataset.statusId), false);
       } else {
         link.setAttribute('title', link.href);
         link.classList.add('unhandled-link');
@@ -134,6 +143,13 @@ export default class StatusContent extends React.PureComponent {
     if (this.context.router && e.button === 0 && !(e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       this.context.router.history.push(`/timelines/tag/${hashtag}`);
+    }
+  }
+
+  onStatusUrlClick = (statusId, e) => {
+    if (this.context.router && e.button === 0 && !(e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      this.context.router.history.push(`/statuses/${statusId}`);
     }
   }
 

@@ -6,6 +6,7 @@ class EntityCache
   include Singleton
 
   MAX_EXPIRATION = 7.days.freeze
+  MIN_EXPIRATION = 60.seconds.freeze
 
   def status(url)
     Rails.cache.fetch(to_key(:status, url), expires_in: MAX_EXPIRATION) { FetchRemoteStatusService.new.call(url) }
@@ -32,6 +33,26 @@ class EntityCache
     end
 
     shortcodes.filter_map { |shortcode| cached[to_key(:emoji, shortcode, domain)] || uncached[shortcode] }
+  end
+
+  def holding_status_and_account(url)
+    return Rails.cache.read(to_key(:holding_status, url)) if Rails.cache.exist?(to_key(:holding_status, url))
+
+    status = begin
+      if ActivityPub::TagManager.instance.local_uri?(url)
+        StatusFinder.new(url).status
+      else
+        Status.where(uri: url).or(Status.where(url: url)).first
+      end
+    rescue ActiveRecord::RecordNotFound
+      nil
+    end
+
+    account = status&.account
+
+    Rails.cache.write(to_key(:holding_status, url), [status, account], expires_in: account.nil? ? MIN_EXPIRATION : MAX_EXPIRATION)
+
+    [status, account]
   end
 
   def to_key(type, *ids)

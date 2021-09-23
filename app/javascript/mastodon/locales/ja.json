@@ -511,6 +511,7 @@
   "status.open": "詳細を表示",
   "status.pin": "プロフィールに固定表示",
   "status.pinned": "固定された投稿",
+  "status.post_by_acct": "@{acct}による投稿",
   "status.quote": "引用",
   "status.read_more": "もっと見る",
   "status.reblog": "ブースト",
