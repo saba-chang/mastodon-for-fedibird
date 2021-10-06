@@ -20,6 +20,8 @@ import {
 } from '../actions/accounts';
 import { Map as ImmutableMap, List as ImmutableList, fromJS } from 'immutable';
 import compareId from '../compare_id';
+import { uniqWithoutNull } from '../utils/uniq';
+
 
 const initialState = ImmutableMap();
 
@@ -52,13 +54,13 @@ const expandNormalizedTimeline = (state, timeline, statuses, next, isPartial, is
         const firstIndex = oldIds.take(lastIndex).findLastIndex(id => id !== null && compareId(id, newIds.first()) > 0);
 
         if (firstIndex < 0) {
-          return (isPartial ? newIds.unshift(null) : newIds).concat(oldIds.skip(lastIndex));
+          return uniqWithoutNull(isPartial ? newIds.unshift(null) : newIds).concat(oldIds.skip(lastIndex));
         }
 
-        return oldIds.take(firstIndex + 1).concat(
+        return uniqWithoutNull(oldIds.take(firstIndex + 1).concat(
           isPartial && oldIds.get(firstIndex) !== null ? newIds.unshift(null) : newIds,
           oldIds.skip(lastIndex),
-        );
+        ));
       });
     }
   }));
