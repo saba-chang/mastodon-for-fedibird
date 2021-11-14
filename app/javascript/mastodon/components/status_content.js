@@ -9,6 +9,7 @@ import Icon from 'mastodon/components/icon';
 import { autoPlayGif, show_reply_tree_button } from 'mastodon/initial_state';
 
 const messages = defineMessages({
+  linkToAcct: { id: 'status.link_to_acct', defaultMessage: 'Link to @{acct}' },
   postByAcct: { id: 'status.post_by_acct', defaultMessage: 'Post by @{acct}' },
 });
 
@@ -64,6 +65,9 @@ export default class StatusContent extends React.PureComponent {
         link.setAttribute('title', mention.get('acct'));
       } else if (link.textContent[0] === '#' || (link.previousSibling && link.previousSibling.textContent && link.previousSibling.textContent[link.previousSibling.textContent.length - 1] === '#')) {
         link.addEventListener('click', this.onHashtagClick.bind(this, link.text), false);
+      } else if (link.classList.contains('account-url-link')) {
+        link.setAttribute('title', this.props.intl.formatMessage(messages.linkToAcct, { acct: link.dataset.accountAcct }));
+        link.addEventListener('click', this.onAccountUrlClick.bind(this, link.dataset.accountId, link.dataset.accountActorType), false);
       } else if (link.classList.contains('status-url-link')) {
         link.setAttribute('title', this.props.intl.formatMessage(messages.postByAcct, { acct: link.dataset.statusAccountAcct }));
         link.addEventListener('click', this.onStatusUrlClick.bind(this, link.dataset.statusId), false);
@@ -143,6 +147,13 @@ export default class StatusContent extends React.PureComponent {
     if (this.context.router && e.button === 0 && !(e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       this.context.router.history.push(`/timelines/tag/${hashtag}`);
+    }
+  }
+
+  onAccountUrlClick = (accountId, accountActorType, e) => {
+    if (this.context.router && e.button === 0 && !(e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      this.context.router.history.push(`${accountActorType == 'Group' ? '/timelines/groups/' : '/accounts/'}${accountId}`);
     }
   }
 

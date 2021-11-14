@@ -243,6 +243,10 @@ class Formatter
     Extractor.remove_overlapping_entities(special + standard + extra)
   end
 
+  def class_append(c, items)
+    (c || '').split.concat(items).uniq.join(' ')
+  end
+
   def link_to_url(entity, options = {})
     url        = Addressable::URI.parse(entity[:url])
     html_attrs = { target: '_blank', rel: 'nofollow noopener noreferrer' }
@@ -250,11 +254,17 @@ class Formatter
     html_attrs[:rel] = "me #{html_attrs[:rel]}" if options[:me]
 
     status, account = url_to_holding_status_and_account(url.normalize.to_s)
+    account         = url_to_holding_account(url.normalize.to_s) if status.nil?
 
-    if account.present?
-      html_attrs[:class] = 'status-url-link'
-      html_attrs[:'data-status-id'] = status.id
+    if status.present? && account.present?
+      html_attrs[:class]                      = class_append(html_attrs[:class], ['status-url-link'])
+      html_attrs[:'data-status-id']           = status.id
       html_attrs[:'data-status-account-acct'] = account.acct
+    elsif account.present?
+      html_attrs[:class]                     = class_append(html_attrs[:class], ['account-url-link'])
+      html_attrs[:'data-account-id']         = account.id
+      html_attrs[:'data-account-actor-type'] = account.actor_type
+      html_attrs[:'data-account-acct']       = account.acct
     end
 
     Twitter::TwitterText::Autolink.send(:link_to_text, entity, link_html(entity[:url]), url, html_attrs)
@@ -266,15 +276,29 @@ class Formatter
     doc = Nokogiri::HTML.parse(html, nil, 'utf-8')
     doc.css('a').map do |x|
       status, account = url_to_holding_status_and_account(x['href'])
+      account         = url_to_holding_account(x['href']) if status.nil?
 
-      if account.present?
+      if status.present? && account.present?
         x.add_class('status-url-link')
-        x['data-status-id'] = status.id
+        x['data-status-id']           = status.id
         x['data-status-account-acct'] = account.acct
+      elsif account.present?
+        x.add_class('account-url-link')
+        x['data-account-id']         = account.id
+        x['data-account-actor-type'] = account.actor_type
+        x['data-account-acct']       = account.acct
       end
     end
     html = doc.css('body')[0]&.inner_html || ''
     html.html_safe # rubocop:disable Rails/OutputSafety
+  end
+
+  def url_to_holding_account(url)
+    url = url.split('#').first
+
+    return if url.nil?
+
+    EntityCache.instance.holding_account(url)
   end
 
   def url_to_holding_status_and_account(url)

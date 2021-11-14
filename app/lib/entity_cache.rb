@@ -35,6 +35,30 @@ class EntityCache
     shortcodes.filter_map { |shortcode| cached[to_key(:emoji, shortcode, domain)] || uncached[shortcode] }
   end
 
+  def holding_account(url)
+    return Rails.cache.read(to_key(:holding_account, url)) if Rails.cache.exist?(to_key(:holding_account, url))
+
+    account = begin
+      if ActivityPub::TagManager.instance.local_uri?(url)
+        recognized_params = Rails.application.routes.recognize_path(url)
+
+        return nil unless recognized_params[:action] == 'show'
+
+        if recognized_params[:controller] == 'accounts'
+          Account.find_local(recognized_params[:username])
+        end
+      else
+        Account.where(uri: url).or(Account.where(url: url)).first
+      end
+    rescue ActiveRecord::RecordNotFound
+      nil
+    end
+
+    Rails.cache.write(to_key(:holding_account, url), account, expires_in: account.nil? ? MIN_EXPIRATION : MAX_EXPIRATION)
+
+    account
+  end
+
   def holding_status_and_account(url)
     return Rails.cache.read(to_key(:holding_status, url)) if Rails.cache.exist?(to_key(:holding_status, url))
 

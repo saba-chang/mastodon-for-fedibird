@@ -501,6 +501,7 @@
   "status.emoji_reaction": "絵文字リアクション",
   "status.favourite": "お気に入り",
   "status.filtered": "フィルターされました",
+  "status.link_to_acct": "@{acct}へのリンク",
   "status.load_more": "もっと見る",
   "status.media_hidden": "非表示のメディア",
   "status.mention": "@{name}さんに投稿",

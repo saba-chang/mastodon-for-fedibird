@@ -500,6 +500,7 @@
   "status.emoji_reaction": "Emoji reaction",
   "status.favourite": "Favourite",
   "status.filtered": "Filtered",
+  "status.link_to_acct": "Link to @{acct}",
   "status.load_more": "Load more",
   "status.media_hidden": "Media hidden",
   "status.mention": "Mention @{name}",
