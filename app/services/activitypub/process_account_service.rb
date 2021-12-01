@@ -77,7 +77,7 @@ class ActivityPub::ProcessAccountService < BaseService
     set_immediate_attributes! unless @account.suspended?
     set_fetchable_attributes! unless @options[:only_key] || @account.suspended?
 
-    @account.save_with_optional_media!
+    @account.save!
   end
 
   def set_immediate_protocol_attributes!
@@ -107,15 +107,20 @@ class ActivityPub::ProcessAccountService < BaseService
   end
 
   def set_fetchable_attributes!
-    begin
-      @account.avatar_remote_url = image_url('icon') || '' unless skip_download?
-    rescue Mastodon::UnexpectedResponseError, HTTP::TimeoutError, HTTP::ConnectionError, OpenSSL::SSL::SSLError
-      RedownloadAvatarWorker.perform_in(rand(30..600).seconds, @account.id)
-    end
-    begin
-      @account.header_remote_url = image_url('image') || '' unless skip_download?
-    rescue Mastodon::UnexpectedResponseError, HTTP::TimeoutError, HTTP::ConnectionError, OpenSSL::SSL::SSLError
-      RedownloadHeaderWorker.perform_in(rand(30..600).seconds, @account.id)
+    unless skip_download?
+      begin
+        @account.avatar_remote_url = image_url('icon') || ''
+        @account.avatar = nil if @account.invalid?
+      rescue Mastodon::UnexpectedResponseError, HTTP::TimeoutError, HTTP::ConnectionError, OpenSSL::SSL::SSLError
+        RedownloadAvatarWorker.perform_in(rand(30..600).seconds, @account.id)
+      end
+
+      begin
+        @account.header_remote_url = image_url('image') || ''
+        @account.header = nil if @account.invalid?
+      rescue Mastodon::UnexpectedResponseError, HTTP::TimeoutError, HTTP::ConnectionError, OpenSSL::SSL::SSLError
+        RedownloadHeaderWorker.perform_in(rand(30..600).seconds, @account.id)
+      end
     end
     @account.statuses_count    = outbox_total_items    if outbox_total_items.present?
     @account.following_count   = following_total_items if following_total_items.present?

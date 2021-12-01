@@ -341,15 +341,6 @@ class Account < ApplicationRecord
     self.fields = tmp
   end
 
-  def save_with_optional_media!
-    save!
-  rescue ActiveRecord::RecordInvalid
-    self.avatar = nil
-    self.header = nil
-
-    save!
-  end
-
   def hides_followers?
     hide_collections? || user_hides_network?
   end
