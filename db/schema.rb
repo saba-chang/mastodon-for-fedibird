@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_13_040746) do
+ActiveRecord::Schema.define(version: 2021_12_13_083734) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1306,7 +1306,7 @@ ActiveRecord::Schema.define(version: 2021_12_13_040746) do
            HAVING (count(follows.id) >= 5)
           UNION ALL
            SELECT account_summaries.account_id,
-              (sum((status_stats.reblogs_count + status_stats.favourites_count)) / (1.0 + sum((status_stats.reblogs_count + status_stats.favourites_count)))) AS rank,
+              (sum(((status_stats.reblogs_count + status_stats.favourites_count) + status_stats.emoji_reactions_count)) / (1.0 + sum(((status_stats.reblogs_count + status_stats.favourites_count) + status_stats.emoji_reactions_count)))) AS rank,
               'most_interactions'::text AS reason
              FROM (((status_stats
                JOIN statuses ON ((statuses.id = status_stats.status_id)))
@@ -1314,7 +1314,7 @@ ActiveRecord::Schema.define(version: 2021_12_13_040746) do
                LEFT JOIN follow_recommendation_suppressions ON ((follow_recommendation_suppressions.account_id = statuses.account_id)))
             WHERE ((statuses.id >= (((date_part('epoch'::text, (now() - 'P30D'::interval)) * (1000)::double precision))::bigint << 16)) AND (account_summaries.sensitive = false) AND (follow_recommendation_suppressions.id IS NULL))
             GROUP BY account_summaries.account_id
-           HAVING (sum((status_stats.reblogs_count + status_stats.favourites_count)) >= (5)::numeric)) t0
+           HAVING (sum(((status_stats.reblogs_count + status_stats.favourites_count) + status_stats.emoji_reactions_count)) >= (5)::numeric)) t0
     GROUP BY t0.account_id
     ORDER BY (sum(t0.rank)) DESC;
   SQL
