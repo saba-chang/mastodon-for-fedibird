@@ -41,7 +41,7 @@ module Admin::ActionLogsHelper
     when 'DomainBlock', 'DomainAllow', 'EmailDomainBlock', 'UnavailableDomain'
       link_to attributes['domain'], "https://#{attributes['domain']}"
     when 'Status'
-      tmp_status = Status.new(attributes.except('reblogs_count', 'favourites_count'))
+      tmp_status = Status.new(attributes.except('reblogs_count', 'favourites_count', 'emoji_reactions_count', 'emoji_reactions_cache'))
 
       if tmp_status.account
         link_to tmp_status.account&.acct || "##{tmp_status.account_id}", admin_account_path(tmp_status.account_id)

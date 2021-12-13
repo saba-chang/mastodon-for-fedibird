@@ -192,7 +192,7 @@ class DetailedStatus extends ImmutablePureComponent {
 
     const reblogsCount = status.get('reblogs_count');
     const favouritesCount = status.get('favourites_count');
-    const emojiReactionsCount = status.get('emoji_reactions').reduce( (accumulator, reaction) => accumulator + reaction.get('count'), 0 );
+    const emojiReactionsCount = status.get('emoji_reactions_count');
 
     if (this.props.measureHeight) {
       outerStyle.height = `${this.state.height}px`;

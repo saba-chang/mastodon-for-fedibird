@@ -299,6 +299,10 @@ class Status < ApplicationRecord
     status_stat&.favourites_count || 0
   end
 
+  def emoji_reactions_count
+    status_stat&.emoji_reactions_count || 0
+  end
+
   def grouped_emoji_reactions(account = nil)
     (Oj.load(status_stat&.emoji_reactions_cache || '', mode: :strict) || []).tap do |emoji_reactions|
       if account.present?
@@ -318,7 +322,7 @@ class Status < ApplicationRecord
 
   def refresh_grouped_emoji_reactions!
     generate_grouped_emoji_reactions.tap do |emoji_reactions_cache|
-      update_status_stat!(emoji_reactions_cache: emoji_reactions_cache)
+      update_status_stat!(emoji_reactions_count: emoji_reactions.count, emoji_reactions_cache: emoji_reactions_cache)
     end
   end
 

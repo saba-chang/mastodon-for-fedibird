@@ -50,6 +50,7 @@ module Mastodon
           status_stat.replies_count         = status.replies.where.not(visibility: :direct).count
           status_stat.reblogs_count         = status.reblogs.count
           status_stat.favourites_count      = status.favourites.count
+          status_stat.emoji_reactions_count = status.emoji_reactions.count
           status_stat.emoji_reactions_cache = status.generate_grouped_emoji_reactions
 
           status_stat.save if status_stat.changed?
