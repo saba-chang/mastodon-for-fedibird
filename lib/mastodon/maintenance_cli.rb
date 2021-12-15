@@ -318,7 +318,6 @@ module Mastodon
               media_attachments m
               INNER JOIN statuses s ON m.status_id = s.id
                   AND s.deleted_at IS NULL
-                  AND s.expires_at >= CURRENT_TIMESTAMP
                   INNER JOIN accounts a ON s.account_id = a.id
               WHERE
                   a.domain = $1
