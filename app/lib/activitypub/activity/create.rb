@@ -174,6 +174,44 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     nil
   end
 
+  def explicit_mentions
+    @explicit_mentions ||= explicit_mentions_from_text(@params[:text])
+  end
+
+  def explicit_mentions_from_text(text)
+    return [] if text.blank?
+
+    text.scan(Account::MENTION_RE).map { |match| match.first }.uniq.filter_map do |match|
+      username, domain = match.split('@', 2)
+
+      domain = begin
+        if TagManager.instance.local_domain?(domain)
+          nil
+        else
+          TagManager.instance.normalize_domain(domain)
+        end
+      end
+
+      mentioned_account = Account.find_remote(username, domain)
+
+      if mention_undeliverable?(mentioned_account)
+        begin
+          mentioned_account = ResolveAccountService.new.call(match)
+        rescue Webfinger::Error, HTTP::Error, OpenSSL::SSL::SSLError, Mastodon::UnexpectedResponseError
+          mentioned_account = nil
+        end
+      end
+
+      next match if mention_undeliverable?(mentioned_account) || mentioned_account&.suspended?
+
+      mentioned_account
+    end
+  end
+
+  def mention_undeliverable?(mentioned_account)
+    mentioned_account.nil? || (!mentioned_account.local? && mentioned_account.ostatus?)
+  end
+
   def process_mention(tag)
     return if tag['href'].blank?
 
@@ -181,6 +219,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     account = ActivityPub::FetchRemoteAccountService.new.call(tag['href']) if account.nil?
 
     return if account.nil?
+    return if @quote&.account == account && !explicit_mentions.include?(account)
 
     @mentions << Mention.new(account: account, silent: false)
   end
