@@ -413,7 +413,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
   def text_from_content
     return Formatter.instance.linkify([[text_from_name, text_from_summary.presence].compact.join("\n\n"), object_url || object_uri].join(' ')) if converted_object_type?
 
-    if @object['quoteUrl'].blank? && @object['_misskey_quote'].present?
+    if @object['quoteUri'].blank? && @object['_misskey_quote'].present?
       Formatter.instance.linkify(@object['_misskey_content'])
     elsif @object['content'].present?
       @object['content']
@@ -554,7 +554,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
   end
 
   def quote
-    @quote ||= quote_from_url(@object['quoteUrl'] || @object['_misskey_quote'])
+    @quote ||= quote_from_url(@object['quoteUri'] || @object['_misskey_quote'])
   end
 
   def process_quote
