@@ -88,6 +88,7 @@ class InitialStateSerializer < ActiveModel::Serializer
   end
 
   def lists
+    store = {}
     store = ActiveModelSerializers::SerializableResource.new(object.current_account.owned_lists, each_serializer: REST::ListSerializer) if object.current_account
     store
   end
