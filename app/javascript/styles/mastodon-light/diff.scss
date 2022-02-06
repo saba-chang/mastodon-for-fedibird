@@ -611,6 +611,22 @@ html {
   .nothing-here {
     border-color: lighten($ui-base-color, 8%);
   }
+
+  &__row--expired {
+    background: darken($warning-red, 29%);
+
+    &:hover {
+      background: darken($warning-red, 27%);
+    }
+
+    &:nth-child(even) {
+      background: darken($warning-red, 25%);
+
+      &:hover {
+        background: darken($warning-red, 23%);
+      }
+    }
+  }
 }
 
 .activity-stream {

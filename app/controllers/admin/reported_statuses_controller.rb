@@ -32,6 +32,8 @@ module Admin
         'nsfw_on'
       elsif params[:nsfw_off]
         'nsfw_off'
+      elsif params[:expire]
+        'expire'
       elsif params[:delete]
         'delete'
       end

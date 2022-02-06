@@ -10,6 +10,8 @@ class Form::StatusBatch
     case action
     when 'nsfw_on', 'nsfw_off'
       change_sensitive(action == 'nsfw_on')
+    when 'expire'
+      expire_statuses
     when 'delete'
       delete_statuses
     end
@@ -32,8 +34,17 @@ class Form::StatusBatch
     false
   end
 
-  def delete_statuses
+  def expire_statuses
     Status.where(id: status_ids).reorder(nil).find_each do |status|
+      RemoveStatusService.new.call(status, mark_expired: true)
+      log_action :expire, status
+    end
+
+    true
+  end
+
+  def delete_statuses
+    Status.include_expired.where(id: status_ids).reorder(nil).find_each do |status|
       status.discard
       RemovalWorker.perform_async(status.id, immediate: true)
       Tombstone.find_or_create_by(uri: status.uri, account: status.account, by_moderator: true)

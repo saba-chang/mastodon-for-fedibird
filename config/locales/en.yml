@@ -260,6 +260,7 @@ en:
         enable_custom_emoji: Enable Custom Emoji
         enable_sign_in_token_auth_user: Enable E-mail Token Authentication for User
         enable_user: Enable User
+        expire_status: Close Post
         memorialize_account: Memorialize Account
         promote_user: Promote User
         remove_avatar_user: Remove Avatar
@@ -305,6 +306,7 @@ en:
         enable_custom_emoji_html: "%{name} enabled emoji %{target}"
         enable_sign_in_token_auth_user_html: "%{name} enabled e-mail token authentication for %{target}"
         enable_user_html: "%{name} enabled login for user %{target}"
+        expire_status_html: "%{name} closed post by %{target}"
         memorialize_account_html: "%{name} turned %{target}'s account into a memoriam page"
         promote_user_html: "%{name} promoted user %{target}"
         remove_avatar_user_html: "%{name} removed %{target}'s avatar"
@@ -694,6 +696,7 @@ en:
       back_to_account: Back to account page
       batch:
         delete: Delete
+        expire: Close
         nsfw_off: Mark as not sensitive
         nsfw_on: Mark as sensitive
       deleted: Deleted
@@ -1442,6 +1445,7 @@ en:
       invalid_expire_at: Invalid expires are specified.
       invalid_expire_action: Invalid expires_action are specified.
   stream_entries:
+    expired: Expired
     pinned: Pinned post
     reblogged: boosted
     sensitive_content: Sensitive content

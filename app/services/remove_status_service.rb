@@ -15,10 +15,10 @@ class RemoveStatusService < BaseService
     @status        = status
     @account       = status.account
     @options       = options
-    @status_expire = status.status_expire
+    @status_expire = status.status_expire || mark_expired? && StatusExpire.new(status_id: status.id, expires_at: Time.now) || nil
     @payload       = Oj.dump(event: mark_expired? ? :expire : :delete, payload: status.id.to_s)
 
-    return if mark_expired? && @status_expire.nil?
+    return if mark_expired? && already_expired?
 
     @status.discard unless mark_expired?
 
@@ -68,6 +68,10 @@ class RemoveStatusService < BaseService
 
   def mark_expired?
     @options[:mark_expired]
+  end
+
+  def already_expired?
+    @status.expired?
   end
 
   def remove_from_self

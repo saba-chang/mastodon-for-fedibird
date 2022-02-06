@@ -246,6 +246,7 @@ ja:
         disable_user: ユーザーを無効化
         enable_custom_emoji: カスタム絵文字を有効化
         enable_user: ユーザーを有効化
+        expire_status: 投稿を公開終了
         memorialize_account: 追悼アカウント化
         promote_user: ユーザーを昇格
         remove_avatar_user: アイコンを削除
@@ -289,6 +290,7 @@ ja:
         disable_user_html: "%{name} さんが %{target} さんのログインを無効化しました"
         enable_custom_emoji_html: "%{name} さんがカスタム絵文字 %{target} を有効化しました"
         enable_user_html: "%{name} さんが %{target} さんのログインを有効化しました"
+        expire_status_html: "%{name} さんが %{target} さんの投稿を公開終了しました"
         memorialize_account_html: "%{name} さんが %{target} さんを追悼アカウントページに登録しました"
         promote_user_html: "%{name} さんが %{target} さんを昇格しました"
         remove_avatar_user_html: "%{name} さんが %{target} さんのアイコンを削除しました"
@@ -672,6 +674,7 @@ ja:
       back_to_account: アカウントページに戻る
       batch:
         delete: 削除
+        expire: 公開終了
         nsfw_off: 閲覧注意をはずす
         nsfw_on: 閲覧注意にする
       deleted: 削除済み
@@ -1345,6 +1348,7 @@ ja:
       invalid_expire_at: 不正な公開期限が指定されています
       invalid_expire_action: 不正な公開期限時のアクションが指定されています
   stream_entries:
+    expired: 公開終了
     pinned: 固定された投稿
     reblogged: さんがブースト
     sensitive_content: 閲覧注意

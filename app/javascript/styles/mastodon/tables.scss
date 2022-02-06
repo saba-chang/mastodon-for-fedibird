@@ -217,6 +217,22 @@ a.table-action-link {
       }
     }
 
+    &--expired {
+      background: darken($warning-red, 54%);
+
+      &:hover {
+        background: darken($warning-red, 52%);
+      }
+
+      &:nth-child(even) {
+        background: darken($warning-red, 50%);
+
+        &:hover {
+          background: darken($warning-red, 48%);
+        }
+      }
+    }
+
     &__content {
       padding-top: 12px;
       padding-bottom: 16px;

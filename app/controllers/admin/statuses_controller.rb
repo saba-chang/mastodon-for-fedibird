@@ -11,10 +11,11 @@ module Admin
     def index
       authorize :status, :index?
 
-      @statuses = @account.statuses.where(visibility: [:public, :unlisted])
+      @statuses = Status.include_expired.where(account: @account).where(visibility: [:public, :unlisted])
 
       if params[:media]
-        @statuses.merge!(Status.joins(:media_attachments).merge(@account.media_attachments.reorder(nil)).group(:id))
+        @statuses.merge!(Status.include_expired.joins(:media_attachments).merge(@account.media_attachments.reorder(nil)).group(:id))
+        @statuses = @statuses.order(id: :desc)
       end
 
       @statuses = @statuses.preload(:media_attachments, :mentions).page(params[:page]).per(PER_PAGE)
@@ -67,6 +68,8 @@ module Admin
         'nsfw_on'
       elsif params[:nsfw_off]
         'nsfw_off'
+      elsif params[:expire]
+        'expire'
       elsif params[:delete]
         'delete'
       end
