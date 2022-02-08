@@ -21,6 +21,7 @@
         &.with_block_label .hint { margin-bottom: 16px }
 
         &.boolean {
+            .fedibird_features,
             .recommended { margin: 0 8px }
 
             .label_input>label { padding-top: 3px }

@@ -1,6 +1,7 @@
 ---
 ja:
   simple_form:
+    fedibird_features: Fedibird
     hints:
       account_alias:
         acct: 引っ越し元のユーザー名@ドメインを指定してください

@@ -696,6 +696,18 @@ html {
     color: $ui-highlight-color;
     background-color: rgba($ui-highlight-color, 0.1);
   }
+
+  .fedibird_features {
+    border-color: $fedibird-theme-color;
+    color: $fedibird-theme-color;
+    background-color: rgba($fedibird-theme-color, 0.1);
+  }
+}
+
+.fedibird_features {
+  border-color: $fedibird-theme-color;
+  color: $fedibird-theme-color;
+  background-color: rgba($fedibird-theme-color, 0.1);
 }
 
 .compose-form .compose-form__warning {

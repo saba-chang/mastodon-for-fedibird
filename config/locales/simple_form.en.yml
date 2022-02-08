@@ -1,6 +1,7 @@
 ---
 en:
   simple_form:
+    fedibird_features: Fedibird
     hints:
       account_alias:
         acct: Specify the username@domain of the account you want to move from
