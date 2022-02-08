@@ -213,6 +213,7 @@ class ActivityPub::ProcessAccountService < BaseService
   end
 
   DEFER_SETTINGS_KEYS = %w(
+    noindex
   ).freeze
 
   def defer_settings

@@ -74,6 +74,7 @@ class Account < ApplicationRecord
   include DomainNormalizable
   include DomainMaterializable
   include AccountMerging
+  include AccountSettings
 
   TRUST_LEVELS = {
     untrusted: 0,
@@ -137,7 +138,11 @@ class Account < ApplicationRecord
            :moderator?,
            :staff?,
            :locale,
-           :hides_network?,
+           :noindex?,
+           :hide_network?,
+           :hide_statuses_count?,
+           :hide_followers_count?,
+           :hide_following_count?,
            :shows_application?,
            to: :user,
            prefix: true,
@@ -185,6 +190,18 @@ class Account < ApplicationRecord
 
   def local_username_and_domain
     "#{username}@#{Rails.configuration.x.local_domain}"
+  end
+
+  def public_statuses_count
+    hide_statuses_count? ? 0 : statuses_count
+  end
+
+  def public_followers_count
+    hide_followers_count? ? 0 : followers_count
+  end
+
+  def public_following_count
+    hide_following_count? ? 0 : following_count
   end
 
   def local_followers_count
@@ -351,12 +368,12 @@ class Account < ApplicationRecord
     save!
   end
 
-  def hides_followers?
-    hide_collections? || user_hides_network?
+  def hide_followers?
+    hide_collections? || hide_network?
   end
 
-  def hides_following?
-    hide_collections? || user_hides_network?
+  def hide_following?
+    hide_collections? || hide_network?
   end
 
   def object_type
@@ -402,7 +419,16 @@ class Account < ApplicationRecord
   end
 
   def other_settings
-    settings
+    local? && user ? settings.merge(
+      {
+        'noindex'              => user.setting_noindex,
+        'hide_network'         => user.setting_hide_network,
+        'hide_statuses_count'  => user.setting_hide_statuses_count,
+        'hide_following_count' => user.setting_hide_following_count,
+        'hide_followers_count' => user.setting_hide_followers_count,
+        'enable_reaction'      => user.setting_enable_reaction,
+      }
+    ) : settings
   end
 
   class Field < ActiveModelSerializers::Model

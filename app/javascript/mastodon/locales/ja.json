@@ -40,6 +40,7 @@
   "account.open_domain_timeline": "{domain}タイムラインを表示",
   "account.posts": "投稿",
   "account.posts_with_replies": "投稿と返信",
+  "account.secret": "非公開",
   "account.report": "@{name}さんを通報",
   "account.requested": "フォロー承認待ちです。クリックしてキャンセル",
   "account.share": "@{name}さんのプロフィールを共有する",

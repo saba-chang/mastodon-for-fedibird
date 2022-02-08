@@ -79,6 +79,7 @@ ja:
       bot: Bot
       group: Group
       moderator: Mod
+    secret: 非公開
     unavailable: プロフィールは利用できません
     unfollow: フォロー解除
   account_subscribes:

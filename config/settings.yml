@@ -52,6 +52,9 @@ defaults: &defaults
   enable_limited_timeline: false
   enable_reaction: true
   show_reply_tree_button: true
+  hide_statuses_count: false
+  hide_following_count: false
+  hide_followers_count: false
   notification_emails:
     follow: false
     reblog: false

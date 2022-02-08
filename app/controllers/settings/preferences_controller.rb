@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
 class Settings::PreferencesController < Settings::BaseController
+  before_action :set_account, only: [:update]
+
   def show; end
 
   def update
-    user_settings.update(user_settings_params.to_h)
+    if user_settings.update(user_settings_params.to_h)
+      ActivityPub::UpdateDistributionWorker.perform_async(@account.id)
+    end
 
     if current_user.update(user_params)
       I18n.locale = current_user.locale
@@ -69,8 +73,15 @@ class Settings::PreferencesController < Settings::BaseController
       :setting_enable_limited_timeline,
       :setting_enable_reaction,
       :setting_show_reply_tree_button,
+      :setting_hide_statuses_count,
+      :setting_hide_following_count,
+      :setting_hide_followers_count,
       notification_emails: %i(follow follow_request reblog favourite emoji_reaction mention digest report pending_account trending_tag),
       interactions: %i(must_be_follower must_be_following must_be_following_dm)
     )
+  end
+
+  def set_account
+    @account = current_account
   end
 end

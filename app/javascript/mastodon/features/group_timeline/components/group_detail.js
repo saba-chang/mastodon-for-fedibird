@@ -46,6 +46,7 @@ const messages = defineMessages({
     id: 'confirmations.unsubscribe.confirm',
     defaultMessage: 'Unsubscribe'
   },
+  secret: { id: 'account.secret', defaultMessage: 'Secret' },
 });
 
 const makeMapStateToProps = () => {
@@ -286,6 +287,9 @@ class GroupDetail extends ImmutablePureComponent {
       }
     }
 
+    const hide_statuses_count = account.getIn(['other_settings', 'hide_statuses_count'], false);
+    const hide_followers_count = account.getIn(['other_settings', 'hide_followers_count'], false);
+
     return (
       <div className='group__detail'>
         <div className='group__detail__img'>
@@ -317,14 +321,16 @@ class GroupDetail extends ImmutablePureComponent {
 
         <div className='group__detail__extra'>
           <div className='group__header__links'>
-            <a title={intl.formatNumber(account.get('statuses_count'))}>
+            <a title={hide_statuses_count ? intl.formatMessage(messages.secret) : intl.formatNumber(account.get('statuses_count'))}>
               <ShortNumber
+                hide={hide_statuses_count}
                 value={account.get('statuses_count')}
                 renderer={counterRenderer('statuses')}
               />
             </a>
-            <a title={intl.formatNumber(account.get('followers_count'))}>
+            <a title={hide_followers_count ? intl.formatMessage(messages.secret) : intl.formatNumber(account.get('followers_count'))}>
               <ShortNumber
+                hide={hide_followers_count}
                 value={account.get('followers_count')}
                 renderer={counterRenderer('members')}
               />

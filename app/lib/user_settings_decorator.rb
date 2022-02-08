@@ -10,9 +10,23 @@ class UserSettingsDecorator
   def update(settings)
     @settings = settings
     process_update
+    profile_change?
   end
 
   private
+
+  PROFILE_KEYS = %w(
+    setting_noindex
+    setting_hide_network
+    setting_hide_statuses_count
+    setting_hide_following_count
+    setting_hide_followers_count
+    setting_enable_reaction
+  ).freeze
+
+  def profile_change?
+    settings.keys.intersection(PROFILE_KEYS).any?
+  end
 
   def process_update
     user.settings['notification_emails']               = merged_notification_emails if change?('notification_emails')
@@ -53,6 +67,9 @@ class UserSettingsDecorator
     user.settings['enable_limited_timeline']           = enable_limited_timeline_preference if change?('setting_enable_limited_timeline')
     user.settings['enable_reaction']                   = enable_reaction_preference if change?('setting_enable_reaction')
     user.settings['show_reply_tree_button']            = show_reply_tree_button_preference if change?('setting_show_reply_tree_button')
+    user.settings['hide_statuses_count']               = hide_statuses_count_preference if change?('setting_hide_statuses_count')
+    user.settings['hide_following_count']              = hide_following_count_preference if change?('setting_hide_following_count')
+    user.settings['hide_followers_count']              = hide_followers_count_preference if change?('setting_hide_followers_count')
   end
 
   def merged_notification_emails
@@ -205,6 +222,18 @@ class UserSettingsDecorator
 
   def show_reply_tree_button_preference
     boolean_cast_setting 'setting_show_reply_tree_button'
+  end
+
+  def hide_statuses_count_preference
+    boolean_cast_setting 'setting_hide_statuses_count'
+  end
+
+  def hide_following_count_preference
+    boolean_cast_setting 'setting_hide_following_count'
+  end
+
+  def hide_followers_count_preference
+    boolean_cast_setting 'setting_hide_followers_count'
   end
 
   def boolean_cast_setting(key)

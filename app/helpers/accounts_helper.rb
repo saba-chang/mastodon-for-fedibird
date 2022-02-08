@@ -79,21 +79,21 @@ module AccountsHelper
 
   def account_description(account)
     prepend_str = [
-      [
-        number_to_human(account.statuses_count, precision: 3, strip_insignificant_zeros: true),
-        I18n.t('accounts.posts', count: account.statuses_count),
+      account.hide_statuses_count? ? nil : [
+        number_to_human(account.public_statuses_count, precision: 3, strip_insignificant_zeros: true),
+        I18n.t('accounts.posts', count: account.public_statuses_count),
       ].join(' '),
 
-      [
-        number_to_human(account.following_count, precision: 3, strip_insignificant_zeros: true),
-        I18n.t('accounts.following', count: account.following_count),
+      account.hide_following_count? ? nil : [
+        number_to_human(account.public_following_count, precision: 3, strip_insignificant_zeros: true),
+        I18n.t('accounts.following', count: account.public_following_count),
       ].join(' '),
 
-      [
-        number_to_human(account.followers_count, precision: 3, strip_insignificant_zeros: true),
-        I18n.t('accounts.followers', count: account.followers_count),
+      account.hide_followers_count? ? nil : [
+        number_to_human(account.public_followers_count, precision: 3, strip_insignificant_zeros: true),
+        I18n.t('accounts.followers', count: account.public_followers_count),
       ].join(' '),
-    ].join(', ')
+    ].compact.join(', ')
 
     [prepend_str, account.note].join(' Â· ')
   end

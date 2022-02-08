@@ -55,7 +55,10 @@ en:
         setting_enable_limited_timeline: Enable a limited home to display private and circle and direct message
         setting_enable_reaction: Enable the reaction display on the timeline and display the reaction button
         setting_follow_button_to_list_adder: Change the behavior of the Follow / Subscribe button, open a dialog where you can select a list to follow / subscribe, or opt out of receiving at home
+        setting_hide_followers_count: The number of followers will be hidden in your profile
+        setting_hide_following_count: The number of following will be hidden in your profile
         setting_hide_network: Who you follow and who follows you will be hidden on your profile
+        setting_hide_statuses_count: The number of post will be hidden in your profile
         setting_noindex: Affects your public profile and post pages
         setting_place_tab_bar_at_bottom: When using a touch device, you can operate tabs within the reach of your fingers.
         setting_show_application: The application you use to post will be displayed in the detailed view of your posts
@@ -194,7 +197,10 @@ en:
         setting_enable_reaction: Enable reaction
         setting_expand_spoilers: Always expand posts marked with content warnings
         setting_follow_button_to_list_adder: Open list add dialog with follow button
+        setting_hide_followers_count: Hide your followers count
+        setting_hide_following_count: Hide your following count
         setting_hide_network: Hide your social graph
+        setting_hide_statuses_count: Hide your post count
         setting_noindex: Opt-out of search engine indexing
         setting_place_tab_bar_at_bottom: Place the tab bar at the bottom
         setting_reduce_motion: Reduce motion in animations

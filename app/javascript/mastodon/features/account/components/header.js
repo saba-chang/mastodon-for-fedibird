@@ -54,6 +54,7 @@ const messages = defineMessages({
   add_or_remove_from_list: { id: 'account.add_or_remove_from_list', defaultMessage: 'Add or Remove from lists' },
   add_or_remove_from_circle: { id: 'account.add_or_remove_from_circle', defaultMessage: 'Add or Remove from circles' },
   admin_account: { id: 'status.admin_account', defaultMessage: 'Open moderation interface for @{name}' },
+  secret: { id: 'account.secret', defaultMessage: 'Secret' },
 });
 
 const dateFormatOptions = {
@@ -333,6 +334,10 @@ class Header extends ImmutablePureComponent {
       buttons = <Fragment>{subscribing_buttons}{following_buttons}</Fragment>;
     }
 
+    const hide_statuses_count = account.getIn(['other_settings', 'hide_statuses_count'], false);
+    const hide_following_count = account.getIn(['other_settings', 'hide_following_count'], false);
+    const hide_followers_count = account.getIn(['other_settings', 'hide_followers_count'], false);
+
     return (
       <div className={classNames('account__header', { inactive: !!account.get('moved') })} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
         <div className='account__header__image'>
@@ -408,22 +413,25 @@ class Header extends ImmutablePureComponent {
 
             {!suspended && (
               <div className='account__header__extra__links'>
-                <NavLink isActive={this.isStatusesPageActive} activeClassName='active' to={`/accounts/${account.get('id')}`} title={intl.formatNumber(account.get('statuses_count'))}>
+                <NavLink isActive={this.isStatusesPageActive} activeClassName='active' to={`/accounts/${account.get('id')}`} title={hide_statuses_count ? intl.formatMessage(messages.secret) : intl.formatNumber(account.get('statuses_count'))}>
                   <ShortNumber
+                    hide={hide_statuses_count}
                     value={account.get('statuses_count')}
                     renderer={counterRenderer('statuses')}
                   />
                 </NavLink>
 
-                <NavLink exact activeClassName='active' to={`/accounts/${account.get('id')}/following`} title={intl.formatNumber(account.get('following_count'))}>
+                <NavLink exact activeClassName='active' to={`/accounts/${account.get('id')}/following`} title={hide_following_count ? intl.formatMessage(messages.secret) : intl.formatNumber(account.get('following_count'))}>
                   <ShortNumber
+                    hide={hide_following_count}
                     value={account.get('following_count')}
                     renderer={counterRenderer('following')}
                   />
                 </NavLink>
 
-                <NavLink exact activeClassName='active' to={`/accounts/${account.get('id')}/followers`} title={intl.formatNumber(account.get('followers_count'))}>
+                <NavLink exact activeClassName='active' to={`/accounts/${account.get('id')}/followers`} title={hide_followers_count ? intl.formatMessage(messages.secret) : intl.formatNumber(account.get('followers_count'))}>
                   <ShortNumber
+                    hide={hide_followers_count}
                     value={account.get('followers_count')}
                     renderer={counterRenderer('followers')}
                   />

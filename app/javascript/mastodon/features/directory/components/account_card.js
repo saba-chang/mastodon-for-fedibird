@@ -272,6 +272,9 @@ class AccountCard extends ImmutablePureComponent {
       }
     }
 
+    const hide_statuses_count = account.getIn(['other_settings', 'hide_statuses_count'], false);
+    const hide_followers_count = account.getIn(['other_settings', 'hide_followers_count'], false);
+
     return (
       <div className='directory__card'>
         <div className='directory__card__img'>
@@ -307,13 +310,13 @@ class AccountCard extends ImmutablePureComponent {
 
         <div className='directory__card__extra'>
           <div className='accounts-table__count'>
-            <ShortNumber value={account.get('statuses_count')} />
+            {hide_statuses_count ? '-' : <ShortNumber value={account.get('statuses_count')} />}
             <small>
               <FormattedMessage id='account.posts' defaultMessage='Toots' />
             </small>
           </div>
           <div className='accounts-table__count'>
-            <ShortNumber value={account.get('followers_count')} />{' '}
+            {hide_followers_count ? '-' : <ShortNumber value={account.get('followers_count')} />}{' '}
             <small>
               <FormattedMessage
                 id='account.followers'

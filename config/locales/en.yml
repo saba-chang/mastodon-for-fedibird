@@ -85,6 +85,7 @@ en:
       bot: Bot
       group: Group
       moderator: Mod
+    secret: Secret
     unavailable: Profile unavailable
     unfollow: Unfollow
   account_subscribes:

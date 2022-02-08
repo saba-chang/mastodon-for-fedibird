@@ -131,6 +131,7 @@ class User < ApplicationRecord
            :follow_button_to_list_adder, :show_navigation_panel, :show_quote_button, :show_bookmark_button,
            :place_tab_bar_at_bottom,:show_tab_bar_label, :enable_limited_timeline, :enable_reaction,
            :show_reply_tree_button,
+           :hide_statuses_count, :hide_following_count, :hide_followers_count,
 
            to: :settings, prefix: :setting, allow_nil: false
 
@@ -271,8 +272,24 @@ class User < ApplicationRecord
     settings.notification_emails['trending_tag']
   end
 
-  def hides_network?
-    @hides_network ||= settings.hide_network
+  def noindex?
+    @noindex ||= settings.noindex
+  end
+
+  def hide_network?
+    @hide_network ||= settings.hide_network
+  end
+
+  def hide_statuses_count?
+    @hide_statuses_count ||= settings.hide_statuses_count
+  end
+
+  def hide_following_count?
+    @hide_following_count ||= settings.hide_following_count
+  end
+
+  def hide_followers_count?
+    @hide_followers_count ||= settings.hide_followers_count
   end
 
   def aggregates_reblogs?

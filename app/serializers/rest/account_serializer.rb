@@ -64,6 +64,18 @@ class REST::AccountSerializer < ActiveModel::Serializer
     object.last_status_at&.to_date&.iso8601
   end
 
+  def statuses_count
+    object.public_statuses_count
+  end
+
+  def following_count
+    object.public_following_count
+  end
+
+  def followers_count
+    object.public_followers_count
+  end
+
   def display_name
     object.suspended? ? '' : object.display_name
   end
