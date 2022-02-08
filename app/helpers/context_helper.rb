@@ -26,6 +26,7 @@ module ContextHelper
     suspended: { 'toot' => 'http://joinmastodon.org/ns#', 'suspended' => 'toot:suspended' },
     quote_uri: { 'fedibird' => 'http://fedibird.com/ns#', 'quoteUri' => 'fedibird:quoteUri' },
     expiry: { 'fedibird' => 'http://fedibird.com/ns#', 'expiry' => 'fedibird:expiry' },
+    other_setting: { 'fedibird' => 'http://fedibird.com/ns#', 'otherSetting' => 'fedibird:otherSetting' },
   }.freeze
 
   def full_context

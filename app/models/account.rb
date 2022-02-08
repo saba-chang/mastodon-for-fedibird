@@ -47,6 +47,7 @@
 #  devices_url                   :string
 #  suspension_origin             :integer
 #  sensitized_at                 :datetime
+#  settings                      :jsonb            default("{}"), not null
 #
 
 class Account < ApplicationRecord
@@ -394,6 +395,14 @@ class Account < ApplicationRecord
 
   def index_text
     ActionController::Base.helpers.strip_tags(note)
+  end
+
+  def settings
+    self[:settings].class == String ? {} : self[:settings]
+  end
+
+  def other_settings
+    settings
   end
 
   class Field < ActiveModelSerializers::Model
