@@ -127,6 +127,8 @@ class REST::InstanceSerializer < ActiveModel::Serializer
       :visibility_mutual,
       :visibility_limited,
       :emoji_reaction,
+      :misskey_birthday,
+      :misskey_location,
     ]
   end
 

@@ -55,6 +55,16 @@
           %input{ type: :text, maxlength: '999', spellcheck: 'false', readonly: 'true', value: link_to('Mastodon', ActivityPub::TagManager.instance.url_for(@account), rel: 'me').to_str }
         %button{ type: :button }= t('generic.copy')
 
+  .fields-row
+    .fields-row__column.fields-group.fields-row__column-8
+      = f.input :birthday, wrapper: :with_label, input_html: { placeholder: '2016-03-16', pattern: '\d{4}-\d{1,2}-\d{1,2}' }, hint: t('simple_form.hints.defaults.birthday'), fedibird_features: true
+      %p.warning-hint= t('simple_form.hints.defaults.birthday_caution')
+
+  .fields-row
+    .fields-row__column.fields-group.fields-row__column-8
+      = f.input :location, wrapper: :with_label, input_html: { maxlength: 50 }, hint: t('simple_form.hints.defaults.location'), fedibird_features: true
+      %p.warning-hint= t('simple_form.hints.defaults.location_caution')
+
   .actions
     = f.button :button, t('generic.save_changes'), type: :submit
 

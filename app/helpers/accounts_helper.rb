@@ -98,6 +98,26 @@ module AccountsHelper
     [prepend_str, account.note].join(' Â· ')
   end
 
+  def account_cat_params(account, **options)
+    result = options || {}
+    result.merge!({ 'data-acct': account.acct })
+
+    return result unless !current_user&.setting_disable_joke_appearance && account.other_settings['is_cat']
+
+    @cat_inline_styles ||= {}
+    @cat_inline_styles[account.acct] = account.cat_ears_color if account.cat_ears_color
+
+    result.merge!({ class: [options[:class], 'cat'].compact.join(' ') })
+  end
+
+  def account_cat_styles
+    return if @cat_inline_styles.nil?
+
+    @cat_inline_styles.map do |acct, color|
+      ".cat[data-acct=\"#{h(acct)}\"] { --cat-ears-color: #{h(color)}; }"
+    end.join("\n")
+  end
+
   def svg_logo
     content_tag(:svg, tag(:use, 'xlink:href' => '#mastodon-svg-logo'), 'viewBox' => '0 0 216.4144 232.00976')
   end

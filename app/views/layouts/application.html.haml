@@ -33,6 +33,9 @@
     - if Setting.custom_css.present?
       = stylesheet_link_tag custom_css_path, host: request.host, media: 'all'
 
+    %style{ nonce: request.content_security_policy_nonce }
+      != account_cat_styles
+
     = yield :header_tags
 
   %body{ class: body_classes }

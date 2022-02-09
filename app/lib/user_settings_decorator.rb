@@ -70,6 +70,7 @@ class UserSettingsDecorator
     user.settings['hide_statuses_count']               = hide_statuses_count_preference if change?('setting_hide_statuses_count')
     user.settings['hide_following_count']              = hide_following_count_preference if change?('setting_hide_following_count')
     user.settings['hide_followers_count']              = hide_followers_count_preference if change?('setting_hide_followers_count')
+    user.settings['disable_joke_appearance']           = disable_joke_appearance_preference if change?('setting_disable_joke_appearance')
   end
 
   def merged_notification_emails
@@ -234,6 +235,10 @@ class UserSettingsDecorator
 
   def hide_followers_count_preference
     boolean_cast_setting 'setting_hide_followers_count'
+  end
+
+  def disable_joke_appearance_preference
+    boolean_cast_setting 'setting_disable_joke_appearance'
   end
 
   def boolean_cast_setting(key)

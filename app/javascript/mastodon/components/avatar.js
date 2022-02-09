@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
-import { autoPlayGif } from '../initial_state';
+import classNames from 'classnames';
+import { autoPlayGif, disable_joke_appearance } from '../initial_state';
 
 export default class Avatar extends React.PureComponent {
 
@@ -38,19 +39,18 @@ export default class Avatar extends React.PureComponent {
     const { hovering } = this.state;
 
     const src = account.get('avatar');
+    const isCat = !disable_joke_appearance && account.getIn(['other_settings', 'is_cat']);
+    const catEarsColor = !disable_joke_appearance && account.getIn(['other_settings', 'cat_ears_color']);
     const staticSrc = account.get('avatar_static');
 
-    let className = 'account__avatar';
-
-    if (inline) {
-      className = className + ' account__avatar-inline';
-    }
+    const catEarsColorStyle = catEarsColor ? { '--cat-ears-color': catEarsColor } : {};
 
     const style = {
       ...this.props.style,
       width: `${size}px`,
       height: `${size}px`,
       backgroundSize: `${size}px ${size}px`,
+      ...catEarsColorStyle,
     };
 
     if (hovering || animate) {
@@ -61,7 +61,8 @@ export default class Avatar extends React.PureComponent {
 
     return (
       <div
-        className={className}
+        className={classNames('account__avatar', { 'account__avatar-inline': inline, 'account__avatar-cat': isCat })}
+        data-cat-ears-color={catEarsColor}
         onMouseEnter={this.handleMouseEnter}
         onMouseLeave={this.handleMouseLeave}
         style={style}

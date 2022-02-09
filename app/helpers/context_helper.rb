@@ -27,6 +27,8 @@ module ContextHelper
     quote_uri: { 'fedibird' => 'http://fedibird.com/ns#', 'quoteUri' => 'fedibird:quoteUri' },
     expiry: { 'fedibird' => 'http://fedibird.com/ns#', 'expiry' => 'fedibird:expiry' },
     other_setting: { 'fedibird' => 'http://fedibird.com/ns#', 'otherSetting' => 'fedibird:otherSetting' },
+    is_cat: { 'misskey' => 'https://misskey-hub.net/ns#', 'isCat' => 'misskey:isCat' },
+    vcard: { 'vcard' => 'http://www.w3.org/2006/vcard/ns#' },
   }.freeze
 
   def full_context

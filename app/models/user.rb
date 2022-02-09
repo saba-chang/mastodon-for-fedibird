@@ -131,7 +131,7 @@ class User < ApplicationRecord
            :follow_button_to_list_adder, :show_navigation_panel, :show_quote_button, :show_bookmark_button,
            :place_tab_bar_at_bottom,:show_tab_bar_label, :enable_limited_timeline, :enable_reaction,
            :show_reply_tree_button,
-           :hide_statuses_count, :hide_following_count, :hide_followers_count,
+           :hide_statuses_count, :hide_following_count, :hide_followers_count, :disable_joke_appearance,
 
            to: :settings, prefix: :setting, allow_nil: false
 

@@ -762,6 +762,7 @@ en:
     animations_and_accessibility: Animations and accessibility
     confirmation_dialogs: Confirmation dialogs
     discovery: Discovery
+    joke: Joke features
     localization:
       body: Mastodon is translated by volunteers.
       guide_link: https://crowdin.com/project/mastodon

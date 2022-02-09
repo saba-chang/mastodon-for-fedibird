@@ -740,6 +740,7 @@ ja:
     animations_and_accessibility: アニメーションとアクセシビリティー
     confirmation_dialogs: 確認ダイアログ
     discovery: 見つける
+    joke: ジョーク機能
     localization:
       body: Mastodonは有志によって翻訳されています。
       guide_link: https://ja.crowdin.com/project/mastodon

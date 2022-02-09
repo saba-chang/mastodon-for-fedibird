@@ -414,23 +414,6 @@ class Account < ApplicationRecord
     ActionController::Base.helpers.strip_tags(note)
   end
 
-  def settings
-    self[:settings].class == String ? {} : self[:settings]
-  end
-
-  def other_settings
-    local? && user ? settings.merge(
-      {
-        'noindex'              => user.setting_noindex,
-        'hide_network'         => user.setting_hide_network,
-        'hide_statuses_count'  => user.setting_hide_statuses_count,
-        'hide_following_count' => user.setting_hide_following_count,
-        'hide_followers_count' => user.setting_hide_followers_count,
-        'enable_reaction'      => user.setting_enable_reaction,
-      }
-    ) : settings
-  end
-
   class Field < ActiveModelSerializers::Model
     attributes :name, :value, :verified_at, :account
 

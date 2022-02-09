@@ -55,6 +55,7 @@ defaults: &defaults
   hide_statuses_count: false
   hide_following_count: false
   hide_followers_count: false
+  disable_joke_appearance: false
   notification_emails:
     follow: false
     reblog: false

@@ -55,6 +55,7 @@ class InitialStateSerializer < ActiveModel::Serializer
       store[:enable_limited_timeline]           = object.current_account.user.setting_enable_limited_timeline
       store[:enable_reaction]                   = object.current_account.user.setting_enable_reaction
       store[:show_reply_tree_button]            = object.current_account.user.setting_show_reply_tree_button
+      store[:disable_joke_appearance]           = object.current_account.user.setting_disable_joke_appearance
     else
       store[:auto_play_gif] = Setting.auto_play_gif
       store[:display_media] = Setting.display_media

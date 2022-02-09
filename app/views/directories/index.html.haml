@@ -24,7 +24,7 @@
           = image_tag account.header.url, alt: ''
         .directory__card__bar
           = link_to TagManager.instance.url_for(account), class: 'directory__card__bar__name' do
-            .avatar
+            .avatar{ account_cat_params(account) }
               = image_tag account.avatar.url, alt: '', class: 'u-photo'
 
             .display-name

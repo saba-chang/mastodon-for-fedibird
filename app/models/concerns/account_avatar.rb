@@ -6,9 +6,14 @@ module AccountAvatar
   IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].freeze
   LIMIT = 2.megabytes
 
+  BLURHASH_OPTIONS = {
+    x_comp: 4,
+    y_comp: 4,
+  }.freeze
+
   class_methods do
     def avatar_styles(file)
-      styles = { original: { geometry: '400x400#', file_geometry_parser: FastGeometryParser } }
+      styles = { original: { geometry: '400x400#', file_geometry_parser: FastGeometryParser, blurhash: BLURHASH_OPTIONS } }
       styles[:static] = { geometry: '400x400#', format: 'png', convert_options: '-coalesce', file_geometry_parser: FastGeometryParser } if file.content_type == 'image/gif'
       styles
     end
@@ -18,7 +23,7 @@ module AccountAvatar
 
   included do
     # Avatar upload
-    has_attached_file :avatar, styles: ->(f) { avatar_styles(f) }, convert_options: { all: '+profile exif' }, processors: [:lazy_thumbnail]
+    has_attached_file :avatar, styles: ->(f) { avatar_styles(f) }, convert_options: { all: '+profile exif' }, processors: [:lazy_thumbnail, :blurhash_transcoder]
     validates_attachment_content_type :avatar, content_type: IMAGE_MIME_TYPES
     validates_attachment_size :avatar, less_than: LIMIT
     remotable_attachment :avatar, LIMIT, suppress_errors: false

@@ -98,7 +98,7 @@ class ActivityPub::ProcessAccountService < BaseService
     @account.note                    = @json['summary'] || ''
     @account.locked                  = @json['manuallyApprovesFollowers'] || false
     @account.fields                  = property_values || {}
-    @account.settings                = defer_settings.merge(other_settings || {})
+    @account.settings                = defer_settings.merge(other_settings, birthday, address, is_cat)
     @account.also_known_as           = as_array(@json['alsoKnownAs'] || []).map { |item| value_or_id(item) }
     @account.discoverable            = @json['discoverable'] || false
   end
@@ -212,16 +212,34 @@ class ActivityPub::ProcessAccountService < BaseService
     as_array(@json['attachment']).select { |attachment| attachment['type'] == 'PropertyValue' }.map { |attachment| attachment.slice('name', 'value') }
   end
 
+  def birthday
+    return {} if @json['vcard:bday'].blank?
+    { 'birthday' => ActiveRecord::Type::Date.new.cast(@json['vcard:bday']) }
+  end
+
+  def address
+    return {} if @json['vcard:Address'].blank?
+    { 'location' => @json['vcard:Address'] }
+  end
+
+  def is_cat
+    return {} unless ActiveModel::Type::Boolean.new.cast(@json['isCat'])
+    { 'is_cat' => true }
+  end
+
   DEFER_SETTINGS_KEYS = %w(
+    birthday
+    location
+    cat_ears_color
     noindex
   ).freeze
 
   def defer_settings
-    (@account.settings || {}).select { |key, _| DEFER_SETTINGS_KEYS.include?(key) }
+    @account.settings.select { |key, _| DEFER_SETTINGS_KEYS.include?(key) }
   end
 
   def other_settings
-    return unless @json['otherSetting'].is_a?(Array)
+    return {} unless @json['otherSetting'].is_a?(Array)
     @json['otherSetting'].each_with_object({}) { |v, h| h.merge!({v['name'] => v['value']}) if v['type'] == 'PropertyValue' }
   end
 

@@ -28,6 +28,7 @@ class Formatter
       html = reformat(raw_content)
       html = apply_inner_link(html)
       html = encode_custom_emojis(html, status.emojis, options[:autoplay]) if options[:custom_emojify]
+      html = nyaize_html(html) if options[:nyaize]
       return html.html_safe # rubocop:disable Rails/OutputSafety
     end
 
@@ -40,6 +41,7 @@ class Formatter
     html = encode_custom_emojis(html, status.emojis, options[:autoplay]) if options[:custom_emojify]
     html = simple_format(html, {}, sanitize: false)
     html = quotify(html, status) if status.quote? && !options[:escape_quotify]
+    html = nyaize_html(html) if options[:nyaize]
     html = html.delete("\n")
 
     html.html_safe # rubocop:disable Rails/OutputSafety
@@ -208,6 +210,44 @@ class Formatter
     url = ActivityPub::TagManager.instance.url_for(status.quote)
     link = encode_and_link_urls(url)
     html.sub(/(<[^>]+>)\z/, "<span class=\"quote-inline\"><br/>QT: #{link}</span>\\1")
+  end
+
+  def nyaize_html(html)
+    inside_anchor = false
+
+    html.split(/(<.+?>)/).compact.map do |x|
+      if x.match(/^<a/)
+        inside_anchor = true
+      elsif x == '</a>'
+        inside_anchor = false
+      end
+
+      if inside_anchor || x[0] == '<'
+        x
+      else
+        x.split(/(:.+?:)/).compact.map do |x|
+          if x[0] == ':'
+            x
+          else
+            nyaize(x)
+          end
+        end.join
+      end
+    end.join
+  end
+
+  def nyaize(text)
+    text
+      # ja-JP
+      .gsub(/な/, "にゃ").gsub(/ナ/, "ニャ").gsub(/ﾅ/, "ﾆｬ")
+      # en-US
+      .gsub(/(?<=n)a/i) { |x| x == 'A' ? 'YA' : 'ya' }
+      .gsub(/(?<=morn)ing/i) { |x| x == 'ING' ? 'YAN' : 'yan' }
+      .gsub(/(?<=every)one/i) { |x| x == 'ONE' ? 'NYAN' : 'nyan' }
+      # vko-KR
+      .gsub(/[나-낳]/) { |c| (c.ord + '냐'.ord - '나'.ord).chr }
+      .gsub(/(다)|(다(?=\.))|(다(?= ))|(다(?=!))|(다(?=\?))/m, '다냥')
+      .gsub(/(야(?=\?))|(야$)|(야(?= ))/m, '냥')
   end
 
   def rewrite(text, entities)

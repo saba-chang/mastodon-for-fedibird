@@ -1608,7 +1608,7 @@ a .account__avatar {
     bottom: 0;
     right: 0;
     z-index: 1;
-
+  
     img {
       @include avatar-radius;
       width: 100%;
@@ -7447,6 +7447,24 @@ noscript {
       }
     }
 
+    .account__header__personal {
+      font-size: 14px;
+      color: $darker-text-color;
+      margin: 5px auto;
+      border-collapse: separate;
+      border-spacing: 10px 3px;
+
+      th {
+        white-space: nowrap;
+      }
+
+      &--wrapper {
+        width: 100%;
+        margin-top: 10px;
+        border-top: 1px solid lighten($ui-base-color, 12%);
+      }
+    }
+
     .account__header__fields {
       margin: 0;
       border-top: 1px solid lighten($ui-base-color, 12%);
@@ -7472,6 +7490,7 @@ noscript {
       font-size: 14px;
       color: $darker-text-color;
       padding: 10px 0;
+      border-top: 1px solid lighten($ui-base-color, 12%);
 
       a {
         display: inline-block;

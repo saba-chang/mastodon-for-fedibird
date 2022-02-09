@@ -1,6 +1,6 @@
 .status.quote-status{ dataurl:  ActivityPub::TagManager.instance.url_for(status) }
   = link_to ActivityPub::TagManager.instance.url_for(status.account), class: 'status__display-name u-url', target: stream_link_target, rel: 'noopener' do
-    .status__avatar
+    .status__avatar{ account_cat_params(status.account) }
       %div
         = image_tag status.account.avatar_static_url, width: 18, height: 18, alt: '', class: 'u-photo account__avatar'
     %span.display-name

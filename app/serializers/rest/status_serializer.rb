@@ -17,6 +17,8 @@ class REST::StatusSerializer < ActiveModel::Serializer
   attribute :content, unless: :source_requested?
   attribute :text, if: :source_requested?
 
+  attribute :nyaize_content, if: :joke_applied?
+
   attribute :quote_id, if: :quote?
 
   attribute :expires_at, if: :has_expires?
@@ -119,7 +121,11 @@ class REST::StatusSerializer < ActiveModel::Serializer
   end
 
   def content
-    Formatter.instance.format(object)
+    @content ||= Formatter.instance.format(object)
+  end
+
+  def nyaize_content
+    @nyaize_content ||= Formatter.instance.format(object, nyaize: object.account.cat?)
   end
 
   def url
@@ -186,6 +192,10 @@ class REST::StatusSerializer < ActiveModel::Serializer
 
   def source_requested?
     instance_options[:source_requested]
+  end
+
+  def joke_applied?
+    !source_requested? && object.account.cat? && nyaize_content != content
   end
 
   def ordered_mentions

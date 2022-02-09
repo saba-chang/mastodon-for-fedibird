@@ -31,6 +31,8 @@ en:
       defaults:
         autofollow: People who sign up through the invite will automatically follow you
         avatar: PNG, GIF or JPG. At most %{size}. Will be downscaled to %{dimensions}px
+        birthday: Specify the date of birth in the format yyyy-mm-dd（ex. 2016-03-16）
+        birthday_caution: It will be published on the Internet. Please handle your personal information with care
         bot: Signal to others that the account mainly performs automated actions and might not be monitored
         context: One or multiple contexts where the filter should apply
         current_password: For security purposes please enter the password of the current account
@@ -43,12 +45,15 @@ en:
         inbox_url: Copy the URL from the frontpage of the relay you want to use
         irreversible: Filtered posts will disappear irreversibly, even if filter is later removed
         locale: The language of the user interface, e-mails and push notifications
+        location: Area of primary residence or activity
+        location_caution: It will be published on the Internet. Please do not include detailed addresses except for business use
         locked: Manually control who can follow you by approving follow requests
         password: Use at least 8 characters
         phrase: Will be matched regardless of casing in text or content warning of a post
         scopes: Which APIs the application will be allowed to access. If you select a top-level scope, you don't need to select individual ones.
         setting_aggregate_reblogs: Do not show new boosts for posts that have been recently boosted (only affects newly-received boosts)
         setting_default_sensitive: Sensitive media is hidden by default and can be revealed with a click
+        setting_disable_joke_appearance: Disable April Fools' Day and other joke functions
         setting_display_media_default: Hide media marked as sensitive
         setting_display_media_hide_all: Always hide media
         setting_display_media_show_all: Always show media
@@ -155,6 +160,7 @@ en:
       defaults:
         autofollow: Invite to follow your account
         avatar: Avatar
+        birthday: Birthday
         bot: This is a bot account
         chosen_languages: Filter languages
         confirm_new_password: Confirm new password
@@ -172,6 +178,7 @@ en:
         inbox_url: URL of the relay inbox
         irreversible: Drop instead of hide
         locale: Interface language
+        location: Location
         locked: Require follow requests
         max_uses: Max number of uses
         new_password: New password
@@ -188,6 +195,7 @@ en:
         setting_default_privacy: Posting privacy
         setting_default_sensitive: Always mark media as sensitive
         setting_delete_modal: Show confirmation dialog before deleting a post
+        setting_disable_joke_appearance: Disable joke feature to change appearance
         setting_disable_swiping: Disable swiping motions
         setting_display_media: Media display
         setting_display_media_default: Default

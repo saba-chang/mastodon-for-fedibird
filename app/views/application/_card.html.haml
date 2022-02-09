@@ -5,7 +5,7 @@
     .card__img
       = image_tag account.header.url, alt: ''
     .card__bar
-      .avatar
+      .avatar{ account_cat_params(account) }
         = image_tag account.avatar.url, alt: '', width: 48, height: 48, class: 'u-photo'
 
       .display-name

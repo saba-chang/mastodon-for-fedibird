@@ -7,7 +7,8 @@ class ActivityPub::ActorSerializer < ActivityPub::Serializer
 
   context_extensions :manually_approves_followers, :featured, :also_known_as,
                      :moved_to, :property_value, :identity_proof,
-                     :discoverable, :olm, :suspended, :other_setting
+                     :discoverable, :olm, :suspended, :other_setting,
+                     :vcard
 
   attributes :id, :type, :following, :followers,
              :inbox, :outbox, :featured, :featured_tags,
@@ -24,6 +25,8 @@ class ActivityPub::ActorSerializer < ActivityPub::Serializer
   attribute :moved_to, if: :moved?
   attribute :also_known_as, if: :also_known_as?
   attribute :suspended, if: :suspended?
+  attribute :bday, key: :'vcard:bday'
+  attribute :address, key: :'vcard:Address'
 
   has_many :virtual_other_settings, key: :other_setting
 
@@ -162,6 +165,14 @@ class ActivityPub::ActorSerializer < ActivityPub::Serializer
 
   def published
     object.created_at.midnight.iso8601
+  end
+
+  def bday
+    object.birthday
+  end
+
+  def address
+    object.location
   end
 
   def virtual_other_settings
