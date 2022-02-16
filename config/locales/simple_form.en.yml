@@ -1,6 +1,7 @@
 ---
 en:
   simple_form:
+    beta_features: Beta
     fedibird_features: Fedibird
     hints:
       account_alias:
@@ -64,6 +65,7 @@ en:
         setting_hide_following_count: The number of following will be hidden in your profile
         setting_hide_network: Who you follow and who follows you will be hidden on your profile
         setting_hide_statuses_count: The number of post will be hidden in your profile
+        setting_new_features_policy: Set the acceptance policy when new features are added to Fedibird. The recommended setting will enable many new features, so set it to disabled if it is not desirable
         setting_noindex: Affects your public profile and post pages
         setting_place_tab_bar_at_bottom: When using a touch device, you can operate tabs within the reach of your fingers.
         setting_show_application: The application you use to post will be displayed in the detailed view of your posts
@@ -209,6 +211,10 @@ en:
         setting_hide_following_count: Hide your following count
         setting_hide_network: Hide your social graph
         setting_hide_statuses_count: Hide your post count
+        setting_new_features_policy: Policy for new features
+        setting_new_features_policy_tester: Participate in the beta test
+        setting_new_features_policy_conservative: Leave it disabled. I use it if necessary
+        setting_new_features_policy_default: Follow recommendations (default)
         setting_noindex: Opt-out of search engine indexing
         setting_place_tab_bar_at_bottom: Place the tab bar at the bottom
         setting_reduce_motion: Reduce motion in animations

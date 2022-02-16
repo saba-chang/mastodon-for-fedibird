@@ -132,6 +132,7 @@ class User < ApplicationRecord
            :place_tab_bar_at_bottom,:show_tab_bar_label, :enable_limited_timeline, :enable_reaction,
            :show_reply_tree_button,
            :hide_statuses_count, :hide_following_count, :hide_followers_count, :disable_joke_appearance,
+           :new_features_policy,
 
            to: :settings, prefix: :setting, allow_nil: false
 

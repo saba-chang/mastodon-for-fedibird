@@ -1,6 +1,7 @@
 ---
 ja:
   simple_form:
+    beta_features: ベータ
     fedibird_features: Fedibird
     hints:
       account_alias:
@@ -64,6 +65,7 @@ ja:
         setting_hide_following_count: フォロー数をプロフィールページで見られないようにします
         setting_hide_network: フォローとフォロワーの情報がプロフィールページで見られないようにします
         setting_hide_statuses_count: 投稿数をプロフィールページで見られないようにします
+        setting_new_features_policy: Fedibirdに新しい機能が追加された時の受け入れポリシーを設定します。推奨設定は多くの新機能を有効にするので、望ましくない場合は無効に設定してください
         setting_noindex: 公開プロフィールおよび各投稿ページに影響します
         setting_place_tab_bar_at_bottom: タッチデバイス使用時に、タブの操作を指の届く範囲で行えます
         setting_show_application: 投稿するのに使用したアプリが投稿の詳細ビューに表示されるようになります
@@ -209,6 +211,10 @@ ja:
         setting_hide_following_count: フォロー数を隠す
         setting_hide_network: 繋がりを隠す
         setting_hide_statuses_count: 投稿数を隠す
+        setting_new_features_policy: 新機能へのポリシー
+        setting_new_features_policy_conservative: 無効にしておき、自分で判断する
+        setting_new_features_policy_default: 推奨に従う（デフォルト）
+        setting_new_features_policy_tester: ベータテストに参加する
         setting_noindex: 検索エンジンによるインデックスを拒否する
         setting_place_tab_bar_at_bottom: タブバーを下に配置する
         setting_reduce_motion: アニメーションの動きを減らす

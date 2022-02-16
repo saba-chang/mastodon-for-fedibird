@@ -203,7 +203,9 @@
 
 .account-role,
 .fedibird_features,
+.beta_features,
 .simple_form .fedibird_features,
+.simple_form .beta_features,
 .simple_form .recommended {
   display: inline-block;
   padding: 4px 6px;
@@ -227,12 +229,22 @@
     background-color: rgba(lighten($error-red, 12%), 0.1);
     border-color: rgba(lighten($error-red, 12%), 0.5);
   }
+
+  &.float {
+    float: right;
+  }
 }
 
 .fedibird_features,
 .simple_form .fedibird_features {
-    background-color: rgba($fedibird-theme-color, 0.5);
+  background-color: rgba($fedibird-theme-color, 0.5);
   border: 1px solid $fedibird-theme-color;
+}
+
+.beta_features,
+.simple_form .beta_features {
+  background-color: rgba($gold-star, 0.5);
+  border: 1px solid $gold-star;
 }
 
 .account__header__fields {

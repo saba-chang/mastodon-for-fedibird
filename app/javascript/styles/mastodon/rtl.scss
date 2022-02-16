@@ -510,4 +510,13 @@ body.rtl {
   .circle-link .circle-delete-button {
       text-align: right;
   }
+
+  .fedibird_features,
+  .simple_form .fedibird_features,
+  .beta_features,
+  .simple_form .beta_features {
+      &.float {
+      float: left;
+    }
+  }
 }

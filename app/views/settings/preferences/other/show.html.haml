@@ -43,6 +43,10 @@
   %h4= t 'preferences.fedibird_features'
 
   .fields-group
+    %span.fedibird_features.float Fedibird
+    = f.input :setting_new_features_policy, collection: ['conservative', 'default', 'tester'], label_method: lambda { |item| t("simple_form.labels.defaults.setting_new_features_policy_#{item}") }, hint: t("simple_form.hints.defaults.setting_new_features_policy"), as: :radio_buttons, collection_wrapper_tag: 'ul', item_wrapper_tag: 'li', wrapper: :with_floating_label
+
+  .fields-group
     = f.input :setting_show_follow_button_on_timeline, as: :boolean, wrapper: :with_label, fedibird_features: true
 
   .fields-group

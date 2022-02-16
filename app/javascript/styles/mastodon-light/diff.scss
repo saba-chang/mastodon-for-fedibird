@@ -702,12 +702,24 @@ html {
     color: $fedibird-theme-color;
     background-color: rgba($fedibird-theme-color, 0.1);
   }
+
+  .beta_features {
+    border-color: $gold-star;
+    color: $gold-star;
+    background-color: rgba($gold-star, 0.1);
+  }
 }
 
 .fedibird_features {
   border-color: $fedibird-theme-color;
   color: $fedibird-theme-color;
   background-color: rgba($fedibird-theme-color, 0.1);
+}
+
+.beta_features {
+  border-color: $gold-star;
+  color: $gold-star;
+  background-color: rgba($gold-star, 0.1);
 }
 
 .compose-form .compose-form__warning {
