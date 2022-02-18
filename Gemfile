@@ -21,7 +21,7 @@ gem 'aws-sdk-s3', '~> 1.98', require: false
 gem 'fog-core', '<= 2.1.0'
 gem 'fog-openstack', '~> 0.3', require: false
 gem 'paperclip', '~> 6.0'
-gem 'blurhash', '~> 0.1'
+gem 'blurhash', git: 'https://github.com/fedibird/blurhash.git', ref: '9542517a0f88d189be0dc7f190fb4c8abf9821e7'
 
 gem 'active_model_serializers', '~> 0.10'
 gem 'active_record_extended', git: 'https://github.com/GeorgeKaraszi/ActiveRecordExtended.git', ref: '8c9d1a3e72aabf1a4f1fbeeb93a6e0f170fd0c3e'
