@@ -9,6 +9,10 @@ $website: "";
     height: unset;
     width: unset;
     text-align: center;
+
+    &.short-label {
+        margin: 0px auto 4px;
+    }
 }
 
 .tabs-bar__wrapper .tabs-bar__link .fa {
@@ -47,17 +51,26 @@ $website: "";
 }
 
 .status__action-bar-button {
-    flex: 0 0 auto;
+    flex: 1 0 auto;
+
+    &.icon-button {
+        padding: 8px 3px;
+    }
 }
 
 .status__action-bar-dropdown {
-    flex: 0 0 auto;
-    margin-right: 4px;
+    flex: 1 0 auto;
+    width: 26px !important;
+    margin-right: 0;
+
+    &.icon-button {
+        padding: 8px 3px;
+    }
 }
 
 body.rtl {
     .status__action-bar-dropdown {
         margin-right: 0;
-        margin-left: 4px;
+        margin-left: 0;
     }
 }
