@@ -32,6 +32,7 @@ defaults: &defaults
   system_font_ui: false
   noindex: false
   theme: 'default'
+  theme_instance_ticker: 'none'
   aggregate_reblogs: true
   advanced_layout: false
   use_blurhash: true

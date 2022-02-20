@@ -78,6 +78,13 @@ en:
         setting_show_tab_bar_label: When adding a list etc. to the tab bar, it is recommended to display the label because it is not possible to distinguish by the icon alone
         setting_show_followed_by: "The color of the follow button changes according to the follow status (gray: no follow relationship, yellow: followed, blue: following, green: mutual follow)"
         setting_show_target: Enable the function to switch between posting target and follow / subscribe target
+        setting_theme: Change the site's coloring, buttons, and other design elements
+        setting_theme_instance_ticker_html: Display the poster's server information in the post (<a href="https://34.si/" target="_blank" rel="noopener noreferrer">#InstanceTicker</a>)
+        setting_theme_instance_ticker_none: None
+        setting_theme_instance_ticker_type-0: Type-0 (SNS LOGO)
+        setting_theme_instance_ticker_type-1: Type-1 (Favicon)
+        setting_theme_instance_ticker_type-2: Type-2 (Favicon + BG White)
+        setting_theme_instance_ticker_type-3: Type-3 (Favicon + BG Black)
         setting_use_blurhash: Gradients are based on the colors of the hidden visuals but obfuscate any details
         setting_use_pending_items: Hide timeline updates behind a click instead of automatically scrolling the feed
         username: Your username will be unique on %{domain}
@@ -230,6 +237,7 @@ en:
         setting_show_target: Enable targeting features
         setting_system_font_ui: Use system's default font
         setting_theme: Site theme
+        setting_theme_instance_ticker: '#InstanceTicker'
         setting_trends: Show today's trends
         setting_unfollow_modal: Show confirmation dialog before unfollowing someone
         setting_unsubscribe_modal: Show confirmation dialog before unsubscribing someone

@@ -57,6 +57,7 @@ class InitialStateSerializer < ActiveModel::Serializer
       store[:show_reply_tree_button]            = object.current_account.user.setting_show_reply_tree_button
       store[:disable_joke_appearance]           = object.current_account.user.setting_disable_joke_appearance
       store[:new_features_policy]               = object.current_account.user.setting_new_features_policy
+      store[:theme_instance_ticker]             = object.current_account.user.setting_theme_instance_ticker
     else
       store[:auto_play_gif] = Setting.auto_play_gif
       store[:display_media] = Setting.display_media

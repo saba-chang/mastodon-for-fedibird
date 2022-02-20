@@ -78,6 +78,13 @@ ja:
         setting_show_tab_bar_label: リスト等をタブバーに追加する場合、アイコンだけでは区別がつかないので、ラベルを表示することをおすすめします
         setting_show_followed_by: フォロー状態に応じてフォローボタンの色が変わります（灰色：フォロー関係なし、黄色：フォローされている、青色：フォローしている、緑色：相互フォロー）
         setting_show_target: 投稿対象と、フォロー・購読の対象を切り替える機能を有効にします
+        setting_theme: サイトのカラーリングやボタンなどのデザインを変更します
+        setting_theme_instance_ticker_html: 投稿に投稿者のサーバ情報を表示します（<a href="https://34.si/" target="_blank" rel="noopener noreferrer">#InstanceTicker</a>）
+        setting_theme_instance_ticker_none: なし
+        setting_theme_instance_ticker_type-0: Type-0 (SNSロゴ)
+        setting_theme_instance_ticker_type-1: Type-1 (Favicon)
+        setting_theme_instance_ticker_type-2: Type-2 (Favicon + 白背景)
+        setting_theme_instance_ticker_type-3: Type-3 (Favicon + 黒背景)
         setting_use_blurhash: ぼかしはメディアの色を元に生成されますが、細部は見えにくくなっています
         setting_use_pending_items: 新着があってもタイムラインを自動的にスクロールしないようにします
         username: あなたのユーザー名は %{domain} の中で重複していない必要があります
@@ -230,6 +237,7 @@ ja:
         setting_show_target: ターゲット機能を有効にする
         setting_system_font_ui: システムのデフォルトフォントを使う
         setting_theme: サイトテーマ
+        setting_theme_instance_ticker: インスタンス・ティッカー
         setting_trends: 本日のトレンドタグを表示する
         setting_unfollow_modal: フォローを解除する前に確認ダイアログを表示する
         setting_unsubscribe_modal: 購読を解除する前に確認ダイアログを表示する

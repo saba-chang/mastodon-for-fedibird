@@ -78,6 +78,7 @@ class Settings::PreferencesController < Settings::BaseController
       :setting_hide_followers_count,
       :setting_disable_joke_appearance,
       :setting_new_features_policy,
+      :setting_theme_instance_ticker,
       notification_emails: %i(follow follow_request reblog favourite emoji_reaction mention digest report pending_account trending_tag),
       interactions: %i(must_be_follower must_be_following must_be_following_dm)
     )

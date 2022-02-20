@@ -133,6 +133,7 @@ class User < ApplicationRecord
            :show_reply_tree_button,
            :hide_statuses_count, :hide_following_count, :hide_followers_count, :disable_joke_appearance,
            :new_features_policy,
+           :theme_instance_ticker,
 
            to: :settings, prefix: :setting, allow_nil: false
 

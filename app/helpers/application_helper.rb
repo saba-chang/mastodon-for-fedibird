@@ -169,6 +169,18 @@ module ApplicationHelper
     text.split("\n").map { |line| '> ' + line }.join("\n")
   end
 
+  INSTANCE_TICKER_URL = {
+    'none' => '',
+    'type-0' => 'https://34.si/330/0.css',
+    'type-1' => 'https://34.si/330/1.css',
+    'type-2' => 'https://34.si/330/2.css',
+    'type-3' => 'https://34.si/330/3.css',
+  }.freeze
+
+  def instance_ticker_css
+    INSTANCE_TICKER_URL[current_user&.setting_theme_instance_ticker]
+  end
+
   def render_initial_state
     state_params = {
       settings: {

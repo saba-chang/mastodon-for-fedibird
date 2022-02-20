@@ -30,6 +30,9 @@
 
     = stylesheet_link_tag '/inert.css', skip_pipeline: true, media: 'all', id: 'inert-style'
 
+    - if instance_ticker_css.present?
+      = stylesheet_link_tag instance_ticker_css, skip_pipeline: true, media: 'all'
+
     - if Setting.custom_css.present?
       = stylesheet_link_tag custom_css_path, host: request.host, media: 'all'
 

@@ -72,6 +72,7 @@ class UserSettingsDecorator
     user.settings['hide_followers_count']              = hide_followers_count_preference if change?('setting_hide_followers_count')
     user.settings['disable_joke_appearance']           = disable_joke_appearance_preference if change?('setting_disable_joke_appearance')
     user.settings['new_features_policy']               = new_features_policy if change?('setting_new_features_policy')
+    user.settings['theme_instance_ticker']             = theme_instance_ticker if change?('setting_theme_instance_ticker')
   end
 
   def merged_notification_emails
@@ -244,6 +245,10 @@ class UserSettingsDecorator
 
   def new_features_policy
     settings['setting_new_features_policy']
+  end
+
+  def theme_instance_ticker
+    settings['setting_theme_instance_ticker']
   end
 
   def boolean_cast_setting(key)
