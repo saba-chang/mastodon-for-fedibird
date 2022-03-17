@@ -76,6 +76,8 @@ class Api::V1::NotificationsController < Api::BaseController
     val = params.permit(exclude_types: [])[:exclude_types] || []
     val = [val] unless val.is_a?(Enumerable)
     val = val << 'emoji_reaction' << 'status' unless new_notification_type_compatible?
+    val = val << 'emoji_reaction' unless current_user&.setting_enable_reaction
+    val = val << 'status_reference' unless current_user&.setting_enable_status_reference
     val.uniq
   end
 

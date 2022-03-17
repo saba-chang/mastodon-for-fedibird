@@ -50,6 +50,8 @@ class FeedManager
       filter_from_list?(status, receiver) || filter_from_home?(status, receiver.account_id, build_crutches(receiver.account_id, [status]))
     when :mentions
       filter_from_mentions?(status, receiver.id)
+    when :status_references
+      filter_from_status_references?(status, receiver.id)
     else
       false
     end
@@ -420,6 +422,28 @@ class FeedManager
     check_for_blocks.concat([status.in_reply_to_account]) if status.reply? && !status.in_reply_to_account_id.nil?
 
     should_filter   = blocks_or_mutes?(receiver_id, check_for_blocks, :mentions)                                                         # Filter if it's from someone I blocked, in reply to someone I blocked, or mentioning someone I blocked (or muted)
+    should_filter ||= (status.account.silenced? && !Follow.where(account_id: receiver_id, target_account_id: status.account_id).exists?) # of if the account is silenced and I'm not following them
+
+    should_filter
+  end
+
+  # Check if status should not be added to the status reference feed
+  # @see NotifyService
+  # @param [Status] status
+  # @param [Integer] receiver_id
+  # @return [Boolean]
+  def filter_from_status_references?(status, receiver_id)
+    return true if receiver_id == status.account_id
+    return true if phrase_filtered?(status, receiver_id, :notifications)
+    return true unless StatusPolicy.new(Account.find(receiver_id), status).subscribe?
+
+    # This filter is called from NotifyService, but already after the sender of
+    # the notification has been checked for mute/block. Therefore, it's not
+    # necessary to check the author of the toot for mute/block again
+    check_for_blocks = status.active_mentions.pluck(:account_id)
+    check_for_blocks.concat([status.in_reply_to_account]) if status.reply? && !status.in_reply_to_account_id.nil?
+
+    should_filter   = blocks_or_mutes?(receiver_id, check_for_blocks, :status_references)                                                # Filter if it's from someone I blocked, in reply to someone I blocked, or mentioning someone I blocked (or muted)
     should_filter ||= (status.account.silenced? && !Follow.where(account_id: receiver_id, target_account_id: status.account_id).exists?) # of if the account is silenced and I'm not following them
 
     should_filter

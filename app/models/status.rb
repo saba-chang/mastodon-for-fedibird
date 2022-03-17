@@ -79,6 +79,11 @@ class Status < ApplicationRecord
   has_and_belongs_to_many :tags
   has_and_belongs_to_many :preview_cards
 
+  has_many :reference_relationships, class_name: 'StatusReference', foreign_key: :status_id, dependent: :destroy
+  has_many :references, through: :reference_relationships, source: :target_status
+  has_many :referred_by_relationships, class_name: 'StatusReference', foreign_key: :target_status_id, dependent: :destroy
+  has_many :referred_by, through: :referred_by_relationships, source: :status
+  
   has_one :notification, as: :activity, dependent: :destroy
   has_one :status_stat, inverse_of: :status
   has_one :poll, inverse_of: :status, dependent: :destroy
@@ -134,6 +139,7 @@ class Status < ApplicationRecord
                    :tags,
                    :preview_cards,
                    :preloadable_poll,
+                   references: { account: :account_stat },
                    account: [:account_stat, :user],
                    active_mentions: { account: :account_stat },
                    reblog: [
@@ -145,6 +151,7 @@ class Status < ApplicationRecord
                      :status_stat,
                      :status_expire,
                      :preloadable_poll,
+                     references: { account: :account_stat },
                      account: [:account_stat, :user],
                      active_mentions: { account: :account_stat },
                    ],
@@ -165,12 +172,14 @@ class Status < ApplicationRecord
       ids += reblogs.where(account: Account.local).pluck(:account_id)
       ids += bookmarks.where(account: Account.local).pluck(:account_id)
       ids += emoji_reactions.where(account: Account.local).pluck(:account_id)
+      ids += referred_by_statuses.where(account: Account.local).pluck(:account_id)
     else
       ids += preloaded.mentions[id] || []
       ids += preloaded.favourites[id] || []
       ids += preloaded.reblogs[id] || []
       ids += preloaded.bookmarks[id] || []
       ids += preloaded.emoji_reactions[id] || []
+      ids += preloaded.status_references[id] || []
     end
 
     ids.uniq
@@ -246,6 +255,10 @@ class Status < ApplicationRecord
     public_visibility? || unlisted_visibility?
   end
 
+  def public_safety?
+    distributable? && (!with_media? || non_sensitive_with_media?) && !account.silenced? && !account.suspended?
+  end
+
   def sign?
     distributable? || limited_visibility?
   end
@@ -303,6 +316,14 @@ class Status < ApplicationRecord
     status_stat&.emoji_reactions_count || 0
   end
 
+  def status_references_count
+    status_stat&.status_references_count || 0
+  end
+
+  def status_referred_by_count
+    status_stat&.status_referred_by_count || 0
+  end
+
   def grouped_emoji_reactions(account = nil)
     (Oj.load(status_stat&.emoji_reactions_cache || '', mode: :strict) || []).tap do |emoji_reactions|
       if account.present?
@@ -324,6 +345,16 @@ class Status < ApplicationRecord
     generate_grouped_emoji_reactions.tap do |emoji_reactions_cache|
       update_status_stat!(emoji_reactions_count: emoji_reactions.count, emoji_reactions_cache: emoji_reactions_cache)
     end
+  end
+
+  def referred_by_statuses(account)
+    statuses          = referred_by.includes(:account).to_a
+    account_ids       = statuses.map(&:account_id).uniq
+    account_relations = Status.relations_map_for_account(account, account_ids)
+    status_relations  = Status.relations_map_for_status(account, statuses)
+
+    statuses.reject! { |status| StatusFilter.new(status, account, account_relations, status_relations).filtered? }
+    statuses.sort!.reverse!
   end
 
   def increment_count!(key)
@@ -382,6 +413,34 @@ class Status < ApplicationRecord
       StatusPin.select('status_id').where(status_id: status_ids).where(account_id: account_id).each_with_object({}) { |p, h| h[p.status_id] = true }
     end
 
+    def relations_map_for_account(account, account_ids)
+      return {} if account.nil?
+  
+      presenter = AccountRelationshipsPresenter.new(account_ids, account)
+      {
+        blocking: presenter.blocking,
+        blocked_by: presenter.blocked_by,
+        muting: presenter.muting,
+        following: presenter.following,
+        subscribing: presenter.subscribing,
+        domain_blocking_by_domain: presenter.domain_blocking,
+      }
+    end
+  
+    def relations_map_for_status(account, statuses)
+      return {} if account.nil?
+  
+      presenter = StatusRelationshipsPresenter.new(statuses, account)
+      {
+        reblogs_map: presenter.reblogs_map,
+        favourites_map: presenter.favourites_map,
+        bookmarks_map: presenter.bookmarks_map,
+        emoji_reactions_map: presenter.emoji_reactions_map,
+        mutes_map: presenter.mutes_map,
+        pins_map: presenter.pins_map,
+      }
+    end
+
     def reload_stale_associations!(cached_items)
       account_ids = []
 
@@ -402,6 +461,16 @@ class Status < ApplicationRecord
       end
     end
 
+    def permitted_statuses_from_ids(ids, account)
+      statuses          = Status.with_accounts(ids).to_a
+      account_ids       = statuses.map(&:account_id).uniq
+      account_relations = relations_map_for_account(account, account_ids)
+      status_relations  = relations_map_for_status(account, statuses)
+  
+      statuses.reject! { |status| StatusFilter.new(status, account, account_relations, status_relations).filtered? }
+      statuses
+    end
+  
     def permitted_for(target_account, account)
       visibility = [:public, :unlisted]
 

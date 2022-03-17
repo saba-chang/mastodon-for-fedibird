@@ -408,7 +408,8 @@ html {
   border-top: 0;
 }
 
-.icon-with-badge__badge {
+.icon-with-badge__badge,
+.status__thread_mark {
   border-color: $white;
 }
 
@@ -748,7 +749,8 @@ html {
 }
 
 .public-layout {
-  .account__section-headline {
+  .account__section-headline,
+  .status__section-headline {
     border: 1px solid lighten($ui-base-color, 8%);
 
     @media screen and (max-width: $no-gap-breakpoint) {
@@ -837,7 +839,8 @@ html {
 }
 
 .notification__filter-bar button.active::after,
-.account__section-headline a.active::after {
+.account__section-headline a.active::after,
+.status__section-headline a.active::after {
   border-color: transparent transparent $white;
 }
 

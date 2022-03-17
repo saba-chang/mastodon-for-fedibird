@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import Icon from 'mastodon/components/icon';
+import { enableReaction, enableStatusReference } from 'mastodon/initial_state';
 
 const tooltips = defineMessages({
   mentions: { id: 'notifications.filter.mentions', defaultMessage: 'Mentions' },
@@ -11,6 +12,7 @@ const tooltips = defineMessages({
   follows: { id: 'notifications.filter.follows', defaultMessage: 'Follows' },
   statuses: { id: 'notifications.filter.statuses', defaultMessage: 'Updates from people you follow' },
   reactions: { id: 'notifications.filter.emoji_reactions', defaultMessage: 'Reactions' },
+  reference: { id: 'notifications.filter.status_references', defaultMessage: 'Status references' },
 });
 
 export default @injectIntl
@@ -96,13 +98,24 @@ class FilterBar extends React.PureComponent {
         >
           <Icon id='home' fixedWidth />
         </button>
-        <button
-          className={selectedFilter === 'emoji_reaction' ? 'active' : ''}
-          onClick={this.onClick('emoji_reaction')}
-          title={intl.formatMessage(tooltips.reactions)}
-        >
-          <Icon id='smile-o' fixedWidth />
-        </button>
+        {enableReaction &&
+          <button
+            className={selectedFilter === 'emoji_reaction' ? 'active' : ''}
+            onClick={this.onClick('emoji_reaction')}
+            title={intl.formatMessage(tooltips.reactions)}
+          >
+            <Icon id='smile-o' fixedWidth />
+          </button>
+        }
+        {enableStatusReference &&
+          <button
+            className={selectedFilter === 'status_reference' ? 'active' : ''}
+            onClick={this.onClick('status_reference')}
+            title={intl.formatMessage(tooltips.reference)}
+          >
+            <Icon id='link' fixedWidth />
+          </button>
+        }
         <button
           className={selectedFilter === 'follow' ? 'active' : ''}
           onClick={this.onClick('follow')}

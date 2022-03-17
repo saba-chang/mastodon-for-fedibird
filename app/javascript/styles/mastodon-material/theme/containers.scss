@@ -55,7 +55,8 @@
         }
     }
 
-    .account__section-headline {
+    .account__section-headline,
+    .status__section-headline {
         @include shadow-1dp;
         border-radius: $card-radius $card-radius 0 0;
     }

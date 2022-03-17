@@ -54,7 +54,18 @@ module StatusesHelper
     components = [[media_summary(status), status_text_summary(status)].reject(&:blank?).join(' · ')]
 
     if status.spoiler_text.blank?
-      components << status.text
+      components << Formatter.instance.plaintext(status)
+      components << poll_summary(status)
+    end
+
+    components.reject(&:blank?).join("\n\n")
+  end
+
+  def reference_description(status)
+    components = [status_text_summary(status)]
+
+    if status.spoiler_text.blank?
+      components << [Formatter.instance.plaintext(status).chomp, media_summary(status)].reject(&:blank?).join(' · ')
       components << poll_summary(status)
     end
 
@@ -111,6 +122,10 @@ module StatusesHelper
     else
       status.account.sensitized? || status.sensitive
     end
+  end
+
+  def noindex?(statuses)
+    statuses.map(&:account).uniq.any?(&:noindex?)
   end
 
   private

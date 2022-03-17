@@ -18,7 +18,7 @@ import Icon from 'mastodon/components/icon';
 import AnimatedNumber from 'mastodon/components/animated_number';
 import EmojiReactionsBar from 'mastodon/components/emoji_reactions_bar';
 import PictureInPicturePlaceholder from 'mastodon/components/picture_in_picture_placeholder';
-import { enableReaction } from 'mastodon/initial_state';
+import { enableReaction, enableStatusReference } from 'mastodon/initial_state';
 
 const messages = defineMessages({
   public_short: { id: 'privacy.public.short', defaultMessage: 'Public' },
@@ -71,6 +71,8 @@ class DetailedStatus extends ImmutablePureComponent {
 
   static propTypes = {
     status: ImmutablePropTypes.map,
+    referenced: PropTypes.bool,
+    contextReferenced: PropTypes.bool,
     quote_muted: PropTypes.bool,
     onOpenMedia: PropTypes.func.isRequired,
     onOpenVideo: PropTypes.func.isRequired,
@@ -93,6 +95,7 @@ class DetailedStatus extends ImmutablePureComponent {
     emojiMap: ImmutablePropTypes.map,
     addEmojiReaction: PropTypes.func.isRequired,
     removeEmojiReaction: PropTypes.func.isRequired,
+    onReference: PropTypes.func,
   };
 
   state = {
@@ -177,22 +180,24 @@ class DetailedStatus extends ImmutablePureComponent {
     const status = (this.props.status && this.props.status.get('reblog')) ? this.props.status.get('reblog') : this.props.status;
     const quote_muted = this.props.quote_muted
     const outerStyle = { boxSizing: 'border-box' };
-    const { intl, compact, pictureInPicture } = this.props;
+    const { intl, compact, pictureInPicture, referenced, contextReferenced } = this.props;
 
     if (!status) {
       return null;
     }
 
-    let media           = '';
-    let applicationLink = '';
-    let reblogLink = '';
-    let reblogIcon = 'retweet';
-    let favouriteLink = '';
-    let emojiReactionLink = '';
+    let media                = '';
+    let applicationLink      = '';
+    let reblogLink           = '';
+    let reblogIcon           = 'retweet';
+    let favouriteLink        = '';
+    let emojiReactionLink    = '';
+    let statusReferredByLink = '';
 
     const reblogsCount = status.get('reblogs_count');
     const favouritesCount = status.get('favourites_count');
     const emojiReactionsCount = status.get('emoji_reactions_count');
+    const statusReferredByCount = status.get('status_referred_by_count');
 
     if (this.props.measureHeight) {
       outerStyle.height = `${this.state.height}px`;
@@ -387,41 +392,55 @@ class DetailedStatus extends ImmutablePureComponent {
 
     if (this.context.router) {
       favouriteLink = (
-        <Link to={`/statuses/${status.get('id')}/favourites`} className='detailed-status__link'>
-          <Icon id='star' />
-          <span className='detailed-status__favorites'>
-            <AnimatedNumber value={favouritesCount} />
-          </span>
-        </Link>
+        <Fragment>
+          <Fragment> · </Fragment>
+          <Link to={`/statuses/${status.get('id')}/favourites`} className='detailed-status__link'>
+            <Icon id='star' />
+            <span className='detailed-status__favorites'>
+              <AnimatedNumber value={favouritesCount} />
+            </span>
+          </Link>
+        </Fragment>
       );
     } else {
       favouriteLink = (
-        <a href={`/interact/${status.get('id')}?type=favourite`} className='detailed-status__link' onClick={this.handleModalLink}>
-          <Icon id='star' />
-          <span className='detailed-status__favorites'>
-            <AnimatedNumber value={favouritesCount} />
-          </span>
-        </a>
+        <Fragment>
+          <Fragment> · </Fragment>
+          <a href={`/interact/${status.get('id')}?type=favourite`} className='detailed-status__link' onClick={this.handleModalLink}>
+            <Icon id='star' />
+            <span className='detailed-status__favorites'>
+              <AnimatedNumber value={favouritesCount} />
+            </span>
+          </a>
+        </Fragment>
       );
     }
 
-    if (this.context.router) {
+    if (enableReaction && this.context.router) {
       emojiReactionLink = (
-        <Link to={`/statuses/${status.get('id')}/emoji_reactions`} className='detailed-status__link'>
-          <Icon id='smile-o' />
-          <span className='detailed-status__emoji_reactions'>
-            <AnimatedNumber value={emojiReactionsCount} />
-          </span>
-        </Link>
+        <Fragment>
+          <Fragment> · </Fragment>
+          <Link to={`/statuses/${status.get('id')}/emoji_reactions`} className='detailed-status__link'>
+            <Icon id='smile-o' />
+            <span className='detailed-status__emoji_reactions'>
+              <AnimatedNumber value={emojiReactionsCount} />
+            </span>
+          </Link>
+        </Fragment>
       );
-    } else {
-      emojiReactionLink = (
-        <a href={`/interact/${status.get('id')}?type=emoji_reactions`} className='detailed-status__link' onClick={this.handleModalLink}>
-          <Icon id='smile-o' />
-          <span className='detailed-status__emoji_reactions'>
-            <AnimatedNumber value={emojiReactionsCount} />
-          </span>
-        </a>
+    }
+
+    if (enableStatusReference && this.context.router) {
+      statusReferredByLink = (
+        <Fragment>
+          <Fragment> · </Fragment>
+          <Link to={`/statuses/${status.get('id')}/referred_by`} className='detailed-status__link'>
+            <Icon id='link' />
+            <span className='detailed-status__status_referred_by'>
+              <AnimatedNumber value={statusReferredByCount} />
+            </span>
+          </Link>
+        </Fragment>
       );
     }
 
@@ -431,7 +450,7 @@ class DetailedStatus extends ImmutablePureComponent {
 
     return (
       <div style={outerStyle}>
-        <div ref={this.setRef} className={classNames('detailed-status', `detailed-status-${status.get('visibility')}`, { compact, 'detailed-status-with-expiration': expires_date, 'detailed-status-expired': expired })}>
+        <div ref={this.setRef} className={classNames('detailed-status', `detailed-status-${status.get('visibility')}`, { compact, 'detailed-status-with-expiration': expires_date, 'detailed-status-expired': expired, referenced, 'context-referenced': contextReferenced })}>
           <a href={status.getIn(['account', 'url'])} onClick={this.handleAccountClick} data-id={status.getIn(['account', 'id'])} data-group={status.getIn(['account', 'group'])} className='detailed-status__display-name'>
             <div className='detailed-status__display-avatar'><Avatar account={status.get('account')} size={48} /></div>
             <DisplayName account={status.get('account')} localDomain={this.props.domain} />
@@ -460,7 +479,7 @@ class DetailedStatus extends ImmutablePureComponent {
                 </time>
               </span>
             }
-            {visibilityLink}{applicationLink}{reblogLink} · {favouriteLink} · {emojiReactionLink}
+            {visibilityLink}{applicationLink}{reblogLink}{favouriteLink}{emojiReactionLink}{statusReferredByLink}
           </div>
         </div>
       </div>

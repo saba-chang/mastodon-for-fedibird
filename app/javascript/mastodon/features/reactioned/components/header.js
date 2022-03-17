@@ -42,6 +42,7 @@ export default class Header extends ImmutablePureComponent {
             <NavLink exact to={`/statuses/${status.get('id')}/reblogs`}><FormattedMessage id='status.reblog' defaultMessage='Boost' /></NavLink>
             <NavLink exact to={`/statuses/${status.get('id')}/favourites`}><FormattedMessage id='status.favourite' defaultMessage='Favourite' /></NavLink>
             <NavLink exact to={`/statuses/${status.get('id')}/emoji_reactions`}><FormattedMessage id='status.emoji' defaultMessage='Emoji' /></NavLink>
+            <NavLink exact to={`/statuses/${status.get('id')}/referred_by`}><FormattedMessage id='status.referred_by' defaultMessage='Referred' /></NavLink>
           </div>
         )}
       </div>

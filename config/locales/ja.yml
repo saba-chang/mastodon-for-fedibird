@@ -1137,6 +1137,10 @@ ja:
       title: 新たなブースト
     status:
       subject: "%{name} さんが投稿しました"
+    status_reference:
+      body: "%{name} さんに参照された、あなたの投稿があります:"
+      subject: "%{name} さんに参照されました"
+      title: 新たな参照
   notifications:
     email_events: メールによる通知
     email_events_hint: '受信する通知を選択:'
@@ -1307,6 +1311,7 @@ ja:
         other: "%{count} 本の動画"
     boosted_from_html: "%{acct_link} からブースト"
     content_warning: '閲覧注意: %{warning}'
+    custom_references: カスタム
     disallowed_hashtags:
       other: '許可されていないハッシュタグが含まれています: %{tags}'
     errors:
@@ -1327,11 +1332,20 @@ ja:
       total_votes:
         other: "%{count}票"
       vote: 投票
+    references_ogp_title:
+      one: '投稿の参照 by %{username}'
+      other: '投稿の参照（%{count}件） by %{username}'
+    references_only: 参照のみ
+    references_others:
+      zero: ''
+      other: '他%{count}件 / '
+    references_private: （限定公開の参照）
     show_more: もっと見る
     show_newer: 新しいものから表示
     show_older: 古いものから表示
     show_thread: スレッドを表示
     sign_in_to_participate: ログインして会話に参加
+    thread_with_references: スレッドと参照
     title: '%{name}: "%{quote}"'
     visibilities:
       direct: ダイレクト
@@ -1351,6 +1365,11 @@ ja:
       expire_in_the_past: 既に公開期限を過ぎています。投稿時間より前の公開期限は指定できません
       invalid_expire_at: 不正な公開期限が指定されています
       invalid_expire_action: 不正な公開期限時のアクションが指定されています
+  status_references:
+    errors:
+      limit: 投稿参照の上限に達しました
+      visibility: 許可されていない公開範囲です
+    link_text: '[参照]'
   stream_entries:
     expired: 公開終了
     pinned: 固定された投稿
@@ -1457,6 +1476,10 @@ ja:
     missing-contrast: Mastodon-missing (ハイコントラスト)
     missing-light: Mastodon-missing (ライト)
     mobile-small: Mobile 小 / Mastodon (ダーク)
+  thread_mark:
+    ancestor: 参照あり
+    both: 参照・返信あり
+    descendant: 返信あり
   time:
     formats:
       default: "%Y年%m月%d日 %H:%M"

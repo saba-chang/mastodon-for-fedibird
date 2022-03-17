@@ -1191,6 +1191,10 @@ en:
       title: New boost
     status:
       subject: "%{name} just posted"
+    status_reference:
+      body: 'Your post was referenced by %{name}:'
+      subject: "%{name} referenced your post"
+      title: New reference
   notifications:
     email_events: Events for e-mail notifications
     email_events_hint: 'Select events that you want to receive notifications for:'
@@ -1367,6 +1371,7 @@ en:
         other: "%{count} videos"
     boosted_from_html: Boosted from %{acct_link}
     content_warning: 'Content warning: %{warning}'
+    custom_references: Custom
     disallowed_hashtags:
       one: 'contained a disallowed hashtag: %{tags}'
       other: 'contained the disallowed hashtags: %{tags}'
@@ -1390,11 +1395,21 @@ en:
         one: "%{count} vote"
         other: "%{count} votes"
       vote: Vote
+    references_ogp_title:
+      one: 'References post by %{username}'
+      other: 'References posts(%{count}) by %{username}'
+    references_only: Reference only
+    references_others:
+      zero: ''
+      one: '%{count} other / '
+      other: '%{count} others / '
+    references_private: (Private reference)
     show_more: Show more
     show_newer: Show newer
     show_older: Show older
     show_thread: Show thread
     sign_in_to_participate: Sign in to participate in the conversation
+    thread_with_references: Thread with references
     title: '%{name}: "%{quote}"'
     visibilities:
       direct: Direct
@@ -1448,6 +1463,11 @@ en:
       expire_in_the_past: It is already past expires. You cannot specify expires before the posting time.
       invalid_expire_at: Invalid expires are specified.
       invalid_expire_action: Invalid expires_action are specified.
+  status_references:
+    errors:
+      limit: You have already reached your reference limit
+      visibility: Not permitted visibility
+    link_text: '[Ref.]'
   stream_entries:
     expired: Expired
     pinned: Pinned post
@@ -1554,6 +1574,10 @@ en:
     missing-contrast: Mastodon-missing (High contrast)
     missing-light: Mastodon-missing (Light)
     mobile-small: Mobile Small / Mastodon (Dark)
+  thread_mark:
+    ancestor: Has reference
+    both: Has reference and reply
+    descendant: Has reply
   time:
     formats:
       default: "%b %d, %Y, %H:%M"

@@ -10,7 +10,6 @@ import DisplayName from './display_name';
 import StatusContent from './status_content';
 import StatusActionBar from './status_action_bar';
 import AccountActionBar from './account_action_bar';
-import AttachmentList from './attachment_list';
 import Card from '../features/status/components/card';
 import { injectIntl, defineMessages, FormattedMessage } from 'react-intl';
 import ImmutablePureComponent from 'react-immutable-pure-component';
@@ -20,7 +19,8 @@ import classNames from 'classnames';
 import Icon from 'mastodon/components/icon';
 import EmojiReactionsBar from 'mastodon/components/emoji_reactions_bar';
 import PictureInPicturePlaceholder from 'mastodon/components/picture_in_picture_placeholder';
-import { displayMedia, enableReaction } from 'mastodon/initial_state';
+import { displayMedia, enableReaction, show_reply_tree_button, enableStatusReference  } from 'mastodon/initial_state';
+import { List as ImmutableList } from 'immutable';
 
 // We use the component (and not the container) since we do not want
 // to use the progress bar to show download progress
@@ -85,6 +85,9 @@ const messages = defineMessages({
   mutual_short: { id: 'privacy.mutual.short', defaultMessage: 'Mutual-followers-only' },
   limited_short: { id: 'privacy.limited.short', defaultMessage: 'Circle' },
   direct_short: { id: 'privacy.direct.short', defaultMessage: 'Direct' },
+  mark_ancestor: { id: 'thread_mark.ancestor', defaultMessage: 'Has reference' },
+  mark_descendant: { id: 'thread_mark.descendant', defaultMessage: 'Has reply' },
+  mark_both: { id: 'thread_mark.both', defaultMessage: 'Has reference and reply' },
 });
 
 const dateFormatOptions = {
@@ -108,6 +111,8 @@ class Status extends ImmutablePureComponent {
     status: ImmutablePropTypes.map,
     account: ImmutablePropTypes.map,
     otherAccounts: ImmutablePropTypes.list,
+    referenced: PropTypes.bool,
+    contextReferenced: PropTypes.bool,
     quote_muted: PropTypes.bool,
     onClick: PropTypes.func,
     onReply: PropTypes.func,
@@ -126,6 +131,7 @@ class Status extends ImmutablePureComponent {
     onToggleHidden: PropTypes.func,
     onToggleCollapsed: PropTypes.func,
     onQuoteToggleHidden: PropTypes.func,
+    onReference: PropTypes.func,
     onAddToList: PropTypes.func.isRequired,
     muted: PropTypes.bool,
     hidden: PropTypes.bool,
@@ -158,6 +164,8 @@ class Status extends ImmutablePureComponent {
     'hidden',
     'unread',
     'pictureInPicture',
+    'referenced',
+    'contextReferenced',
     'quote_muted',
   ];
 
@@ -373,7 +381,7 @@ class Status extends ImmutablePureComponent {
     let media = null;
     let statusAvatar, prepend, rebloggedByText;
 
-    const { intl, hidden, featured, otherAccounts, unread, showThread, scrollKey, pictureInPicture, contextType, quote_muted } = this.props;
+    const { intl, hidden, featured, otherAccounts, unread, showThread, scrollKey, pictureInPicture, contextType, quote_muted, referenced, contextReferenced } = this.props;
 
     let { status, account, ...other } = this.props;
 
@@ -685,17 +693,51 @@ class Status extends ImmutablePureComponent {
     const expires_date = expires_at && new Date(expires_at)
     const expired = expires_date && expires_date.getTime() < intl.now()
 
+    const ancestorCount   = showThread && show_reply_tree_button && status.get('in_reply_to_id', 0) > 0 ? 1 : 0;
+    const descendantCount = showThread && show_reply_tree_button ? status.get('replies_count', 0) : 0;
+    const referenceCount  = enableStatusReference ? status.get('status_references_count', 0) - (status.get('status_reference_ids', ImmutableList()).includes(status.get('quote_id')) ? 1 : 0) : 0;
+    const threadCount     = ancestorCount + descendantCount + referenceCount;
+
+    let threadMarkTitle = '';
+
+    if (ancestorCount + referenceCount > 0) {
+      if (descendantCount > 0) {
+        threadMarkTitle = intl.formatMessage(messages.mark_both);
+      } else {
+        threadMarkTitle = intl.formatMessage(messages.mark_ancestor);
+      }
+    } else if (descendantCount > 0) {
+      threadMarkTitle = intl.formatMessage(messages.mark_descendant);
+    }
+
+    const threadMark = threadCount > 0 ? <span className={classNames('status__thread_mark', {
+      'status__thread_mark-ancenstor': (ancestorCount + referenceCount) > 0,
+      'status__thread_mark-descendant': descendantCount > 0,
+    })} title={threadMarkTitle}>+</span> : null;
+
     return (
       <HotKeys handlers={handlers}>
-        <div className={classNames('status__wrapper', `status__wrapper-${status.get('visibility')}`, { 'status__wrapper-reply': !!status.get('in_reply_to_id'), unread, focusable: !this.props.muted, 'status__wrapper-with-expiration': expires_date, 'status__wrapper-expired': expired })} tabIndex={this.props.muted ? null : 0} data-featured={featured ? 'true' : null} aria-label={textForScreenReader(intl, status, rebloggedByText)} ref={this.handleRef}>
+        <div className={classNames('status__wrapper', `status__wrapper-${status.get('visibility')}`, {
+          'status__wrapper-reply': !!status.get('in_reply_to_id'),
+          unread,
+          focusable: !this.props.muted,
+          'status__wrapper-with-expiration': expires_date,
+          'status__wrapper-expired': expired,
+          'status__wrapper-referenced': referenced,
+          'status__wrapper-context-referenced': contextReferenced,
+          'status__wrapper-reference': referenceCount > 0,
+        })} tabIndex={this.props.muted ? null : 0} data-featured={featured ? 'true' : null} aria-label={textForScreenReader(intl, status, rebloggedByText)} ref={this.handleRef}>
           {prepend}
 
-          <div className={classNames('status', `status-${status.get('visibility')}`, { 'status-reply': !!status.get('in_reply_to_id'), muted: this.props.muted, 'status-with-expiration': expires_date, 'status-expired': expired })} data-id={status.get('id')}>
+          <div className={classNames('status', `status-${status.get('visibility')}`, { 'status-reply': !!status.get('in_reply_to_id'), muted: this.props.muted, 'status-with-expiration': expires_date, 'status-expired': expired, referenced, 'context-referenced': contextReferenced })} data-id={status.get('id')}>
             <AccountActionBar account={status.get('account')} {...other} />
             <div className='status__expand' onClick={this.handleExpandClick} role='presentation' />
             <div className='status__info'>
               {status.get('expires_at') && <span className='status__expiration-time'><time dateTime={expires_at} title={intl.formatDate(expires_date, dateFormatOptions)}><i className="fa fa-clock-o" aria-hidden="true"></i></time></span>}
-              <a href={status.get('url')} className='status__relative-time' target='_blank' rel='noopener noreferrer'><RelativeTimestamp timestamp={status.get('created_at')} /></a>
+              <a href={status.get('url')} className='status__relative-time' target='_blank' rel='noopener noreferrer'>
+                {threadMark}
+                <RelativeTimestamp timestamp={status.get('created_at')} />
+              </a>
               <span className='status__visibility-icon'>{visibilityLink}</span>
 
               <a onClick={this.handleAccountClick} data-id={status.getIn(['account', 'id'])} data-group={status.getIn(['account', 'group'])} href={status.getIn(['account', 'url'])} title={status.getIn(['account', 'acct'])} className='status__display-name' target='_blank' rel='noopener noreferrer'>

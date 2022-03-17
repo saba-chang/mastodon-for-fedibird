@@ -171,6 +171,24 @@ export default class Card extends React.PureComponent {
     this.setState({ revealed: true });
   }
 
+  handleOpen = e => {
+    if (this.context.router && e.button === 0 && !(e.ctrlKey || e.metaKey)) {
+      const { card } = this.props;
+      const account_id = card.get('account_id', null);
+      const status_id  = card.get('status_id', null);
+      const url_suffix = card.get('url').endsWith('/references') ? '/references' : '';
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (status_id) {
+        this.context.router.history.push(`/statuses/${status_id}${url_suffix}`);
+      } else {
+        this.context.router.history.push(`/accounts/${account_id}`);
+      }
+    }
+  }
+
   renderVideo () {
     const { card }  = this.props;
     const content   = { __html: addAutoPlay(card.get('html')) };
@@ -288,7 +306,7 @@ export default class Card extends React.PureComponent {
     }
 
     return (
-      <a href={card.get('url')} className={className} target='_blank' rel='noopener noreferrer' ref={this.setRef}>
+      <a href={card.get('url')} className={className} target='_blank' rel='noopener noreferrer' onClick={card.get('account_id', null) ? this.handleOpen : null} ref={this.setRef}>
         {embed}
         {description}
       </a>

@@ -134,6 +134,8 @@ class User < ApplicationRecord
            :hide_statuses_count, :hide_following_count, :hide_followers_count, :disable_joke_appearance,
            :new_features_policy,
            :theme_instance_ticker,
+           :enable_status_reference, :match_visibility_of_references,
+           :post_reference_modal, :add_reference_modal, :unselect_reference_modal,
 
            to: :settings, prefix: :setting, allow_nil: false
 

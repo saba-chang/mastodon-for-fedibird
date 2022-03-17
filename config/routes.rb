@@ -70,6 +70,7 @@ Rails.application.routes.draw do
       end
 
       resources :replies, only: [:index], module: :activitypub
+      resources :references, only: [:index], module: :activitypub
     end
 
     resources :followers, only: [:index], controller: :follower_accounts
@@ -93,6 +94,8 @@ Rails.application.routes.draw do
   get '/@:username/tagged/:tag', to: 'accounts#show', as: :short_account_tag
   get '/@:account_username/:id', to: 'statuses#show', as: :short_account_status
   get '/@:account_username/:id/embed', to: 'statuses#embed', as: :embed_short_account_status
+  get '/@:account_username/:id/references', to: 'statuses#references', as: :references_short_account_status
+  get '/@:account_username/:id/custom', to: 'statuses#custom', as: :custom_short_account_status
 
   get  '/interact/:id', to: 'remote_interaction#new', as: :remote_interaction
   post '/interact/:id', to: 'remote_interaction#create'
@@ -329,11 +332,12 @@ Rails.application.routes.draw do
 
     # JSON / REST API
     namespace :v1 do
-      resources :statuses, only: [:create, :show, :destroy] do
+      resources :statuses, only: [:index, :create, :show, :destroy] do
         scope module: :statuses do
           resources :reblogged_by, controller: :reblogged_by_accounts, only: :index
           resources :favourited_by, controller: :favourited_by_accounts, only: :index
           resources :emoji_reactioned_by, controller: :emoji_reactioned_by, only: :index
+          resources :referred_by, controller: :referred_by_statuses, only: :index
           resources :mentioned_by, controller: :mentioned_by_accounts, only: :index
           resource :reblog, only: :create
           post :unreblog, to: 'reblogs#destroy'

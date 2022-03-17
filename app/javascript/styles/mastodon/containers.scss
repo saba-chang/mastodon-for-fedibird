@@ -773,7 +773,8 @@
     }
   }
 
-  .account__section-headline {
+  .account__section-headline,
+  .status__section-headline {
     border-radius: 4px 4px 0 0;
 
     @media screen and (max-width: $no-gap-breakpoint) {

@@ -84,6 +84,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
       attach_tags(@status)
     end
 
+    resolve_references(@status, @mentions, @object['references'])
     resolve_thread(@status)
     fetch_replies(@status)
     distribute(@status)
@@ -241,6 +242,12 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     emoji.save
   rescue Seahorse::Client::NetworkingError => e
     Rails.logger.warn "Error storing emoji: #{e}"
+  end
+
+  def resolve_references(status, mentions, collection)
+    references = []
+    references = ActivityPub::FetchReferencesService.new.call(status, collection) unless collection.nil?
+    ProcessStatusReferenceService.new.call(status, mentions: mentions, urls: (references + [quote_uri]).compact.uniq)
   end
 
   def process_attachments
@@ -551,6 +558,10 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
   rescue ActiveRecord::StaleObjectError
     poll.reload
     retry
+  end
+
+  def quote_uri
+    ActivityPub::TagManager.instance.uri_for(quote) if quote
   end
 
   def quote

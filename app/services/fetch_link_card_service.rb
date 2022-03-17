@@ -65,6 +65,7 @@ class FetchLinkCardService < BaseService
   def parse_urls
     if @status.local?
       urls = @status.text.scan(URL_PATTERN).map { |array| Addressable::URI.parse(array[1]).normalize }
+      urls.push(Addressable::URI.parse(references_short_account_status_url(@status.account, @status))) if @status.references.exists?
     else
       html  = Nokogiri::HTML(@status.text)
       links = html.css(':not(.quote-inline) > a')
@@ -76,7 +77,12 @@ class FetchLinkCardService < BaseService
 
   def bad_url?(uri)
     # Avoid local instance URLs and invalid URLs
-    uri.host.blank? || TagManager.instance.local_url?(uri.to_s) || !%w(http https).include?(uri.scheme)
+    uri.host.blank? || (TagManager.instance.local_url?(uri.to_s) && !status_reference_url?(uri.to_s)) || !%w(http https).include?(uri.scheme)
+  end
+
+  def status_reference_url?(uri)
+    recognized_params = Rails.application.routes.recognize_path(uri)
+    recognized_params && recognized_params[:controller] == 'statuses' && recognized_params[:action] == 'references'
   end
 
   # rubocop:disable Naming/MethodParameterName

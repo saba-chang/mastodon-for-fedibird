@@ -60,11 +60,13 @@ en:
         setting_display_media_show_all: Always show media
         setting_enable_limited_timeline: Enable a limited home to display private and circle and direct message
         setting_enable_reaction: Enable the reaction display on the timeline and display the reaction button
+        setting_enable_status_reference: Enable the feature where a post references another post
         setting_follow_button_to_list_adder: Change the behavior of the Follow / Subscribe button, open a dialog where you can select a list to follow / subscribe, or opt out of receiving at home
         setting_hide_followers_count: The number of followers will be hidden in your profile
         setting_hide_following_count: The number of following will be hidden in your profile
         setting_hide_network: Who you follow and who follows you will be hidden on your profile
         setting_hide_statuses_count: The number of post will be hidden in your profile
+        setting_match_visibility_of_references: If the referenced post is private, default the visibility of the post to private behavior accordingly
         setting_new_features_policy: Set the acceptance policy when new features are added to Fedibird. The recommended setting will enable many new features, so set it to disabled if it is not desirable
         setting_noindex: Affects your public profile and post pages
         setting_place_tab_bar_at_bottom: When using a touch device, you can operate tabs within the reach of your fingers.
@@ -73,7 +75,7 @@ en:
         setting_show_follow_button_on_timeline: You can easily check the follow status and build a follow list quickly
         setting_show_navigation_panel: Show the navigation panel at the right end of the advanced UI
         setting_show_quote_button: Selects whether to display the button on the action bar. It does not enable/disable the citation function.
-        setting_show_reply_tree_button: When turned off, the "Show thread" button will only appear if the poster is replying to themselves in a series of posts
+        setting_show_reply_tree_button: Blue marker for replies to another post, yellow marker for posts with replies, and green marker for both
         setting_show_subscribe_button_on_timeline: You can easily check the status of your subscriptions and quickly build a subscription list
         setting_show_tab_bar_label: When adding a list etc. to the tab bar, it is recommended to display the label because it is not possible to distinguish by the icon alone
         setting_show_followed_by: "The color of the follow button changes according to the follow status (gray: no follow relationship, yellow: followed, blue: following, green: mutual follow)"
@@ -195,6 +197,7 @@ en:
         otp_attempt: Two-factor code
         password: Password
         phrase: Keyword or phrase
+        setting_add_reference_modal: Show confirmation dialog before adding a reference to a private post
         setting_advanced_layout: Enable advanced web interface
         setting_aggregate_reblogs: Group boosts in timelines
         setting_auto_play_gif: Auto-play animated GIFs
@@ -212,25 +215,29 @@ en:
         setting_display_media_show_all: Show all
         setting_enable_limited_timeline: Enable limited timeline
         setting_enable_reaction: Enable reaction
+        setting_enable_status_reference: Enable reference
         setting_expand_spoilers: Always expand posts marked with content warnings
         setting_follow_button_to_list_adder: Open list add dialog with follow button
         setting_hide_followers_count: Hide your followers count
         setting_hide_following_count: Hide your following count
         setting_hide_network: Hide your social graph
         setting_hide_statuses_count: Hide your post count
+        setting_match_visibility_of_references: Match the visibility of the post to the references
         setting_new_features_policy: Policy for new features
         setting_new_features_policy_tester: Participate in the beta test
         setting_new_features_policy_conservative: Leave it disabled. I use it if necessary
         setting_new_features_policy_default: Follow recommendations (default)
         setting_noindex: Opt-out of search engine indexing
         setting_place_tab_bar_at_bottom: Place the tab bar at the bottom
+        setting_post_reference_modal: Show a confirmation dialog before making a post containing references
         setting_reduce_motion: Reduce motion in animations
+        setting_unselect_reference_modal: Show confirmation dialog before removing a reference
         setting_show_application: Disclose application used to send posts
         setting_show_bookmark_button: Show the bookmark button on the action bar
         setting_show_follow_button_on_timeline: Show follow button on timeline
         setting_show_navigation_panel: Show the navigation panel
         setting_show_quote_button: Show the quote button on the action bar
-        setting_show_reply_tree_button: Show "Show thread" button on posts that have reply tree
+        setting_show_reply_tree_button: Show markers on posts where a reply relationship exists
         setting_show_subscribe_button_on_timeline: Show subscribe button on timeline
         setting_show_tab_bar_label: Show labels in the tab bar
         setting_show_followed_by: Reflect the following status on the follow button
@@ -317,6 +324,7 @@ en:
         reaction: Someone reactioned your post
         reblog: Someone boosted your post
         report: New report is submitted
+        status_reference: Someone referenced your post
         trending_tag: An unreviewed hashtag is trending
       rule:
         text: Rule

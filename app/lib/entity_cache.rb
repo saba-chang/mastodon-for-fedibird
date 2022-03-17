@@ -59,7 +59,7 @@ class EntityCache
     account
   end
 
-  def holding_status_and_account(url)
+  def holding_status(url)
     return Rails.cache.read(to_key(:holding_status, url)) if Rails.cache.exist?(to_key(:holding_status, url))
 
     status = begin
@@ -72,11 +72,13 @@ class EntityCache
       nil
     end
 
-    account = status&.account
+    update_holding_status(url, status)
 
-    Rails.cache.write(to_key(:holding_status, url), [status, account], expires_in: account.nil? ? MIN_EXPIRATION : MAX_EXPIRATION)
+    status
+  end
 
-    [status, account]
+  def update_holding_status(url, status)
+    Rails.cache.write(to_key(:holding_status, url), status, expires_in: status&.account.nil? ? MIN_EXPIRATION : MAX_EXPIRATION)
   end
 
   def to_key(type, *ids)

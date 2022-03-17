@@ -19,13 +19,14 @@ class Notification < ApplicationRecord
   include Paginable
 
   LEGACY_TYPE_CLASS_MAP = {
-    'Mention'       => :mention,
-    'Status'        => :reblog,
-    'Follow'        => :follow,
-    'FollowRequest' => :follow_request,
-    'Favourite'     => :favourite,
-    'Poll'          => :poll,
-    'EmojiReaction' => :emoji_reaction,
+    'Mention'         => :mention,
+    'Status'          => :reblog,
+    'Follow'          => :follow,
+    'FollowRequest'   => :follow_request,
+    'Favourite'       => :favourite,
+    'Poll'            => :poll,
+    'EmojiReaction'   => :emoji_reaction,
+    'StatusReference' => :status_reference,
   }.freeze
 
   TYPES = %i(
@@ -37,6 +38,7 @@ class Notification < ApplicationRecord
     favourite
     poll
     emoji_reaction
+    status_reference
   ).freeze
 
   TARGET_STATUS_INCLUDES_BY_TYPE = {
@@ -46,19 +48,21 @@ class Notification < ApplicationRecord
     favourite: [favourite: :status],
     poll: [poll: :status],
     emoji_reaction: [emoji_reaction: :status],
+    status_reference: [status_reference: :status],
   }.freeze
 
   belongs_to :account, optional: true
   belongs_to :from_account, class_name: 'Account', optional: true
   belongs_to :activity, polymorphic: true, optional: true
 
-  belongs_to :mention,        foreign_key: 'activity_id', optional: true
-  belongs_to :status,         foreign_key: 'activity_id', optional: true
-  belongs_to :follow,         foreign_key: 'activity_id', optional: true
-  belongs_to :follow_request, foreign_key: 'activity_id', optional: true
-  belongs_to :favourite,      foreign_key: 'activity_id', optional: true
-  belongs_to :poll,           foreign_key: 'activity_id', optional: true
-  belongs_to :emoji_reaction, foreign_key: 'activity_id', optional: true
+  belongs_to :mention,          foreign_key: 'activity_id', optional: true
+  belongs_to :status,           foreign_key: 'activity_id', optional: true
+  belongs_to :follow,           foreign_key: 'activity_id', optional: true
+  belongs_to :follow_request,   foreign_key: 'activity_id', optional: true
+  belongs_to :favourite,        foreign_key: 'activity_id', optional: true
+  belongs_to :poll,             foreign_key: 'activity_id', optional: true
+  belongs_to :emoji_reaction,   foreign_key: 'activity_id', optional: true
+  belongs_to :status_reference, foreign_key: 'activity_id', optional: true
 
   validates :type, inclusion: { in: TYPES }
   validates :activity_id, uniqueness: { scope: [:account_id, :type] }, if: -> { type.to_sym == :status }
@@ -93,6 +97,8 @@ class Notification < ApplicationRecord
       poll&.status
     when :emoji_reaction
       emoji_reaction&.status
+    when :status_reference
+      status_reference&.status
     end
   end
 
@@ -133,6 +139,8 @@ class Notification < ApplicationRecord
           notification.poll.status = cached_status
         when :emoji_reaction
           notification.emoji_reaction.status = cached_status
+        when :status_reference
+          notification.status_reference.status = cached_status
         end
       end
 
@@ -151,7 +159,7 @@ class Notification < ApplicationRecord
     case activity_type
     when 'Status', 'Follow', 'Favourite', 'FollowRequest', 'Poll', 'EmojiReaction'
       self.from_account_id = activity&.account_id
-    when 'Mention'
+    when 'Mention', 'StatusReference'
       self.from_account_id = activity&.status&.account_id
     end
   end

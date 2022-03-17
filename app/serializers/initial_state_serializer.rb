@@ -2,7 +2,7 @@
 
 class InitialStateSerializer < ActiveModel::Serializer
   attributes :meta, :compose, :accounts, :lists,
-             :media_attachments, :settings
+             :media_attachments, :status_references, :settings
 
   has_one :push_subscription, serializer: REST::WebPushSubscriptionSerializer
 
@@ -58,6 +58,12 @@ class InitialStateSerializer < ActiveModel::Serializer
       store[:disable_joke_appearance]           = object.current_account.user.setting_disable_joke_appearance
       store[:new_features_policy]               = object.current_account.user.setting_new_features_policy
       store[:theme_instance_ticker]             = object.current_account.user.setting_theme_instance_ticker
+      store[:enable_status_reference]           = object.current_account.user.setting_enable_status_reference
+      store[:match_visibility_of_references]    = object.current_account.user.setting_match_visibility_of_references
+      store[:post_reference_modal]              = object.current_account.user.setting_post_reference_modal
+      store[:add_reference_modal]               = object.current_account.user.setting_add_reference_modal
+      store[:unselect_reference_modal]          = object.current_account.user.setting_unselect_reference_modal
+
     else
       store[:auto_play_gif] = Setting.auto_play_gif
       store[:display_media] = Setting.display_media
@@ -98,6 +104,10 @@ class InitialStateSerializer < ActiveModel::Serializer
 
   def media_attachments
     { accept_content_types: MediaAttachment.supported_file_extensions + MediaAttachment.supported_mime_types }
+  end
+
+  def status_references
+    { max_references: StatusReferenceValidator::LIMIT }
   end
 
   private

@@ -79,7 +79,12 @@ class Settings::PreferencesController < Settings::BaseController
       :setting_disable_joke_appearance,
       :setting_new_features_policy,
       :setting_theme_instance_ticker,
-      notification_emails: %i(follow follow_request reblog favourite emoji_reaction mention digest report pending_account trending_tag),
+      :setting_enable_status_reference,
+      :setting_match_visibility_of_references,
+      :setting_post_reference_modal,
+      :setting_add_reference_modal,
+      :setting_unselect_reference_modal,
+      notification_emails: %i(follow follow_request reblog favourite emoji_reaction status_reference mention digest report pending_account trending_tag),
       interactions: %i(must_be_follower must_be_following must_be_following_dm)
     )
   end

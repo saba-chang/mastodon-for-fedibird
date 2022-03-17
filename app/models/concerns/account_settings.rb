@@ -38,7 +38,7 @@ module AccountSettings
   end
 
   def noindex?
-    true & (local? ? user&.noindex? : settings['noindex'])
+    true & (local? ? user&.noindex? : (settings['noindex'].nil? ? true : settings['noindex']))
   end
 
   def hide_network?

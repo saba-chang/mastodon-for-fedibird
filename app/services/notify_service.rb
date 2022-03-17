@@ -50,6 +50,10 @@ class NotifyService < BaseService
     false
   end
 
+  def blocked_status_reference?
+    FeedManager.instance.filter?(:status_references, @notification.status_reference.status, @recipient)
+  end
+
   def following_sender?
     return @following_sender if defined?(@following_sender)
     @following_sender = @recipient.following?(@notification.from_account) || @recipient.requested?(@notification.from_account)

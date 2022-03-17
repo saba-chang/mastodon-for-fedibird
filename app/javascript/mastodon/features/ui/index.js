@@ -26,6 +26,7 @@ import PictureInPicture from 'mastodon/features/picture_in_picture';
 import {
   Compose,
   Status,
+  StatusReferences,
   GettingStarted,
   KeyboardShortcuts,
   PublicTimeline,
@@ -50,6 +51,7 @@ import {
   FavouritedStatuses,
   BookmarkedStatuses,
   EmojiReactionedStatuses,
+  ReferredByStatuses,
   ListTimeline,
   Blocks,
   DomainBlocks,
@@ -188,9 +190,11 @@ class SwitchingColumnsArea extends React.PureComponent {
 
           <WrappedRoute path='/statuses/new' component={Compose} content={children} />
           <WrappedRoute path='/statuses/:statusId' exact component={Status} content={children} />
+          <WrappedRoute path='/statuses/:statusId/references' component={StatusReferences} content={children} />
           <WrappedRoute path='/statuses/:statusId/reblogs' component={Reblogs} content={children} />
           <WrappedRoute path='/statuses/:statusId/favourites' component={Favourites} content={children} />
           <WrappedRoute path='/statuses/:statusId/emoji_reactions' component={EmojiReactions} content={children} />
+          <WrappedRoute path='/statuses/:statusId/referred_by' component={ReferredByStatuses} content={children} />
           <WrappedRoute path='/statuses/:statusId/mentions' component={Mentions} content={children} />
 
           <WrappedRoute path='/accounts/:accountId' exact component={AccountTimeline} content={children} />

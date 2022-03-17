@@ -5,9 +5,9 @@ import ImmutablePropTypes from 'react-immutable-proptypes';
 import PropTypes from 'prop-types';
 import IconButton from 'mastodon/components/icon_button';
 import classNames from 'classnames';
-import { me, boostModal, show_quote_button } from 'mastodon/initial_state';
+import { me, boostModal, show_quote_button, enableStatusReference, maxReferences, matchVisibilityOfReferences, addReferenceModal } from 'mastodon/initial_state';
 import { defineMessages, injectIntl } from 'react-intl';
-import { replyCompose, quoteCompose } from 'mastodon/actions/compose';
+import { replyCompose, quoteCompose, addReference, removeReference } from 'mastodon/actions/compose';
 import { reblog, favourite, bookmark, unreblog, unfavourite, unbookmark } from 'mastodon/actions/interactions';
 import { makeGetStatus } from 'mastodon/selectors';
 import { initBoostModal } from 'mastodon/actions/boosts';
@@ -16,6 +16,7 @@ import { openModal } from 'mastodon/actions/modal';
 const messages = defineMessages({
   reply: { id: 'status.reply', defaultMessage: 'Reply' },
   replyAll: { id: 'status.replyAll', defaultMessage: 'Reply to thread' },
+  reference: { id: 'status.reference', defaultMessage: 'Reference' },
   reblog: { id: 'status.reblog', defaultMessage: 'Boost' },
   reblog_private: { id: 'status.reblog_private', defaultMessage: 'Boost with original visibility' },
   cancel_reblog_private: { id: 'status.cancel_reblog_private', defaultMessage: 'Unboost' },
@@ -29,15 +30,29 @@ const messages = defineMessages({
   quoteConfirm: { id: 'confirmations.quote.confirm', defaultMessage: 'Quote' },
   quoteMessage: { id: 'confirmations.quote.message', defaultMessage: 'Quoting now will overwrite the message you are currently composing. Are you sure you want to proceed?' },
   open: { id: 'status.open', defaultMessage: 'Expand this status' },
+  visibilityMatchMessage: { id: 'visibility.match_message', defaultMessage: 'Do you want to match the visibility of the post to the reference?' },
+  visibilityKeepMessage: { id: 'visibility.keep_message', defaultMessage: 'Do you want to keep the visibility of the post to the reference?' },
+  visibilityChange: { id: 'visibility.change', defaultMessage: 'Change' },
+  visibilityKeep: { id: 'visibility.keep', defaultMessage: 'Keep' },
 });
 
 const makeMapStateToProps = () => {
   const getStatus = makeGetStatus();
+  const getProper = (status) => status.get('reblog', null) !== null && typeof status.get('reblog') === 'object' ? status.get('reblog') : status;
 
-  const mapStateToProps = (state, { statusId }) => ({
-    status: getStatus(state, { id: statusId }),
-    askReplyConfirmation: state.getIn(['compose', 'text']).trim().length !== 0,
-  });
+  const mapStateToProps = (state, { statusId }) => {
+    const status         = getStatus(state, { id: statusId });
+    const id             = status ? getProper(status).get('id') : null;
+
+    return {
+      status,
+      askReplyConfirmation: state.getIn(['compose', 'text']).trim().length !== 0,
+      referenceCountLimit: state.getIn(['compose', 'references']).size >= maxReferences,
+      referenced: state.getIn(['compose', 'references']).has(id),
+      contextReferenced: state.getIn(['compose', 'context_references']).has(id),
+      composePrivacy: state.getIn(['compose', 'privacy']),
+    };
+  };
 
   return mapStateToProps;
 };
@@ -53,6 +68,10 @@ class Footer extends ImmutablePureComponent {
   static propTypes = {
     statusId: PropTypes.string.isRequired,
     status: ImmutablePropTypes.map.isRequired,
+    referenceCountLimit: PropTypes.bool,
+    referenced: PropTypes.bool,
+    contextReferenced: PropTypes.bool,
+    composePrivacy: PropTypes.string,
     intl: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired,
     askReplyConfirmation: PropTypes.bool,
@@ -84,6 +103,39 @@ class Footer extends ImmutablePureComponent {
       this._performReply();
     }
   };
+
+  handleReferenceClick = (e) => {
+    const { dispatch, intl, status, referenced, composePrivacy } = this.props;
+    const id = status.get('id');
+
+    if (referenced) {
+      this.handleRemoveReference(id);
+    } else {
+      if (status.get('visibility') === 'private' && ['public', 'unlisted'].includes(composePrivacy)) {
+        if (!addReferenceModal || e && e.shiftKey) {
+          this.handleAddReference(id, true);
+        } else {
+          dispatch(openModal('CONFIRM', {
+            message: intl.formatMessage(matchVisibilityOfReferences ? messages.visibilityMatchMessage : messages.visibilityKeepMessage),
+            confirm: intl.formatMessage(matchVisibilityOfReferences ? messages.visibilityChange : messages.visibilityKeep),
+            onConfirm:   () => this.handleAddReference(id, matchVisibilityOfReferences),
+            secondary: intl.formatMessage(matchVisibilityOfReferences ? messages.visibilityKeep : messages.visibilityChange),
+            onSecondary: () => this.handleAddReference(id, !matchVisibilityOfReferences),
+          }));
+        }
+      } else {
+        this.handleAddReference(id, true);
+      }
+    }
+  }
+
+  handleAddReference = (id, change) => {
+    this.props.dispatch(addReference(id, change));
+  }
+
+  handleRemoveReference = (id) => {
+    this.props.dispatch(removeReference(id));
+  }
 
   handleFavouriteClick = () => {
     const { dispatch, status } = this.props;
@@ -164,7 +216,7 @@ class Footer extends ImmutablePureComponent {
   }
 
   render () {
-    const { status, intl, withOpenButton } = this.props;
+    const { status, intl, withOpenButton, referenced, contextReferenced, referenceCountLimit } = this.props;
 
     const publicStatus  = ['public', 'unlisted'].includes(status.get('visibility'));
     const reblogPrivate = status.getIn(['account', 'id']) === me && status.get('visibility') === 'private';
@@ -195,9 +247,12 @@ class Footer extends ImmutablePureComponent {
       reblogTitle = intl.formatMessage(messages.cannot_reblog);
     }
 
+    const referenceDisabled = expired || !referenced && referenceCountLimit || ['limited', 'direct'].includes(status.get('visibility'));
+
     return (
       <div className='picture-in-picture__footer'>
         <IconButton className='status__action-bar-button' title={replyTitle} icon={status.get('in_reply_to_account_id') === status.getIn(['account', 'id']) ? 'reply' : replyIcon} onClick={this.handleReplyClick} counter={status.get('replies_count')} obfuscateCount />
+        {enableStatusReference && me && <IconButton className={classNames('status__action-bar-button', 'link-icon', {referenced, 'context-referenced': contextReferenced})} animate disabled={referenceDisabled} active={referenced} pressed={referenced} title={intl.formatMessage(messages.reference)} icon='link' onClick={this.handleReferenceClick} />}
         <IconButton className={classNames('status__action-bar-button', { reblogPrivate })} disabled={!publicStatus && !reblogPrivate}  active={status.get('reblogged')} pressed={status.get('reblogged')} title={reblogTitle} icon='retweet' onClick={this.handleReblogClick} counter={status.get('reblogs_count')} />
         <IconButton className='status__action-bar-button star-icon' animate active={status.get('favourited')} pressed={status.get('favourited')} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} counter={status.get('favourites_count')} />
         {show_quote_button && <IconButton className='status__action-bar-button' disabled={!publicStatus || expired} title={!publicStatus ? intl.formatMessage(messages.cannot_quote) : intl.formatMessage(messages.quote)} icon='quote-right' onClick={this.handleQuoteClick} />}

@@ -53,6 +53,12 @@ class StatusPolicy < ApplicationPolicy
     limited? && owned? && (!reply? || record.thread.conversation_id != record.conversation_id)
   end
 
+  def subscribe?
+    return false unless show?
+
+    !unlisted? || owned? || following_author? || mention_exists?
+  end
+
   private
 
   def requires_mention?
@@ -61,6 +67,10 @@ class StatusPolicy < ApplicationPolicy
 
   def owned?
     author.id == current_account&.id
+  end
+
+  def unlisted?
+    record.unlisted_visibility?
   end
 
   def private?

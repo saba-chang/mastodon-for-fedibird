@@ -1,9 +1,17 @@
 :ruby
   hide_show_thread ||= false
+  has_reference    = (current_account.nil? || current_account&.user&.setting_enable_status_reference) && status.status_references_count - (status.quote? ? 1 : 0) > 0
+  has_ancestor     = has_reference || !hide_show_thread && (current_account.nil? || current_account&.user&.setting_show_reply_tree_button) && status.reply?
+  has_descendant   = !hide_show_thread && (current_account.nil? || current_account&.user&.setting_show_reply_tree_button) && status.replies_count > 0
+  thread_mark_type = (has_ancestor && has_descendant) ? 'both' : (has_ancestor ? 'ancestor' : (has_descendant ? 'descendant' : ''))
+
 
 .status{ class: "status-#{status.visibility}" }
   .status__info
     = link_to ActivityPub::TagManager.instance.url_for(status), class: 'status__relative-time u-url u-uid', target: stream_link_target, rel: 'noopener noreferrer' do
+      - if thread_mark_type.present?
+        %span.status__thread_mark{ class: "status__thread_mark-#{thread_mark_type}", title: t(thread_mark_type, scope: 'thread_mark') }
+          = '+'
       %time.time-ago{ datetime: status.created_at.iso8601, title: l(status.created_at) }= l(status.created_at)
     %data.dt-published{ value: status.created_at.to_time.iso8601 }
     %span.status__visibility-icon><

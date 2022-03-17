@@ -52,7 +52,7 @@ module JsonLdHelper
   end
 
   def same_origin?(url_a, url_b)
-    Addressable::URI.parse(url_a).host.casecmp(Addressable::URI.parse(url_b).host).zero?
+    Addressable::URI.parse(url_a).host.casecmp(Addressable::URI.parse(url_b).host)&.zero?
   end
 
   def invalid_origin?(url)

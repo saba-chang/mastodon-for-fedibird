@@ -12,8 +12,9 @@
   style_classes     = style_classes(status, is_predecessor, is_successor, include_threads)
   mf_classes        = microformats_classes(status, is_direct_parent, is_direct_child)
   entry_classes     = h_class + ' ' + mf_classes + ' ' + style_classes
+  has_reference    = (current_account.nil? || current_account&.user&.setting_enable_status_reference) && status.status_references_count - (status.quote? ? 1 : 0) > 0
 
-- if status.reply? && include_threads
+- if include_threads
   - if @next_ancestor
     .entry{ class: entry_classes }
       = link_to_older ActivityPub::TagManager.instance.url_for(@next_ancestor)

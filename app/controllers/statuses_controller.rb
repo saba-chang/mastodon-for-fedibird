@@ -12,13 +12,13 @@ class StatusesController < ApplicationController
   before_action :set_status
   before_action :set_instance_presenter
   before_action :set_link_headers
-  before_action :redirect_to_original, only: :show
-  before_action :set_referrer_policy_header, only: :show
+  before_action :redirect_to_original, only: [:show, :references]
+  before_action :set_referrer_policy_header, only: [:show, :references]
   before_action :set_cache_headers
   before_action :set_body_classes
 
   skip_around_action :set_locale, if: -> { request.format == :json }
-  skip_before_action :require_functional!, only: [:show, :embed], unless: :whitelist_mode?
+  skip_before_action :require_functional!, only: [:show, :references, :embed], unless: :whitelist_mode?
 
   content_security_policy only: :embed do |p|
     p.frame_ancestors(false)
@@ -35,6 +35,20 @@ class StatusesController < ApplicationController
       format.json do
         expires_in 3.minutes, public: @status.distributable? && public_fetch_mode?
         render_with_cache json: @status, content_type: 'application/activity+json', serializer: ActivityPub::NoteSerializer, adapter: ActivityPub::Adapter
+      end
+    end
+  end
+
+  def references
+    respond_to do |format|
+      format.html do
+        expires_in 10.seconds, public: true if current_account.nil?
+        set_references
+        return not_found unless @references.present?
+      end
+
+      format.json do
+        redirect_to account_status_references_url(@account, @status)
       end
     end
   end

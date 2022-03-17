@@ -7,6 +7,8 @@ import {
   quoteCompose,
   mentionCompose,
   directCompose,
+  addReference,
+  removeReference,
 } from '../actions/compose';
 import {
   reblog,
@@ -74,12 +76,21 @@ const makeMapStateToProps = () => {
   const getStatus = makeGetStatus();
   const getPictureInPicture = makeGetPictureInPicture();
   const customEmojiMap = createSelector([state => state.get('custom_emojis')], items => items.reduce((map, emoji) => map.set(emoji.get('shortcode'), emoji), ImmutableMap()));
+  const getProper = (status) => status.get('reblog', null) !== null && typeof status.get('reblog') === 'object' ? status.get('reblog') : status;
 
-  const mapStateToProps = (state, props) => ({
-    status: getStatus(state, props),
-    pictureInPicture: getPictureInPicture(state, props),
-    emojiMap: customEmojiMap(state),
-  });
+  const mapStateToProps = (state, props) => {
+    const status = getStatus(state, props);
+    const id = !!status ? getProper(status).get('id') : null;
+
+    return {
+      status,
+      pictureInPicture: getPictureInPicture(state, props),
+      emojiMap: customEmojiMap(state),
+      id,
+      referenced: state.getIn(['compose', 'references']).has(id),
+      contextReferenced: state.getIn(['compose', 'context_references']).has(id),
+    }
+  };
 
   return mapStateToProps;
 };
@@ -306,6 +317,14 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
 
   removeEmojiReaction (status) {
     dispatch(removeEmojiReaction(status));
+  },
+
+  onAddReference (id, change) {
+    dispatch(addReference(id, change));
+  },
+
+  onRemoveReference (id) {
+    dispatch(removeReference(id));
   },
 
 });

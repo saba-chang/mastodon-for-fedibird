@@ -58,6 +58,7 @@ export function normalizeStatus(status, normalOldStatus) {
   // Otherwise keep the ones already in the reducer
   if (normalOldStatus) {
     normalStatus.search_index = normalOldStatus.get('search_index');
+    normalStatus.shortHtml = normalOldStatus.get('shortHtml');
     normalStatus.contentHtml = normalOldStatus.get('contentHtml');
     normalStatus.spoilerHtml = normalOldStatus.get('spoilerHtml');
     normalStatus.spoiler_text = normalOldStatus.get('spoiler_text');
@@ -73,11 +74,16 @@ export function normalizeStatus(status, normalOldStatus) {
       normalStatus.spoiler_text = '';
     }
 
-    const spoilerText   = normalStatus.spoiler_text || '';
-    const searchContent = ([spoilerText, status.content].concat((status.poll && status.poll.options) ? status.poll.options.map(option => option.title) : [])).join('\n\n').replace(/<br\s*\/?>/g, '\n').replace(/<\/p><p>/g, '\n\n');
-    const emojiMap      = makeEmojiMap(normalStatus);
+    const spoilerText    = normalStatus.spoiler_text || '';
+    const searchContent  = ([spoilerText, status.content].concat((status.poll && status.poll.options) ? status.poll.options.map(option => option.title) : [])).join('\n\n').replace(/<br\s*\/?>/g, '\n').replace(/<\/p><p>/g, '\n\n');
+    const emojiMap       = makeEmojiMap(normalStatus);
 
-    normalStatus.search_index = domParser.parseFromString(searchContent, 'text/html').documentElement.textContent;
+    const docContentElem = domParser.parseFromString(searchContent, 'text/html').documentElement;
+    docContentElem.querySelector('.quote-inline')?.remove();
+    docContentElem.querySelector('.reference-link-inline')?.remove();
+
+    normalStatus.search_index = docContentElem.textContent;
+    normalStatus.shortHtml    = '<p>'+emojify(normalStatus.search_index.substr(0, 150), emojiMap) + (normalStatus.search_index.substr(150) ? '...' : '')+'</p>';
     normalStatus.contentHtml  = emojify(normalStatus.content, emojiMap);
     normalStatus.spoilerHtml  = emojify(escapeTextContentForBrowser(spoilerText), emojiMap);
     normalStatus.hidden       = expandSpoilers ? false : spoilerText.length > 0 || normalStatus.sensitive;

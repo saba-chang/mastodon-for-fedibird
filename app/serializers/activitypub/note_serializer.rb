@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ActivityPub::NoteSerializer < ActivityPub::Serializer
-  context_extensions :atom_uri, :conversation, :sensitive, :voters_count, :quote_uri, :expiry
+  context_extensions :atom_uri, :conversation, :sensitive, :voters_count, :quote_uri, :expiry, :references
 
   attributes :id, :type, :summary,
              :in_reply_to, :published, :url,
@@ -21,6 +21,7 @@ class ActivityPub::NoteSerializer < ActivityPub::Serializer
   has_many :virtual_tags, key: :tag
 
   has_one :replies, serializer: ActivityPub::CollectionSerializer, if: :local?
+  has_one :references, serializer: ActivityPub::CollectionSerializer, if: :local?
 
   has_many :poll_options, key: :one_of, if: :poll_and_not_multiple?
   has_many :poll_options, key: :any_of, if: :poll_and_multiple?
@@ -63,6 +64,24 @@ class ActivityPub::NoteSerializer < ActivityPub::Serializer
         items: replies.map(&:second),
         next: last_id ? ActivityPub::TagManager.instance.replies_uri_for(object, page: true, min_id: last_id) : ActivityPub::TagManager.instance.replies_uri_for(object, page: true, only_other_accounts: true)
       )
+    )
+  end
+
+  INLINE_REFERENCE_MAX = 5
+
+  def references
+    @references = Status.where(id: object.reference_relationships.order(target_status_id: :asc).limit(INLINE_REFERENCE_MAX).pluck(:target_status_id)).reorder(id: :asc)
+    last_id    = @references&.last&.id if @references.size == INLINE_REFERENCE_MAX
+
+    ActivityPub::CollectionPresenter.new(
+      type: :unordered,
+      id: ActivityPub::TagManager.instance.references_uri_for(object),
+      first: ActivityPub::CollectionPresenter.new(
+        type: :unordered,
+        part_of: ActivityPub::TagManager.instance.references_uri_for(object),
+        items: @references.map(&:uri),
+        next: last_id ? ActivityPub::TagManager.instance.references_uri_for(object,  page: true, min_id: last_id) : nil,
+      ),
     )
   end
 

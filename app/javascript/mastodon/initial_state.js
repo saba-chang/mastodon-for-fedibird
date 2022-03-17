@@ -11,6 +11,9 @@ export const unfollowModal = getMeta('unfollow_modal');
 export const unsubscribeModal = getMeta('unsubscribe_modal');
 export const boostModal = getMeta('boost_modal');
 export const deleteModal = getMeta('delete_modal');
+export const postReferenceModal = getMeta('post_reference_modal');
+export const addReferenceModal = getMeta('add_reference_modal');
+export const unselectReferenceModal = getMeta('unselect_reference_modal');
 export const me = getMeta('me');
 export const searchEnabled = getMeta('search_enabled');
 export const invitesEnabled = getMeta('invites_enabled');
@@ -43,5 +46,8 @@ export const enableReaction = getMeta('enable_reaction');
 export const show_reply_tree_button = getMeta('show_reply_tree_button');
 export const disable_joke_appearance = getMeta('disable_joke_appearance');
 export const new_features_policy = getMeta('new_features_policy');
+export const enableStatusReference = getMeta('enable_status_reference');
+export const maxReferences = initialState?.status_references?.max_references;
+export const matchVisibilityOfReferences = getMeta('match_visibility_of_references');
 
 export default initialState;

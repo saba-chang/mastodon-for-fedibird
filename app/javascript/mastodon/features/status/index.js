@@ -1,10 +1,9 @@
-import Immutable from 'immutable';
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ImmutablePropTypes from 'react-immutable-proptypes';
-import { Map as ImmutableMap } from 'immutable';
+import { Map as ImmutableMap, List as ImmutableList } from 'immutable';
 import { createSelector } from 'reselect';
 import { fetchStatus } from '../../actions/statuses';
 import MissingIndicator from '../../components/missing_indicator';
@@ -28,6 +27,8 @@ import {
   quoteCompose,
   mentionCompose,
   directCompose,
+  addReference,
+  removeReference,
 } from '../../actions/compose';
 import {
   muteStatus,
@@ -59,10 +60,11 @@ import { openModal } from '../../actions/modal';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import ImmutablePureComponent from 'react-immutable-pure-component';
 import { HotKeys } from 'react-hotkeys';
-import { boostModal, deleteModal } from '../../initial_state';
+import { boostModal, deleteModal, enableStatusReference } from '../../initial_state';
 import { attachFullscreenListener, detachFullscreenListener, isFullscreen } from '../ui/util/fullscreen';
 import { textForScreenReader, defaultMediaVisibility } from '../../components/status';
 import Icon from 'mastodon/components/icon';
+import DetailedHeaderContaier from './containers/header_container';
 
 const messages = defineMessages({
   deleteConfirm: { id: 'confirmations.delete.confirm', defaultMessage: 'Delete' },
@@ -83,12 +85,13 @@ const makeMapStateToProps = () => {
   const getStatus = makeGetStatus();
   const getPictureInPicture = makeGetPictureInPicture();
   const customEmojiMap = createSelector([state => state.get('custom_emojis')], items => items.reduce((map, emoji) => map.set(emoji.get('shortcode'), emoji), ImmutableMap()));
+  const getProper = (status) => status.get('reblog', null) !== null && typeof status.get('reblog') === 'object' ? status.get('reblog') : status;
 
   const getAncestorsIds = createSelector([
     (_, { id }) => id,
     state => state.getIn(['contexts', 'inReplyTos']),
   ], (statusId, inReplyTos) => {
-    let ancestorsIds = Immutable.List();
+    let ancestorsIds = ImmutableList();
     ancestorsIds = ancestorsIds.withMutations(mutable => {
       let id = statusId;
 
@@ -135,28 +138,33 @@ const makeMapStateToProps = () => {
       });
     }
 
-    return Immutable.List(descendantsIds);
+    return ImmutableList(descendantsIds);
+  });
+
+  const getReferencesIds = createSelector([
+    (_, { id }) => id,
+    state => state.getIn(['contexts', 'references']),
+  ], (statusId, contextReference) => {
+    return ImmutableList(contextReference.get(statusId));
   });
 
   const mapStateToProps = (state, props) => {
-    const status = getStatus(state, { id: props.params.statusId });
-
-    let ancestorsIds   = Immutable.List();
-    let descendantsIds = Immutable.List();
-
-    if (status) {
-      ancestorsIds   = getAncestorsIds(state, { id: status.get('in_reply_to_id') });
-      descendantsIds = getDescendantsIds(state, { id: status.get('id') });
-    }
+    const status         = getStatus(state, { id: props.params.statusId });
+    const ancestorsIds   = status ? getAncestorsIds(state, { id: status.get('in_reply_to_id') }) : ImmutableList();
+    const descendantsIds = status ? getDescendantsIds(state, { id: status.get('id') }) : ImmutableList();
+    const referencesIds  = status ? getReferencesIds(state, { id: status.get('id') }) : ImmutableList();
+    const id             = status ? getProper(status).get('id') : null;
 
     return {
       status,
-      ancestorsIds,
+      ancestorsIds: ancestorsIds.concat(referencesIds).sortBy(id => id),
       descendantsIds,
       askReplyConfirmation: state.getIn(['compose', 'text']).trim().length !== 0,
       domain: state.getIn(['meta', 'domain']),
       pictureInPicture: getPictureInPicture(state, { id: props.params.statusId }),
       emojiMap: customEmojiMap(state),
+      referenced: state.getIn(['compose', 'references']).has(id),
+      contextReferenced: state.getIn(['compose', 'context_references']).has(id),
     };
   };
 
@@ -177,6 +185,8 @@ class Status extends ImmutablePureComponent {
     status: ImmutablePropTypes.map,
     ancestorsIds: ImmutablePropTypes.list,
     descendantsIds: ImmutablePropTypes.list,
+    referenced: PropTypes.bool,
+    contextReferenced: PropTypes.bool,
     intl: PropTypes.object.isRequired,
     askReplyConfirmation: PropTypes.bool,
     multiColumn: PropTypes.bool,
@@ -465,37 +475,34 @@ class Status extends ImmutablePureComponent {
     this.props.dispatch(removeEmojiReaction(status));
   }
 
-  handleMoveUp = id => {
+  handleAddReference = (id, change) => {
+    this.props.dispatch(addReference(id, change));
+  }
+
+  handleRemoveReference = (id) => {
+    this.props.dispatch(removeReference(id));
+  }
+
+  getCurrentStatusIndex = id => {
     const { status, ancestorsIds, descendantsIds } = this.props;
+    const statusIds = ImmutableList([status.get('id')]);
 
-    if (id === status.get('id')) {
-      this._selectChild(ancestorsIds.size - 1, true);
-    } else {
-      let index = ancestorsIds.indexOf(id);
+    return ImmutableList().concat(ancestorsIds, statusIds, descendantsIds).indexOf(id);
+  }
 
-      if (index === -1) {
-        index = descendantsIds.indexOf(id);
-        this._selectChild(ancestorsIds.size + index, true);
-      } else {
-        this._selectChild(index - 1, true);
-      }
+  handleMoveUp = id => {
+    const index = this.getCurrentStatusIndex(id);
+
+    if (index !== -1) {
+      return this._selectChild(index - 1, true);
     }
   }
 
   handleMoveDown = id => {
-    const { status, ancestorsIds, descendantsIds } = this.props;
+    const index = this.getCurrentStatusIndex(id);
 
-    if (id === status.get('id')) {
-      this._selectChild(ancestorsIds.size + 1, false);
-    } else {
-      let index = ancestorsIds.indexOf(id);
-
-      if (index === -1) {
-        index = descendantsIds.indexOf(id);
-        this._selectChild(ancestorsIds.size + index + 2, false);
-      } else {
-        this._selectChild(index + 1, false);
-      }
+    if (index !== -1) {
+      return this._selectChild(index + 1, true);
     }
   }
 
@@ -556,7 +563,7 @@ class Status extends ImmutablePureComponent {
 
   render () {
     let ancestors, descendants;
-    const { status, ancestorsIds, descendantsIds, intl, domain, multiColumn, pictureInPicture, emojiMap } = this.props;
+    const { status, ancestorsIds, descendantsIds, intl, domain, multiColumn, pictureInPicture, emojiMap, referenced, contextReferenced } = this.props;
     const { fullscreen } = this.state;
 
     if (status === null) {
@@ -575,6 +582,8 @@ class Status extends ImmutablePureComponent {
     if (descendantsIds && descendantsIds.size > 0) {
       descendants = <div>{this.renderChildren(descendantsIds)}</div>;
     }
+
+    const referenceCount  = enableStatusReference ? status.get('status_references_count', 0) - (status.get('status_reference_ids', ImmutableList()).includes(status.get('quote_id')) ? 1 : 0) : 0;
 
     const handlers = {
       moveUp: this.handleHotkeyMoveUp,
@@ -599,15 +608,23 @@ class Status extends ImmutablePureComponent {
           )}
         />
 
+        <DetailedHeaderContaier statusId={status.get('id')} />
+
         <ScrollContainer scrollKey='thread'>
           <div className={classNames('scrollable', { fullscreen })} ref={this.setRef}>
             {ancestors}
 
             <HotKeys handlers={handlers}>
-              <div className={classNames('focusable', 'detailed-status__wrapper')} tabIndex='0' aria-label={textForScreenReader(intl, status, false)}>
+              <div className={classNames('focusable', 'detailed-status__wrapper', {
+                'detailed-status__wrapper-referenced': referenced,
+                'detailed-status__wrapper-context-referenced': contextReferenced,
+                'detailed-status__wrapper-reference': referenceCount > 0,
+              })} tabIndex='0' aria-label={textForScreenReader(intl, status, false)}>
                 <DetailedStatus
                   key={`details-${status.get('id')}`}
                   status={status}
+                  referenced={referenced}
+                  contextReferenced={contextReferenced}
                   onOpenVideo={this.handleOpenVideo}
                   onOpenMedia={this.handleOpenMedia}
                   onOpenVideoQuote={this.handleOpenVideoQuote}
@@ -628,6 +645,8 @@ class Status extends ImmutablePureComponent {
                 <ActionBar
                   key={`action-bar-${status.get('id')}`}
                   status={status}
+                  referenced={referenced}
+                  contextReferenced={contextReferenced}
                   onReply={this.handleReplyClick}
                   onFavourite={this.handleFavouriteClick}
                   onReblog={this.handleReblogClick}
@@ -649,6 +668,8 @@ class Status extends ImmutablePureComponent {
                   onEmbed={this.handleEmbed}
                   addEmojiReaction={this.handleAddEmojiReaction}
                   removeEmojiReaction={this.handleRemoveEmojiReaction}
+                  onAddReference={this.handleAddReference}
+                  onRemoveReference={this.handleRemoveReference}
                 />
               </div>
             </HotKeys>

@@ -27,6 +27,7 @@ class Formatter
     unless status.local?
       html = reformat(raw_content)
       html = apply_inner_link(html)
+      html = apply_reference_link(html, status)
       html = encode_custom_emojis(html, status.emojis, options[:autoplay]) if options[:custom_emojify]
       html = nyaize_html(html) if options[:nyaize]
       return html.html_safe # rubocop:disable Rails/OutputSafety
@@ -41,6 +42,7 @@ class Formatter
     html = encode_custom_emojis(html, status.emojis, options[:autoplay]) if options[:custom_emojify]
     html = simple_format(html, {}, sanitize: false)
     html = quotify(html, status) if status.quote? && !options[:escape_quotify]
+    html = add_compatible_reference_link(html, status) if status.references.exists?
     html = nyaize_html(html) if options[:nyaize]
     html = html.delete("\n")
 
@@ -68,6 +70,7 @@ class Formatter
     return status.text if status.local?
 
     text = status.text.gsub(/(<br \/>|<br>|<\/p>)+/) { |match| "#{match}\n" }
+    text = remove_reference_link(text)
     strip_tags(text)
   end
 
@@ -212,6 +215,12 @@ class Formatter
     html.sub(/(<[^>]+>)\z/, "<span class=\"quote-inline\"><br/>QT: #{link}</span>\\1")
   end
 
+  def add_compatible_reference_link(html, status)
+    url = references_short_account_status_url(status.account, status)
+    link = "<a href=\"#{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"status-link unhandled-link\" data-status-id=\"#{status.id}\">#{I18n.t('status_references.link_text')}</a>"
+    html.sub(/<\/p>\z/, "<span class=\"reference-link-inline\"> #{link}</span></p>")
+  end
+
   def nyaize_html(html)
     inside_anchor = false
 
@@ -293,8 +302,9 @@ class Formatter
 
     html_attrs[:rel] = "me #{html_attrs[:rel]}" if options[:me]
 
-    status, account = url_to_holding_status_and_account(url.normalize.to_s)
-    account         = url_to_holding_account(url.normalize.to_s) if status.nil?
+    status  = url_to_holding_status(url.normalize.to_s)
+    account = status&.account
+    account = url_to_holding_account(url.normalize.to_s) if status.nil?
 
     if status.present? && account.present?
       html_attrs[:class]                      = class_append(html_attrs[:class], ['status-url-link'])
@@ -315,8 +325,9 @@ class Formatter
   def apply_inner_link(html)
     doc = Nokogiri::HTML.parse(html, nil, 'utf-8')
     doc.css('a').map do |x|
-      status, account = url_to_holding_status_and_account(x['href'])
-      account         = url_to_holding_account(x['href']) if status.nil?
+      status  = url_to_holding_status(x['href'])
+      account = status&.account
+      account = url_to_holding_account(x['href']) if status.nil?
 
       if status.present? && account.present?
         x.add_class('status-url-link')
@@ -333,6 +344,44 @@ class Formatter
     html.html_safe # rubocop:disable Rails/OutputSafety
   end
 
+  def remove_reference_link(html)
+    doc = Nokogiri::HTML.parse(html, nil, 'utf-8')
+    doc.at_css('span.reference-link-inline')&.unlink 
+    html = doc.at_css('body')&.inner_html || ''
+    html.html_safe # rubocop:disable Rails/OutputSafety
+  end
+
+  def apply_reference_link(html, status)
+    doc = Nokogiri::HTML.parse(html, nil, 'utf-8')
+
+    reference_link_url = nil
+
+    doc.at_css('span.reference-link-inline').tap do |x|
+      if x.present?
+        reference_link_url = x.at_css('a')&.attr('href')
+        x.unlink 
+      end
+    end
+
+    if status.references.exists?
+      ref_span   = Nokogiri::XML::Node.new("span", doc)
+      ref_anchor = Nokogiri::XML::Node.new("a", doc)
+      ref_anchor.add_class('status-link unhandled-link')
+      ref_anchor['href']           = reference_link_url || status.url
+      ref_anchor['target']         = '_blank'
+      ref_anchor['rel']            = 'noopener noreferrer'
+      ref_anchor['data-status-id'] = status.id
+      ref_anchor.content           = I18n.t('status_references.link_text')
+      ref_span.content             = ' '
+      ref_span.add_class('reference-link-inline')
+      ref_span.add_child(ref_anchor)
+      (doc.at_css('body > p:last-child') || doc.at_css('body'))&.add_child(ref_span)
+    end
+
+    html = doc.at_css('body')&.inner_html || ''
+    html.html_safe # rubocop:disable Rails/OutputSafety
+  end
+
   def url_to_holding_account(url)
     url = url.split('#').first
 
@@ -341,12 +390,12 @@ class Formatter
     EntityCache.instance.holding_account(url)
   end
 
-  def url_to_holding_status_and_account(url)
+  def url_to_holding_status(url)
     url = url.split('#').first
 
     return if url.nil?
 
-    EntityCache.instance.holding_status_and_account(url)
+    EntityCache.instance.holding_status(url)
   end
 
   def link_to_mention(entity, linkable_accounts, options = {})

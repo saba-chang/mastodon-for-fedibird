@@ -6,7 +6,7 @@ import Permalink from './permalink';
 import classnames from 'classnames';
 import PollContainer from 'mastodon/containers/poll_container';
 import Icon from 'mastodon/components/icon';
-import { autoPlayGif, show_reply_tree_button } from 'mastodon/initial_state';
+import { autoPlayGif } from 'mastodon/initial_state';
 
 const messages = defineMessages({
   linkToAcct: { id: 'status.link_to_acct', defaultMessage: 'Link to @{acct}' },
@@ -39,13 +39,22 @@ export default class StatusContent extends React.PureComponent {
   };
 
   _updateStatusLinks () {
+    const { intl, status, collapsable, onClick, onCollapsedToggle } = this.props;
     const node = this.node;
 
     if (!node) {
       return;
     }
 
-    const links = node.querySelectorAll('a');
+    const reference_link = node.querySelector('.reference-link-inline > a');
+    if (reference_link && reference_link?.dataset?.statusId && !reference_link.hasReferenceClick ) {
+      reference_link.addEventListener('click', this.onReferenceLinkClick.bind(this, reference_link.dataset.statusId), false);
+      reference_link.setAttribute('target', '_blank');
+      reference_link.setAttribute('rel', 'noopener noreferrer');
+      reference_link.hasReferenceClick = true;
+    }
+
+    const links = node.querySelectorAll(':not(.reference-link-inline) > a');
 
     for (var i = 0; i < links.length; ++i) {
       let link = links[i];
@@ -54,7 +63,7 @@ export default class StatusContent extends React.PureComponent {
       }
       link.classList.add('status-link');
 
-      let mention = this.props.status.get('mentions').find(item => link.href === item.get('url'));
+      let mention = status.get('mentions').find(item => link.href === item.get('url'));
 
       if (mention) {
         if (mention.get('group', false)) {
@@ -66,10 +75,10 @@ export default class StatusContent extends React.PureComponent {
       } else if (link.textContent[0] === '#' || (link.previousSibling && link.previousSibling.textContent && link.previousSibling.textContent[link.previousSibling.textContent.length - 1] === '#')) {
         link.addEventListener('click', this.onHashtagClick.bind(this, link.text), false);
       } else if (link.classList.contains('account-url-link')) {
-        link.setAttribute('title', this.props.intl.formatMessage(messages.linkToAcct, { acct: link.dataset.accountAcct }));
+        link.setAttribute('title', intl.formatMessage(messages.linkToAcct, { acct: link.dataset.accountAcct }));
         link.addEventListener('click', this.onAccountUrlClick.bind(this, link.dataset.accountId, link.dataset.accountActorType), false);
-      } else if (link.classList.contains('status-url-link')) {
-        link.setAttribute('title', this.props.intl.formatMessage(messages.postByAcct, { acct: link.dataset.statusAccountAcct }));
+      } else if (link.classList.contains('status-url-link') && ![status.get('uri'), status.get('url')].includes(link.href)) {
+        link.setAttribute('title', intl.formatMessage(messages.postByAcct, { acct: link.dataset.statusAccountAcct }));
         link.addEventListener('click', this.onStatusUrlClick.bind(this, link.dataset.statusId), false);
       } else {
         link.setAttribute('title', link.href);
@@ -80,16 +89,16 @@ export default class StatusContent extends React.PureComponent {
       link.setAttribute('rel', 'noopener noreferrer');
     }
 
-    if (this.props.status.get('collapsed', null) === null) {
+    if (status.get('collapsed', null) === null) {
       let collapsed =
-          this.props.collapsable
-          && this.props.onClick
+          collapsable
+          && onClick
           && node.clientHeight > MAX_HEIGHT
-          && this.props.status.get('spoiler_text').length === 0;
+          && status.get('spoiler_text').length === 0;
 
-      if(this.props.onCollapsedToggle) this.props.onCollapsedToggle(collapsed);
+      if(onCollapsedToggle) onCollapsedToggle(collapsed);
 
-      this.props.status.set('collapsed', collapsed);
+      status.set('collapsed', collapsed);
     }
   }
 
@@ -173,6 +182,13 @@ export default class StatusContent extends React.PureComponent {
     }
   }
 
+  onReferenceLinkClick = (statusId, e) => {
+    if (this.context.router && e.button === 0 && !(e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      this.context.router.history.push(`/statuses/${statusId}/references`);
+    }
+  }
+
   handleMouseDown = (e) => {
     this.startXY = [e.clientX, e.clientY];
   }
@@ -221,8 +237,7 @@ export default class StatusContent extends React.PureComponent {
     const hidden = this.props.onExpandedToggle ? !this.props.expanded : this.state.hidden;
     const renderReadMore = this.props.onClick && status.get('collapsed');
     const renderViewThread = this.props.showThread && (
-      status.get('in_reply_to_id') && status.get('in_reply_to_account_id') === status.getIn(['account', 'id']) ||
-      show_reply_tree_button && (status.get('in_reply_to_id') || !!status.get('replies_count'))
+      status.get('in_reply_to_id') && status.get('in_reply_to_account_id') === status.getIn(['account', 'id'])
     );
     const renderShowPoll = !!status.get('poll');
 

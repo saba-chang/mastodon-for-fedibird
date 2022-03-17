@@ -13,7 +13,7 @@ import { defineMessages } from 'react-intl';
 import { List as ImmutableList } from 'immutable';
 import { unescapeHTML } from '../utils/html';
 import { getFiltersRegex } from '../selectors';
-import { usePendingItems as preferPendingItems, enableReaction } from 'mastodon/initial_state';
+import { usePendingItems as preferPendingItems, enableReaction, enableStatusReference } from 'mastodon/initial_state';
 import compareId from 'mastodon/compare_id';
 import { searchTextFromRawStatus } from 'mastodon/actions/importer/normalizer';
 import { requestNotificationPermission } from '../utils/notifications';
@@ -66,7 +66,7 @@ export function updateNotifications(notification, intlMessages, intlLocale) {
 
     let filtered = false;
 
-    if (['mention', 'status'].includes(notification.type)) {
+    if (['mention', 'status', 'status_reference'].includes(notification.type)) {
       const dropRegex   = filters[0];
       const regex       = filters[1];
       const searchIndex = searchTextFromRawStatus(notification.status);
@@ -120,10 +120,9 @@ export function updateNotifications(notification, intlMessages, intlLocale) {
 
 const excludeTypesFromSettings = state => state.getIn(['settings', 'notifications', 'shows']).filter(enabled => !enabled).keySeq().toJS();
 
+const allTypes = ImmutableList(['follow', 'follow_request', 'favourite', 'reblog', 'mention', 'poll', enableReaction ? 'emoji_reaction' : null, enableStatusReference ? 'status_reference' : null].filter(x => !!x))
+
 const excludeTypesFromFilter = filter => {
-  const allTypes = enableReaction ?
-    ImmutableList(['follow', 'follow_request', 'favourite', 'reblog', 'mention', 'poll', 'emoji_reaction']) :
-    ImmutableList(['follow', 'follow_request', 'favourite', 'reblog', 'mention', 'poll']);
   return allTypes.filterNot(item => item === filter).toJS();
 };
 

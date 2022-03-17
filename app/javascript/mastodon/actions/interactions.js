@@ -1,6 +1,6 @@
 import api, { getLinks } from '../api';
-import { importFetchedAccounts, importFetchedStatus } from './importer';
-import { fetchRelationships } from './accounts';
+import { importFetchedAccounts, importFetchedStatus, importFetchedStatuses } from './importer';
+import { fetchRelationships, fetchRelationshipsFromStatuses, fetchAccountsFromStatuses } from './accounts';
 import { me } from '../initial_state';
 
 export const REBLOG_REQUEST = 'REBLOG_REQUEST';
@@ -42,6 +42,14 @@ export const EMOJI_REACTIONS_FETCH_FAIL    = 'EMOJI_REACTIONS_FETCH_FAIL';
 export const EMOJI_REACTIONS_EXPAND_REQUEST = 'EMOJI_REACTIONS_EXPAND_REQUEST';
 export const EMOJI_REACTIONS_EXPAND_SUCCESS = 'EMOJI_REACTIONS_EXPAND_SUCCESS';
 export const EMOJI_REACTIONS_EXPAND_FAIL    = 'EMOJI_REACTIONS_EXPAND_FAIL';
+
+export const REFERRED_BY_STATUSES_FETCH_REQUEST = 'REFERRED_BY_STATUSES_FETCH_REQUEST';
+export const REFERRED_BY_STATUSES_FETCH_SUCCESS = 'REFERRED_BY_STATUSES_FETCH_SUCCESS';
+export const REFERRED_BY_STATUSES_FETCH_FAIL    = 'REFERRED_BY_STATUSES_FETCH_FAIL';
+
+export const REFERRED_BY_STATUSES_EXPAND_REQUEST = 'REFERRED_BY_STATUSES_EXPAND_REQUEST';
+export const REFERRED_BY_STATUSES_EXPAND_SUCCESS = 'REFERRED_BY_STATUSES_EXPAND_SUCCESS';
+export const REFERRED_BY_STATUSES_EXPAND_FAIL    = 'REFERRED_BY_STATUSES_EXPAND_FAIL';
 
 export const MENTIONS_FETCH_REQUEST = 'MENTIONS_FETCH_REQUEST';
 export const MENTIONS_FETCH_SUCCESS = 'MENTIONS_FETCH_SUCCESS';
@@ -337,6 +345,7 @@ export function fetchReblogsSuccess(id, accounts, next) {
 export function fetchReblogsFail(id, error) {
   return {
     type: REBLOGS_FETCH_FAIL,
+    id,
     error,
   };
 };
@@ -381,6 +390,7 @@ export function expandReblogsSuccess(id, accounts, next) {
 export function expandReblogsFail(id, error) {
   return {
     type: REBLOGS_EXPAND_FAIL,
+    id,
     error,
   };
 };
@@ -419,6 +429,7 @@ export function fetchFavouritesSuccess(id, accounts, next) {
 export function fetchFavouritesFail(id, error) {
   return {
     type: FAVOURITES_FETCH_FAIL,
+    id,
     error,
   };
 };
@@ -463,6 +474,7 @@ export function expandFavouritesSuccess(id, accounts, next) {
 export function expandFavouritesFail(id, error) {
   return {
     type: FAVOURITES_EXPAND_FAIL,
+    id,
     error,
   };
 };
@@ -501,6 +513,7 @@ export function fetchEmojiReactionsSuccess(id, emojiReactions, next) {
 export function fetchEmojiReactionsFail(id, error) {
   return {
     type: EMOJI_REACTIONS_FETCH_FAIL,
+    id,
     error,
   };
 };
@@ -545,6 +558,95 @@ export function expandEmojiReactionsSuccess(id, emojiReactions, next) {
 export function expandEmojiReactionsFail(id, error) {
   return {
     type: EMOJI_REACTIONS_EXPAND_FAIL,
+    id,
+    error,
+  };
+};
+
+export function fetchReferredByStatuses(id) {
+  return (dispatch, getState) => {
+    dispatch(fetchReferredByStatusesRequest(id));
+
+    api(getState).get(`/api/v1/statuses/${id}/referred_by`).then(response => {
+      const next = getLinks(response).refs.find(link => link.rel === 'next');
+      const statuses = response.data;
+      dispatch(importFetchedStatuses(statuses));
+      dispatch(fetchRelationshipsFromStatuses(statuses));
+      dispatch(fetchAccountsFromStatuses(statuses));
+      dispatch(fetchReferredByStatusesSuccess(id, statuses, next ? next.uri : null));
+    }).catch(error => {
+      dispatch(fetchReferredByStatusesFail(id, error));
+    });
+  };
+};
+
+export function fetchReferredByStatusesRequest(id) {
+  return {
+    type: REFERRED_BY_STATUSES_FETCH_REQUEST,
+    id,
+  };
+};
+
+export function fetchReferredByStatusesSuccess(id, statuses, next) {
+  return {
+    type: REFERRED_BY_STATUSES_FETCH_SUCCESS,
+    id,
+    statuses,
+    next,
+  };
+};
+
+export function fetchReferredByStatusesFail(id, error) {
+  return {
+    type: REFERRED_BY_STATUSES_FETCH_FAIL,
+    id,
+    error,
+  };
+};
+
+export function expandReferredByStatuses(id) {
+  return (dispatch, getState) => {
+    const url = getState().getIn(['status_status_lists', 'referred_by', id, 'next'], null);
+
+    if (url === null || getState().getIn(['status_status_lists', 'referred_by', id, 'isLoading'])) {
+      return;
+    }
+
+    dispatch(expandReferredByStatusesRequest(id));
+
+    api(getState).get(url).then(response => {
+      const next = getLinks(response).refs.find(link => link.rel === 'next');
+      const statuses = response.data;
+      dispatch(importFetchedStatuses(statuses));
+      dispatch(fetchRelationshipsFromStatuses(statuses));
+      dispatch(fetchAccountsFromStatuses(statuses));
+      dispatch(expandReferredByStatusesSuccess(id, statuses, next ? next.uri : null));
+    }).catch(error => {
+      dispatch(expandReferredByStatusesFail(id, error));
+    });
+  };
+};
+
+export function expandReferredByStatusesRequest(id) {
+  return {
+    type: REFERRED_BY_STATUSES_EXPAND_REQUEST,
+    id,
+  };
+};
+
+export function expandReferredByStatusesSuccess(id, statuses, next) {
+  return {
+    type: REFERRED_BY_STATUSES_EXPAND_SUCCESS,
+    id,
+    statuses,
+    next,
+  };
+};
+
+export function expandReferredByStatusesFail(id, error) {
+  return {
+    type: REFERRED_BY_STATUSES_EXPAND_FAIL,
+    id,
     error,
   };
 };
@@ -583,6 +685,7 @@ export function fetchMentionsSuccess(id, accounts, next) {
 export function fetchMentionsFail(id, error) {
   return {
     type: MENTIONS_FETCH_FAIL,
+    id,
     error,
   };
 };
@@ -627,6 +730,7 @@ export function expandMentionsSuccess(id, accounts, next) {
 export function expandMentionsFail(id, error) {
   return {
     type: MENTIONS_EXPAND_FAIL,
+    id,
     error,
   };
 };

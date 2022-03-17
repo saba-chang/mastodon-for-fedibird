@@ -50,11 +50,14 @@ import {
   COMPOSE_SCHEDULED_CHANGE,
   COMPOSE_EXPIRES_CHANGE,
   COMPOSE_EXPIRES_ACTION_CHANGE,
+  COMPOSE_REFERENCE_ADD,
+  COMPOSE_REFERENCE_REMOVE,
+  COMPOSE_REFERENCE_RESET,
 } from '../actions/compose';
 import { TIMELINE_DELETE, TIMELINE_EXPIRE } from '../actions/timelines';
 import { STORE_HYDRATE } from '../actions/store';
 import { REDRAFT } from '../actions/statuses';
-import { Map as ImmutableMap, List as ImmutableList, OrderedSet as ImmutableOrderedSet, fromJS } from 'immutable';
+import { Map as ImmutableMap, List as ImmutableList, Set as ImmutableSet, OrderedSet as ImmutableOrderedSet, fromJS } from 'immutable';
 import uuid from '../uuid';
 import { me } from '../initial_state';
 import { unescapeHTML } from '../utils/html';
@@ -103,6 +106,8 @@ const initialState = ImmutableMap({
   scheduled: null,
   expires: null,
   expires_action: 'mark',
+  references: ImmutableSet(),
+  context_references: ImmutableSet(),
 });
 
 const initialPoll = ImmutableMap({
@@ -155,6 +160,8 @@ const clearAll = state => {
     map.set('scheduled', null);
     map.set('expires', null);
     map.set('expires_action', 'mark');
+    map.update('references', set => set.clear());
+    map.update('context_references', set => set.clear());
 });
 };
 
@@ -374,6 +381,7 @@ export default function compose(state = initialState, action) {
       map.set('scheduled', null);
       map.set('expires', null);
       map.set('expires_action', 'mark');
+      map.update('context_references', set => set.clear().concat(action.context_references));
   
       if (action.status.get('spoiler_text').length > 0) {
         map.set('spoiler', true);
@@ -397,6 +405,7 @@ export default function compose(state = initialState, action) {
       map.set('scheduled', null);
       map.set('expires', null);
       map.set('expires_action', 'mark');
+      map.update('context_references', set => set.clear().add(action.status.get('id')));
   
       if (action.status.get('spoiler_text').length > 0) {
         map.set('spoiler', true);
@@ -425,6 +434,10 @@ export default function compose(state = initialState, action) {
       map.set('scheduled', null);
       map.set('expires', null);
       map.set('expires_action', 'mark');
+      map.update('context_references', set => set.clear());
+      if (action.type == COMPOSE_RESET) {
+        map.update('references', set => set.clear());
+      }
     });
   case COMPOSE_SUBMIT_REQUEST:
     return state.set('is_submitting', true);
@@ -539,6 +552,8 @@ export default function compose(state = initialState, action) {
       map.set('scheduled', action.status.get('scheduled_at'));
       map.set('expires', action.status.get('expires_at') ? format(parseISO(action.status.get('expires_at')), 'yyyy-MM-dd HH:mm') : null);
       map.set('expires_action', action.status.get('expires_action') ?? 'mark');
+      map.update('references', set => set.clear().concat(action.status.get('status_reference_ids')));
+      map.update('context_references', set => set.clear().concat(action.context_references));
   
       if (action.status.get('spoiler_text').length > 0) {
         map.set('spoiler', true);
@@ -583,6 +598,12 @@ export default function compose(state = initialState, action) {
     return state.set('expires', action.value);
   case COMPOSE_EXPIRES_ACTION_CHANGE:
     return state.set('expires_action', action.value);
+  case COMPOSE_REFERENCE_ADD:
+    return state.update('references', set => set.add(action.id));
+  case COMPOSE_REFERENCE_REMOVE:
+    return state.update('references', set => set.delete(action.id));
+  case COMPOSE_REFERENCE_RESET:
+    return state.update('references', set => set.clear());
   default:
     return state;
   }

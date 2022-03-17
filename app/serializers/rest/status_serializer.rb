@@ -4,7 +4,9 @@ class REST::StatusSerializer < ActiveModel::Serializer
   attributes :id, :created_at, :in_reply_to_id, :in_reply_to_account_id,
              :sensitive, :spoiler_text, :visibility, :language,
              :uri, :url, :replies_count, :reblogs_count,
-             :favourites_count, :emoji_reactions_count, :emoji_reactions
+             :favourites_count, :emoji_reactions_count, :emoji_reactions,
+             :status_reference_ids,
+             :status_references_count, :status_referred_by_count
 
   attribute :favourited, if: :current_user?
   attribute :reblogged, if: :current_user?
@@ -142,6 +144,10 @@ class REST::StatusSerializer < ActiveModel::Serializer
 
   def emoji_reactions
     object.grouped_emoji_reactions(current_user&.account)
+  end
+
+  def status_reference_ids
+    object.references.map(&:id).map(&:to_s)
   end
 
   def reblogged

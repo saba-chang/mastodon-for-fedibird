@@ -3,11 +3,15 @@ import api from '../api';
 import { deleteFromTimelines } from './timelines';
 import { fetchRelationshipsFromStatus, fetchAccountsFromStatus, fetchRelationshipsFromStatuses, fetchAccountsFromStatuses } from './accounts';
 import { importFetchedStatus, importFetchedStatuses, importFetchedAccount } from './importer';
-import { ensureComposeIsVisible } from './compose';
+import { ensureComposeIsVisible, getContextReference } from './compose';
 
 export const STATUS_FETCH_REQUEST = 'STATUS_FETCH_REQUEST';
 export const STATUS_FETCH_SUCCESS = 'STATUS_FETCH_SUCCESS';
 export const STATUS_FETCH_FAIL    = 'STATUS_FETCH_FAIL';
+
+export const STATUSES_FETCH_REQUEST = 'STATUSES_FETCH_REQUEST';
+export const STATUSES_FETCH_SUCCESS = 'STATUSES_FETCH_SUCCESS';
+export const STATUSES_FETCH_FAIL    = 'STATUSES_FETCH_FAIL';
 
 export const STATUS_DELETE_REQUEST = 'STATUS_DELETE_REQUEST';
 export const STATUS_DELETE_SUCCESS = 'STATUS_DELETE_SUCCESS';
@@ -83,12 +87,58 @@ export function fetchStatusFail(id, error, skipLoading) {
   };
 };
 
-export function redraft(status, replyStatus, raw_text) {
+export function fetchStatusesRequest(ids) {
+  return {
+    type: STATUSES_FETCH_REQUEST,
+    ids,
+  };
+};
+
+export function fetchStatuses(ids) {
+  return (dispatch, getState) => {
+    const loadedStatuses = getState().get('statuses', new Map());
+    const newStatusIds = Array.from(new Set(ids)).filter(id => loadedStatuses.get(id, null) === null);
+
+    if (newStatusIds.length === 0) {
+      return;
+    }
+
+    dispatch(fetchStatusesRequest(newStatusIds));
+
+    api(getState).get(`/api/v1/statuses?${newStatusIds.map(id => `ids[]=${id}`).join('&')}`).then(response => {
+      const statuses = response.data;
+      dispatch(importFetchedStatuses(statuses));
+      dispatch(fetchRelationshipsFromStatuses(statuses));
+      dispatch(fetchAccountsFromStatuses(statuses));
+      dispatch(fetchStatusesSuccess());
+    }).catch(error => {
+      dispatch(fetchStatusesFail(id, error));
+    });
+  };
+};
+
+export function fetchStatusesSuccess() {
+  return {
+    type: STATUSES_FETCH_SUCCESS,
+  };
+};
+
+export function fetchStatusesFail(id, error) {
+  return {
+    type: STATUSES_FETCH_FAIL,
+    id,
+    error,
+    skipAlert: true,
+  };
+};
+
+export function redraft(getState, status, replyStatus, raw_text) {
   return {
     type: REDRAFT,
     status,
     replyStatus,
     raw_text,
+    context_references: getContextReference(getState, replyStatus),
   };
 };
 
@@ -109,7 +159,8 @@ export function deleteStatus(id, routerHistory, withRedraft = false) {
       dispatch(importFetchedAccount(response.data.account));
 
       if (withRedraft) {
-        dispatch(redraft(status, replyStatus, response.data.text));
+        dispatch(fetchStatuses(status.get('status_reference_ids', [])));
+        dispatch(redraft(getState, status, replyStatus, response.data.text));
         ensureComposeIsVisible(getState, routerHistory);
       }
     }).catch(error => {
@@ -144,12 +195,12 @@ export function fetchContext(id) {
   return (dispatch, getState) => {
     dispatch(fetchContextRequest(id));
 
-    api(getState).get(`/api/v1/statuses/${id}/context`).then(response => {
-      const statuses = response.data.ancestors.concat(response.data.descendants);
+    api(getState).get(`/api/v1/statuses/${id}/context`, { params: { with_reference: true } }).then(response => {
+      const statuses = response.data.ancestors.concat(response.data.descendants).concat(response.data.references);
       dispatch(importFetchedStatuses(statuses));
       dispatch(fetchRelationshipsFromStatuses(statuses));
       dispatch(fetchAccountsFromStatuses(statuses));
-      dispatch(fetchContextSuccess(id, response.data.ancestors, response.data.descendants));
+      dispatch(fetchContextSuccess(id, response.data.ancestors, response.data.descendants, response.data.references));
 
     }).catch(error => {
       if (error.response && error.response.status === 404) {
@@ -168,12 +219,13 @@ export function fetchContextRequest(id) {
   };
 };
 
-export function fetchContextSuccess(id, ancestors, descendants) {
+export function fetchContextSuccess(id, ancestors, descendants, references) {
   return {
     type: CONTEXT_FETCH_SUCCESS,
     id,
     ancestors,
     descendants,
+    references,
     statuses: ancestors.concat(descendants),
   };
 };

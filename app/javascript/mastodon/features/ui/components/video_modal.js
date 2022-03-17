@@ -6,7 +6,8 @@ import ImmutablePureComponent from 'react-immutable-pure-component';
 import Footer from 'mastodon/features/picture_in_picture/components/footer';
 import { getAverageFromBlurhash } from 'mastodon/blurhash';
 
-export default class VideoModal extends ImmutablePureComponent {
+export default
+class VideoModal extends ImmutablePureComponent {
 
   static propTypes = {
     media: ImmutablePropTypes.map.isRequired,

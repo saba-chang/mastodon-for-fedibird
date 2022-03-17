@@ -4,11 +4,15 @@ module StatusThreadingConcern
   extend ActiveSupport::Concern
 
   def ancestors(limit, account = nil)
-    find_statuses_from_tree_path(ancestor_ids(limit), account)
+    find_statuses_from_tree_path(ancestor_ids(limit, account), account)
   end
 
   def descendants(limit, account = nil, max_child_id = nil, since_child_id = nil, depth = nil)
     find_statuses_from_tree_path(descendant_ids(limit, max_child_id, since_child_id, depth), account, promote: true)
+  end
+
+  def thread_references(limit, account = nil, max_child_id = nil, since_child_id = nil, depth = nil)
+    find_statuses_from_tree_path(references_ids(limit, account, max_child_id, since_child_id, depth), account)
   end
 
   def self_replies(limit)
@@ -17,14 +21,34 @@ module StatusThreadingConcern
 
   private
 
-  def ancestor_ids(limit)
+  def ancestor_ids(limit, account)
+    ancestor_ids_account_ids(limit, account).map(&:first).reverse!
+  end
+
+  def descendant_ids(limit, max_child_id, since_child_id, depth)
+    descendant_ids_account_ids(limit, max_child_id, since_child_id, depth).map(&:first)
+  end
+
+  def references_ids(limit, account, max_child_id, since_child_id, depth)
+    ancestors      = ancestor_ids_account_ids(limit, account)
+    descendants    = descendant_ids_account_ids(limit, max_child_id, since_child_id, depth)
+    self_reply_ids = []
+    self_reply_ids += ancestors  .take_while { |id, status_account_id| status_account_id == account_id }.map(&:first)
+    self_reply_ids += descendants.take_while { |id, status_account_id| status_account_id == account_id }.map(&:first)
+    reference_ids  = StatusReference.where(status_id: [id] + self_reply_ids).pluck(:target_status_id)
+    reference_ids  -= ancestors.map(&:first) + descendants.map(&:first)
+
+    reference_ids.sort!.reverse!
+  end
+
+  def ancestor_ids_account_ids(limit, account)
     key = "ancestors:#{id}"
     ancestors = Rails.cache.fetch(key)
 
     if ancestors.nil? || ancestors[:limit] < limit
-      ids = ancestor_statuses(limit).pluck(:id).reverse!
-      Rails.cache.write key, limit: limit, ids: ids
-      ids
+      ancestor_statuses(limit).pluck(:id, :account_id).tap do |ids_account_ids|
+        Rails.cache.write key, limit: limit, ids: ids_account_ids
+      end
     else
       ancestors[:ids].last(limit)
     end
@@ -32,26 +56,26 @@ module StatusThreadingConcern
 
   def ancestor_statuses(limit)
     Status.find_by_sql([<<-SQL.squish, id: in_reply_to_id, limit: limit])
-      WITH RECURSIVE search_tree(id, in_reply_to_id, path)
+      WITH RECURSIVE search_tree(id, account_id, in_reply_to_id, path)
       AS (
-        SELECT id, in_reply_to_id, ARRAY[id]
+        SELECT id, account_id, in_reply_to_id, ARRAY[id]
         FROM statuses
         WHERE id = :id
         UNION ALL
-        SELECT statuses.id, statuses.in_reply_to_id, path || statuses.id
+        SELECT statuses.id, statuses.account_id, statuses.in_reply_to_id, path || statuses.id
         FROM search_tree
         JOIN statuses ON statuses.id = search_tree.in_reply_to_id
         WHERE NOT statuses.id = ANY(path)
       )
-      SELECT id
+      SELECT id, account_id
       FROM search_tree
       ORDER BY path
       LIMIT :limit
     SQL
   end
 
-  def descendant_ids(limit, max_child_id, since_child_id, depth)
-    descendant_statuses(limit, max_child_id, since_child_id, depth).pluck(:id)
+  def descendant_ids_account_ids(limit, max_child_id, since_child_id, depth)
+    @descendant_statuses ||= descendant_statuses(limit, max_child_id, since_child_id, depth).pluck(:id, :account_id)
   end
 
   def descendant_statuses(limit, max_child_id, since_child_id, depth)
@@ -60,18 +84,18 @@ module StatusThreadingConcern
     limit += 1 if limit.present?
 
     descendants_with_self = Status.find_by_sql([<<-SQL.squish, id: id, limit: limit, max_child_id: max_child_id, since_child_id: since_child_id, depth: depth])
-      WITH RECURSIVE search_tree(id, path)
+      WITH RECURSIVE search_tree(id, account_id, path)
       AS (
-        SELECT id, ARRAY[id]
+        SELECT id, account_id, ARRAY[id]
         FROM statuses
         WHERE id = :id AND COALESCE(id < :max_child_id, TRUE) AND COALESCE(id > :since_child_id, TRUE)
         UNION ALL
-        SELECT statuses.id, path || statuses.id
+        SELECT statuses.id, statuses.account_id, path || statuses.id
         FROM search_tree
         JOIN statuses ON statuses.in_reply_to_id = search_tree.id
         WHERE COALESCE(array_length(path, 1) < :depth, TRUE) AND NOT statuses.id = ANY(path)
       )
-      SELECT id
+      SELECT id, account_id
       FROM search_tree
       ORDER BY path
       LIMIT :limit
@@ -81,12 +105,7 @@ module StatusThreadingConcern
   end
 
   def find_statuses_from_tree_path(ids, account, promote: false)
-    statuses          = Status.with_accounts(ids).to_a
-    account_ids       = statuses.map(&:account_id).uniq
-    account_relations = relations_map_for_account(account, account_ids)
-    status_relations  = relations_map_for_status(account, statuses)
-
-    statuses.reject! { |status| StatusFilter.new(status, account, account_relations, status_relations).filtered? }
+    statuses = Status.permitted_statuses_from_ids(ids, account)
 
     # Order ancestors/descendants by tree path
     statuses.sort_by! { |status| ids.index(status.id) }
@@ -112,33 +131,5 @@ module StatusThreadingConcern
     end
 
     arr
-  end
-
-  def relations_map_for_account(account, account_ids)
-    return {} if account.nil?
-
-    presenter = AccountRelationshipsPresenter.new(account_ids, account)
-    {
-      blocking: presenter.blocking,
-      blocked_by: presenter.blocked_by,
-      muting: presenter.muting,
-      following: presenter.following,
-      subscribing: presenter.subscribing,
-      domain_blocking_by_domain: presenter.domain_blocking,
-    }
-  end
-
-  def relations_map_for_status(account, statuses)
-    return {} if account.nil?
-
-    presenter = StatusRelationshipsPresenter.new(statuses, account)
-    {
-      reblogs_map: presenter.reblogs_map,
-      favourites_map: presenter.favourites_map,
-      bookmarks_map: presenter.bookmarks_map,
-      emoji_reactions_map: presenter.emoji_reactions_map,
-      mutes_map: presenter.mutes_map,
-      pins_map: presenter.pins_map,
-    }
   end
 end

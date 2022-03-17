@@ -72,6 +72,12 @@ class ActivityPub::TagManager
     account_status_replies_url(target.account, target, page_params)
   end
 
+  def references_uri_for(target, page_params = nil)
+    raise ArgumentError, 'target must be a local activity' unless %i(note comment activity).include?(target.object_type) && target.local?
+
+    account_status_references_url(target.account, target, page_params)
+  end
+
   # Primary audience of a status
   # Public statuses go out to primarily the public collection
   # Unlisted and private statuses go out primarily to the followers collection

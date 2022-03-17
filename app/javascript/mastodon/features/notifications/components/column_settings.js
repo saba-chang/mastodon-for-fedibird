@@ -5,6 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import ClearColumnButton from './clear_column_button';
 import GrantPermissionButton from './grant_permission_button';
 import SettingToggle from './setting_toggle';
+import { enableReaction, enableStatusReference } from 'mastodon/initial_state';
 
 export default class ColumnSettings extends React.PureComponent {
 
@@ -153,16 +154,30 @@ export default class ColumnSettings extends React.PureComponent {
           </div>
         </div>
 
-        <div role='group' aria-labelledby='notifications-reaction'>
-          <span id='notifications-reaction' className='column-settings__section'><FormattedMessage id='notifications.column_settings.emoji_reaction' defaultMessage='Reactions:' /></span>
+        {enableReaction &&
+          <div role='group' aria-labelledby='notifications-reaction'>
+            <span id='notifications-reaction' className='column-settings__section'><FormattedMessage id='notifications.column_settings.emoji_reaction' defaultMessage='Reactions:' /></span>
+
+            <div className='column-settings__row'>
+              <SettingToggle disabled={browserPermission === 'denied'} prefix='notifications_desktop' settings={settings} settingPath={['alerts', 'emoji_reaction']} onChange={onChange} label={alertStr} />
+              {showPushSettings && <SettingToggle prefix='notifications_push' settings={pushSettings} settingPath={['alerts', 'emoji_reaction']} onChange={this.onPushChange} label={pushStr} />}
+              <SettingToggle prefix='notifications' settings={settings} settingPath={['shows', 'emoji_reaction']} onChange={onChange} label={showStr} />
+              <SettingToggle prefix='notifications' settings={settings} settingPath={['sounds', 'emoji_reaction']} onChange={onChange} label={soundStr} />
+            </div>
+          </div>
+        }
+        {enableStatusReference &&
+        <div role='group' aria-labelledby='notifications-status-reference'>
+          <span id='notifications-status-reference' className='column-settings__section'><FormattedMessage id='notifications.column_settings.status_reference' defaultMessage='Status references:' /></span>
 
           <div className='column-settings__row'>
-            <SettingToggle disabled={browserPermission === 'denied'} prefix='notifications_desktop' settings={settings} settingPath={['alerts', 'emoji_reaction']} onChange={onChange} label={alertStr} />
-            {showPushSettings && <SettingToggle prefix='notifications_push' settings={pushSettings} settingPath={['alerts', 'emoji_reaction']} onChange={this.onPushChange} label={pushStr} />}
-            <SettingToggle prefix='notifications' settings={settings} settingPath={['shows', 'emoji_reaction']} onChange={onChange} label={showStr} />
-            <SettingToggle prefix='notifications' settings={settings} settingPath={['sounds', 'emoji_reaction']} onChange={onChange} label={soundStr} />
+            <SettingToggle disabled={browserPermission === 'denied'} prefix='notifications_desktop' settings={settings} settingPath={['alerts', 'status_reference']} onChange={onChange} label={alertStr} />
+            {showPushSettings && <SettingToggle prefix='notifications_push' settings={pushSettings} settingPath={['alerts', 'status_reference']} onChange={this.onPushChange} label={pushStr} />}
+            <SettingToggle prefix='notifications' settings={settings} settingPath={['shows', 'status_reference']} onChange={onChange} label={showStr} />
+            <SettingToggle prefix='notifications' settings={settings} settingPath={['sounds', 'status_reference']} onChange={onChange} label={soundStr} />
           </div>
         </div>
+        }
       </div>
     );
   }

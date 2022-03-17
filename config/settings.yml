@@ -58,11 +58,13 @@ defaults: &defaults
   hide_followers_count: false
   disable_joke_appearance: false
   new_features_policy: 'default'
+  enable_status_reference: true
   notification_emails:
     follow: false
     reblog: false
     favourite: false
     emoji_reaction: false
+    status_reference: false
     mention: false
     follow_request: true
     digest: true
@@ -90,6 +92,10 @@ defaults: &defaults
   show_domain_blocks: 'disabled'
   show_domain_blocks_rationale: 'disabled'
   require_invite_text: false
+  match_visibility_of_references: true
+  post_reference_modal: false
+  add_reference_modal: true
+  unselect_reference_modal: false
 
 development:
   <<: *defaults

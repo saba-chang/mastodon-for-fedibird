@@ -6,6 +6,7 @@ module StatusControllerConcern
   ANCESTORS_LIMIT         = 40
   DESCENDANTS_LIMIT       = 60
   DESCENDANTS_DEPTH_LIMIT = 20
+  REFERENCES_LIMIT        = 60
 
   def create_descendant_thread(starting_depth, statuses)
     depth = starting_depth + statuses.size
@@ -26,8 +27,61 @@ module StatusControllerConcern
     end
   end
 
+  def limit_param(default_limit)
+    return default_limit unless params[:limit]
+
+    [params[:limit].to_i.abs, default_limit * 2].min
+  end
+
+  def set_references
+    limit  = limit_param(REFERENCES_LIMIT)
+    max_id = params[:max_id]&.to_i
+    min_id = params[:min_id]&.to_i
+
+    @references = references = cache_collection(
+      @status.thread_references(
+        DESCENDANTS_LIMIT,
+        current_account,
+        params[:max_descendant_thread_id]&.to_i,
+        params[:since_descendant_thread_id]&.to_i,
+        DESCENDANTS_DEPTH_LIMIT
+      ),
+      Status
+    )
+    .sort_by {|status| status.id}.reverse
+
+    return if references.empty?
+
+    @references = begin
+      if min_id
+        references.drop_while {|status| status.id >= min_id }.take(limit)
+      elsif max_id
+        references.take_while {|status| status.id > max_id }.reverse.take(limit).reverse
+      else
+        references.take(limit)
+      end
+    end
+
+    return if @references.empty?
+
+    @max_id = @references.first&.id if @references.first.id != references.first.id
+    @min_id = @references.last&.id  if @references.last.id  != references.last.id
+  end
+
   def set_ancestors
-    @ancestors     = @status.reply? ? cache_collection(@status.ancestors(ANCESTORS_LIMIT, current_account), Status) : []
+    @references = @status.thread_references(
+      DESCENDANTS_LIMIT,
+      current_account,
+      params[:max_descendant_thread_id]&.to_i,
+      params[:since_descendant_thread_id]&.to_i,
+      DESCENDANTS_DEPTH_LIMIT
+    )
+
+    @ancestors = cache_collection(
+      @status.ancestors(ANCESTORS_LIMIT, current_account) + @references,
+      Status
+    ).sort_by{|status| status.id}.take(ANCESTORS_LIMIT)
+
     @next_ancestor = @ancestors.size < ANCESTORS_LIMIT ? nil : @ancestors.shift
   end
 

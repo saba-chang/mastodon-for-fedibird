@@ -50,6 +50,10 @@ export function Status () {
   return import(/* webpackChunkName: "features/status" */'../../status');
 }
 
+export function StatusReferences () {
+  return import(/* webpackChunkName: "features/status_references" */'../../status_references');
+}
+
 export function GettingStarted () {
   return import(/* webpackChunkName: "features/getting_started" */'../../getting_started');
 }
@@ -118,6 +122,10 @@ export function EmojiReactionedStatuses () {
   return import(/* webpackChunkName: "features/emoji_reactioned_statuses" */'../../emoji_reactioned_statuses');
 }
 
+export function ReferredByStatuses () {
+  return import(/* webpackChunkName: "features/referred_by_statuses" */'../../referred_by_statuses');
+}
+
 export function Blocks () {
   return import(/* webpackChunkName: "features/blocks" */'../../blocks');
 }
@@ -140,6 +148,10 @@ export function BlockModal () {
 
 export function ReportModal () {
   return import(/* webpackChunkName: "modals/report_modal" */'../components/report_modal');
+}
+
+export function ThumbnailGallery () {
+  return import(/* webpackChunkName: "status/thumbnail_gallery" */'../../../components/thumbnail_gallery');
 }
 
 export function MediaGallery () {

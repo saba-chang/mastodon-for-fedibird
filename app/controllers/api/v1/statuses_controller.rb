@@ -6,6 +6,7 @@ class Api::V1::StatusesController < Api::BaseController
   before_action -> { authorize_if_got_token! :read, :'read:statuses' }, except: [:create, :destroy]
   before_action -> { doorkeeper_authorize! :write, :'write:statuses' }, only:   [:create, :destroy]
   before_action :require_user!, except:  [:show, :context]
+  before_action :set_statuses, only:     [:index]
   before_action :set_status, only:       [:show, :context]
   before_action :set_thread, only:       [:create]
   before_action :set_circle, only:       [:create]
@@ -20,6 +21,11 @@ class Api::V1::StatusesController < Api::BaseController
   # than this anyway
   CONTEXT_LIMIT = 4_096
 
+  def index
+    @statuses = cache_collection(@statuses, Status)
+    render json: @statuses, each_serializer: REST::StatusSerializer
+  end
+
   def show
     @status = cache_collection([@status], Status).first
     render json: @status, serializer: REST::StatusSerializer
@@ -28,11 +34,19 @@ class Api::V1::StatusesController < Api::BaseController
   def context
     ancestors_results   = @status.in_reply_to_id.nil? ? [] : @status.ancestors(CONTEXT_LIMIT, current_account)
     descendants_results = @status.descendants(CONTEXT_LIMIT, current_account)
+    references_results  = @status.thread_references(CONTEXT_LIMIT, current_account)
+
+    unless ActiveModel::Type::Boolean.new.cast(status_params[:with_reference])
+      ancestors_results   = (ancestors_results + references_results).sort_by {|status| status.id }
+      references_results  = []
+    end
+
     loaded_ancestors    = cache_collection(ancestors_results, Status)
     loaded_descendants  = cache_collection(descendants_results, Status)
+    loaded_references   = cache_collection(references_results, Status)
 
-    @context = Context.new(ancestors: loaded_ancestors, descendants: loaded_descendants)
-    statuses = [@status] + @context.ancestors + @context.descendants
+    @context = Context.new(ancestors: loaded_ancestors, descendants: loaded_descendants, references: loaded_references )
+    statuses = [@status] + @context.ancestors + @context.descendants + @context.references
     accountIds = statuses.filter(&:quote?).map { |status| status.quote.account_id }.uniq
 
     render json: @context, serializer: REST::ContextSerializer, relationships: StatusRelationshipsPresenter.new(statuses, current_user&.account_id), account_relationships: AccountRelationshipsPresenter.new(accountIds, current_user&.account_id)
@@ -54,13 +68,17 @@ class Api::V1::StatusesController < Api::BaseController
                                          poll: status_params[:poll],
                                          idempotency: request.headers['Idempotency-Key'],
                                          with_rate_limit: true,
-                                         quote_id: status_params[:quote_id].presence)
+                                         quote_id: status_params[:quote_id].presence,
+                                         status_reference_ids: (Array(status_params[:status_reference_ids]).uniq.map(&:to_i)),
+                                         status_reference_urls: status_params[:status_reference_urls] || []
+    )
+                                         
 
     render json: @status, serializer: @status.is_a?(ScheduledStatus) ? REST::ScheduledStatusSerializer : REST::StatusSerializer
   end
 
   def destroy
-    @status = Status.include_expired.where(account_id: current_account.id).find(params[:id])
+    @status = Status.include_expired.where(account_id: current_account.id).find(status_params[:id])
     authorize @status, :destroy?
 
     @status.discard
@@ -72,8 +90,12 @@ class Api::V1::StatusesController < Api::BaseController
 
   private
 
+  def set_statuses
+    @statuses = Status.permitted_statuses_from_ids(status_ids, current_account)
+  end
+
   def set_status
-    @status = Status.include_expired.find(params[:id])
+    @status = Status.include_expired.find(status_params[:id])
     authorize @status, :show?
   rescue Mastodon::NotPermittedError
     not_found
@@ -108,8 +130,17 @@ class Api::V1::StatusesController < Api::BaseController
     @expires_at = status_params[:expires_at] || (status_params[:expires_in].blank? ? nil : (@scheduled_at || Time.now.utc) + status_params[:expires_in].to_i.seconds)
   end
 
+  def status_ids
+    Array(statuses_params[:ids]).uniq.map(&:to_i)
+  end
+
+  def statuses_params
+    params.permit(ids: [])
+  end
+
   def status_params
     params.permit(
+      :id,
       :status,
       :in_reply_to_id,
       :circle_id,
@@ -122,13 +153,16 @@ class Api::V1::StatusesController < Api::BaseController
       :expires_in,
       :expires_at,
       :expires_action,
+      :with_reference,
       media_ids: [],
       poll: [
         :multiple,
         :hide_totals,
         :expires_in,
         options: [],
-      ]
+      ],
+      status_reference_ids: [],
+      status_reference_urls: []
     )
   end
 

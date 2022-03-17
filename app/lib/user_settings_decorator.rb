@@ -38,6 +38,9 @@ class UserSettingsDecorator
     user.settings['unsubscribe_modal']                 = unsubscribe_modal_preference if change?('setting_unsubscribe_modal')
     user.settings['boost_modal']                       = boost_modal_preference if change?('setting_boost_modal')
     user.settings['delete_modal']                      = delete_modal_preference if change?('setting_delete_modal')
+    user.settings['post_reference_modal']              = post_reference_modal_preference if change?('setting_post_reference_modal')
+    user.settings['add_reference_modal']               = add_reference_modal_preference if change?('setting_add_reference_modal')
+    user.settings['unselect_reference_modal']          = unselect_reference_modal_preference if change?('setting_unselect_reference_modal')
     user.settings['auto_play_gif']                     = auto_play_gif_preference if change?('setting_auto_play_gif')
     user.settings['display_media']                     = display_media_preference if change?('setting_display_media')
     user.settings['expand_spoilers']                   = expand_spoilers_preference if change?('setting_expand_spoilers')
@@ -73,7 +76,9 @@ class UserSettingsDecorator
     user.settings['disable_joke_appearance']           = disable_joke_appearance_preference if change?('setting_disable_joke_appearance')
     user.settings['new_features_policy']               = new_features_policy if change?('setting_new_features_policy')
     user.settings['theme_instance_ticker']             = theme_instance_ticker if change?('setting_theme_instance_ticker')
-  end
+    user.settings['enable_status_reference']           = enable_status_reference_preference if change?('setting_enable_status_reference')
+    user.settings['match_visibility_of_references']    = match_visibility_of_references_preference if change?('setting_match_visibility_of_references')
+end
 
   def merged_notification_emails
     user.settings['notification_emails'].merge coerced_settings('notification_emails').to_h
@@ -105,6 +110,18 @@ class UserSettingsDecorator
 
   def delete_modal_preference
     boolean_cast_setting 'setting_delete_modal'
+  end
+
+  def post_reference_modal_preference
+    boolean_cast_setting 'setting_post_reference_modal'
+  end
+
+  def add_reference_modal_preference
+    boolean_cast_setting 'setting_add_reference_modal'
+  end
+
+  def unselect_reference_modal_preference
+    boolean_cast_setting 'setting_unselect_reference_modal'
   end
 
   def system_font_ui_preference
@@ -249,6 +266,14 @@ class UserSettingsDecorator
 
   def theme_instance_ticker
     settings['setting_theme_instance_ticker']
+  end
+
+  def enable_status_reference_preference
+    boolean_cast_setting 'setting_enable_status_reference'
+  end
+
+  def match_visibility_of_references_preference
+    boolean_cast_setting 'setting_match_visibility_of_references'
   end
 
   def boolean_cast_setting(key)

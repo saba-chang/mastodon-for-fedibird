@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import ComposeForm from '../components/compose_form';
 import {
   changeCompose,
-  submitCompose,
+  submitComposeWithCheck,
   clearComposeSuggestions,
   fetchComposeSuggestions,
   selectComposeSuggestion,
@@ -10,6 +10,7 @@ import {
   insertEmojiCompose,
   uploadCompose,
 } from '../../../actions/compose';
+import { injectIntl } from 'react-intl';
 
 const mapStateToProps = state => ({
   text: state.getIn(['compose', 'text']),
@@ -28,14 +29,14 @@ const mapStateToProps = state => ({
   anyMedia: state.getIn(['compose', 'media_attachments']).size > 0,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch, { intl }) => ({
 
   onChange (text) {
     dispatch(changeCompose(text));
   },
 
   onSubmit (router) {
-    dispatch(submitCompose(router));
+    dispatch(submitComposeWithCheck(router, intl));
   },
 
   onClearSuggestions () {
@@ -64,4 +65,4 @@ const mapDispatchToProps = (dispatch) => ({
 
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ComposeForm);
+export default injectIntl(connect(mapStateToProps, mapDispatchToProps)(ComposeForm));

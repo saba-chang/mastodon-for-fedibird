@@ -13,6 +13,8 @@ import { showAlert } from './alerts';
 import { openModal } from './modal';
 import { defineMessages } from 'react-intl';
 import { addYears, addMonths, addDays, addHours, addMinutes, addSeconds, millisecondsToSeconds, set, parseISO, formatISO } from 'date-fns';
+import { Set as ImmutableSet } from 'immutable';
+import { postReferenceModal } from '../initial_state';
 
 let cancelFetchComposeSuggestionsAccounts, cancelFetchComposeSuggestionsTags;
 
@@ -80,9 +82,15 @@ export const COMPOSE_SCHEDULED_CHANGE      = 'COMPOSE_SCHEDULED_CHANGE';
 export const COMPOSE_EXPIRES_CHANGE        = 'COMPOSE_EXPIRES_CHANGE';
 export const COMPOSE_EXPIRES_ACTION_CHANGE = 'COMPOSE_EXPIRES_ACTION_CHANGE';
 
+export const COMPOSE_REFERENCE_ADD    = 'COMPOSE_REFERENCE_ADD';
+export const COMPOSE_REFERENCE_REMOVE = 'COMPOSE_REFERENCE_REMOVE';
+export const COMPOSE_REFERENCE_RESET  = 'COMPOSE_REFERENCE_RESET';
+
 const messages = defineMessages({
   uploadErrorLimit: { id: 'upload_error.limit', defaultMessage: 'File upload limit exceeded.' },
   uploadErrorPoll:  { id: 'upload_error.poll', defaultMessage: 'File upload not allowed with polls.' },
+  postReferenceMessage:  { id: 'confirmations.post_reference.message', defaultMessage: 'It contains references, do you want to post it?' },
+  postReferenceConfirm:  { id: 'confirmations.post_reference.confirm', defaultMessage: 'Post' },
 });
 
 const COMPOSE_PANEL_BREAKPOINT = 600 + (285 * 1) + (10 * 1);
@@ -91,6 +99,16 @@ export const ensureComposeIsVisible = (getState, routerHistory) => {
   if (!getState().getIn(['compose', 'mounted']) && window.innerWidth < COMPOSE_PANEL_BREAKPOINT) {
     routerHistory.push('/statuses/new');
   }
+};
+
+export const getContextReference = (getState, status) => {
+  if (!status) {
+    return ImmutableSet();
+  }
+
+  const references = status.get('status_reference_ids').toSet();
+  const replyStatus = status.get('in_reply_to_id') ? getState().getIn(['statuses', status.get('in_reply_to_id')]) : null;
+  return references.concat(getContextReference(getState, replyStatus));
 };
 
 export function changeCompose(text) {
@@ -105,6 +123,7 @@ export function replyCompose(status, routerHistory) {
     dispatch({
       type: COMPOSE_REPLY,
       status: status,
+      context_references: getContextReference(getState, status),
     });
 
     ensureComposeIsVisible(getState, routerHistory);
@@ -203,6 +222,28 @@ export const getDateTimeFromText = (value, origin = new Date()) => {
   };
 };
 
+export function submitComposeWithCheck(routerHistory, intl) {
+  return function (dispatch, getState) {
+    const status = getState().getIn(['compose', 'text'], '');
+    const media  = getState().getIn(['compose', 'media_attachments']);
+    const statusReferenceIds = getState().getIn(['compose', 'references']);
+
+    if ((!status || !status.length) && media.size === 0) {
+      return;
+    }
+
+    if (postReferenceModal && !statusReferenceIds.isEmpty()) {
+      dispatch(openModal('CONFIRM', {
+        message: intl.formatMessage(messages.postReferenceMessage),
+        confirm: intl.formatMessage(messages.postReferenceConfirm),
+        onConfirm: () => dispatch(submitCompose(routerHistory)),
+      }));
+    } else {
+      dispatch(submitCompose(routerHistory));
+    }
+  };
+};
+
 export function submitCompose(routerHistory) {
   return function (dispatch, getState) {
     const status = getState().getIn(['compose', 'text'], '');
@@ -212,6 +253,7 @@ export function submitCompose(routerHistory) {
     const { in: scheduled_in = null, at: scheduled_at = null } = getDateTimeFromText(getState().getIn(['compose', 'scheduled']), new Date());
     const { in: expires_in = null, at: expires_at = null } = getDateTimeFromText(getState().getIn(['compose', 'expires']), scheduled_at ?? new Date());
     const expires_action = getState().getIn(['compose', 'expires_action']);
+    const statusReferenceIds = getState().getIn(['compose', 'references']);
 
     if ((!status || !status.length) && media.size === 0) {
       return;
@@ -234,6 +276,7 @@ export function submitCompose(routerHistory) {
       expires_at: !expires_in && expires_at ? formatISO(set(expires_at, { seconds: 59 })) : null,
       expires_in: expires_in,
       expires_action: expires_action,
+      status_reference_ids: statusReferenceIds,
     }, {
       headers: {
         'Idempotency-Key': getState().getIn(['compose', 'idempotencyKey']),
@@ -808,5 +851,36 @@ export function changeExpiresAction(value) {
   return {
     type: COMPOSE_EXPIRES_ACTION_CHANGE,
     value: value,
+  };
+};
+
+export function addReference(id, change) {
+  return (dispatch, getState) => {
+    if (change) {
+      const status = getState().getIn(['statuses', id]);
+      const visibility = getState().getIn(['compose', 'privacy']);
+
+      if (status && status.get('visibility') === 'private' && ['public', 'unlisted'].includes(visibility)) {
+        dispatch(changeComposeVisibility('private'));
+      }
+    }
+
+    dispatch({
+      type: COMPOSE_REFERENCE_ADD,
+      id: id,
+    });
+  };
+};
+
+export function removeReference(id) {
+  return {
+    type: COMPOSE_REFERENCE_REMOVE,
+    id: id,
+  };
+};
+
+export function resetReference() {  
+  return {
+    type: COMPOSE_REFERENCE_RESET,
   };
 };

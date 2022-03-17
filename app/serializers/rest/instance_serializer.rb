@@ -85,6 +85,10 @@ class REST::InstanceSerializer < ActiveModel::Serializer
       emoji_reactions: {
         max_reactions: EmojiReactionValidator::LIMIT,
       },
+
+      status_references: {
+        max_references: StatusReferenceValidator::LIMIT,
+      },
     }
   end
 
@@ -129,6 +133,7 @@ class REST::InstanceSerializer < ActiveModel::Serializer
       :emoji_reaction,
       :misskey_birthday,
       :misskey_location,
+      :status_reference,
     ]
   end
 

@@ -6,8 +6,9 @@ import IconButton from './icon_button';
 import DropdownMenuContainer from '../containers/dropdown_menu_container';
 import { defineMessages, injectIntl } from 'react-intl';
 import ImmutablePureComponent from 'react-immutable-pure-component';
-import { me, isStaff, show_bookmark_button, show_quote_button, enableReaction } from '../initial_state';
+import { me, isStaff, show_bookmark_button, show_quote_button, enableReaction, enableStatusReference, maxReferences, matchVisibilityOfReferences, addReferenceModal } from '../initial_state';
 import classNames from 'classnames';
+import { openModal } from '../actions/modal';
 
 import ReactionPickerDropdownContainer from '../containers/reaction_picker_dropdown_container';
 
@@ -23,6 +24,7 @@ const messages = defineMessages({
   share: { id: 'status.share', defaultMessage: 'Share' },
   more: { id: 'status.more', defaultMessage: 'More' },
   replyAll: { id: 'status.replyAll', defaultMessage: 'Reply to thread' },
+  reference: { id: 'status.reference', defaultMessage: 'Reference' },
   reblog: { id: 'status.reblog', defaultMessage: 'Boost' },
   reblog_private: { id: 'status.reblog_private', defaultMessage: 'Boost with original visibility' },
   cancel_reblog_private: { id: 'status.cancel_reblog_private', defaultMessage: 'Unboost' },
@@ -37,6 +39,7 @@ const messages = defineMessages({
   show_reblogs: { id: 'status.show_reblogs', defaultMessage: 'Show boosted users' },
   show_favourites: { id: 'status.show_favourites', defaultMessage: 'Show favourited users' },
   show_emoji_reactions: { id: 'status.show_emoji_reactions', defaultMessage: 'Show emoji reactioned users' },
+  show_referred_by_statuses: { id: 'status.show_referred_by_statuses', defaultMessage: 'Show referred by statuses' },
   report: { id: 'status.report', defaultMessage: 'Report @{name}' },
   muteConversation: { id: 'status.mute_conversation', defaultMessage: 'Mute conversation' },
   unmuteConversation: { id: 'status.unmute_conversation', defaultMessage: 'Unmute conversation' },
@@ -51,10 +54,17 @@ const messages = defineMessages({
   openDomainTimeline: { id: 'account.open_domain_timeline', defaultMessage: 'Open {domain} timeline' },
   unmute: { id: 'account.unmute', defaultMessage: 'Unmute @{name}' },
   unblock: { id: 'account.unblock', defaultMessage: 'Unblock @{name}' },
+  visibilityMatchMessage: { id: 'visibility.match_message', defaultMessage: 'Do you want to match the visibility of the post to the reference?' },
+  visibilityKeepMessage: { id: 'visibility.keep_message', defaultMessage: 'Do you want to keep the visibility of the post to the reference?' },
+  visibilityChange: { id: 'visibility.change', defaultMessage: 'Change' },
+  visibilityKeep: { id: 'visibility.keep', defaultMessage: 'Keep' },
 });
 
 const mapStateToProps = (state, { status }) => ({
   relationship: state.getIn(['relationships', status.getIn(['account', 'id'])]),
+  referenceCountLimit: state.getIn(['compose', 'references']).size >= maxReferences,
+  selected: state.getIn(['compose', 'references']).has(status.get('id')),
+  composePrivacy: state.getIn(['compose', 'privacy']),
 });
 
 export default @connect(mapStateToProps)
@@ -68,7 +78,12 @@ class StatusActionBar extends ImmutablePureComponent {
   static propTypes = {
     status: ImmutablePropTypes.map.isRequired,
     expired: PropTypes.bool,
+    referenced: PropTypes.bool,
+    contextReferenced: PropTypes.bool,
     relationship: ImmutablePropTypes.map,
+    referenceCountLimit: PropTypes.bool,
+    selected: PropTypes.bool,
+    composePrivacy: PropTypes.string,
     onReply: PropTypes.func,
     onFavourite: PropTypes.func,
     onReblog: PropTypes.func,
@@ -88,6 +103,8 @@ class StatusActionBar extends ImmutablePureComponent {
     onMuteConversation: PropTypes.func,
     onPin: PropTypes.func,
     onBookmark: PropTypes.func,
+    onAddReference: PropTypes.func,
+    onRemoveReference: PropTypes.func,
     withDismiss: PropTypes.bool,
     scrollKey: PropTypes.string,
     intl: PropTypes.object.isRequired,
@@ -105,6 +122,9 @@ class StatusActionBar extends ImmutablePureComponent {
     'status',
     'relationship',
     'withDismiss',
+    'referenced',
+    'contextReferenced',
+    'referenceCountLimit'
   ]
 
   handleReplyClick = () => {
@@ -137,6 +157,31 @@ class StatusActionBar extends ImmutablePureComponent {
       this.props.onReblog(this.props.status, e);
     } else {
       this._openInteractionDialog('reblog');
+    }
+  }
+
+  handleReferenceClick = (e) => {
+    const { dispatch, intl, status, selected, composePrivacy, onAddReference, onRemoveReference } = this.props;
+    const id = status.get('id');
+
+    if (selected) {
+      onRemoveReference(id);
+    } else {
+      if (status.get('visibility') === 'private' && ['public', 'unlisted'].includes(composePrivacy)) {
+        if (!addReferenceModal || e && e.shiftKey) {
+          onAddReference(id, true);
+        } else {
+          dispatch(openModal('CONFIRM', {
+            message: intl.formatMessage(matchVisibilityOfReferences ? messages.visibilityMatchMessage : messages.visibilityKeepMessage),
+            confirm: intl.formatMessage(matchVisibilityOfReferences ? messages.visibilityChange : messages.visibilityKeep),
+            onConfirm:   () => onAddReference(id, matchVisibilityOfReferences),
+            secondary: intl.formatMessage(matchVisibilityOfReferences ? messages.visibilityKeep : messages.visibilityChange),
+            onSecondary: () => onAddReference(id, !matchVisibilityOfReferences),
+          }));
+        }
+      } else {
+        onAddReference(id, true);
+      }
     }
   }
 
@@ -266,6 +311,10 @@ class StatusActionBar extends ImmutablePureComponent {
     this.context.router.history.push(`/statuses/${this.props.status.get('id')}/emoji_reactions`);
   }
 
+  handleReferredByStatuses = () => {
+    this.context.router.history.push(`/statuses/${this.props.status.get('id')}/referred_by`);
+  }
+
   handleEmojiPick = data => {
     const { addEmojiReaction, status } = this.props;
     addEmojiReaction(status, data.native.replace(/:/g, ''), null, null, null);
@@ -277,7 +326,7 @@ class StatusActionBar extends ImmutablePureComponent {
   }
 
   render () {
-    const { status, relationship, intl, withDismiss, scrollKey, expired } = this.props;
+    const { status, relationship, intl, withDismiss, scrollKey, expired, referenced, contextReferenced, referenceCountLimit } = this.props;
 
     const anonymousAccess    = !me;
     const publicStatus       = ['public', 'unlisted'].includes(status.get('visibility'));
@@ -290,6 +339,7 @@ class StatusActionBar extends ImmutablePureComponent {
     const bookmarked         = status.get('bookmarked');
     const emoji_reactioned   = status.get('emoji_reactioned');
     const reblogsCount       = status.get('reblogs_count');
+    const referredByCount    = status.get('status_referred_by_count');
     const favouritesCount    = status.get('favourites_count');
     const [ _, domain ]      = account.get('acct').split('@');
 
@@ -316,6 +366,10 @@ class StatusActionBar extends ImmutablePureComponent {
 
     if (!status.get('emoji_reactions').isEmpty()) {
       menu.push({ text: intl.formatMessage(messages.show_emoji_reactions), action: this.handleEmojiReactions });
+    }
+
+    if (enableStatusReference && referredByCount > 0) {
+      menu.push({ text: intl.formatMessage(messages.show_referred_by_statuses), action: this.handleReferredByStatuses });
     }
 
     if (domain) {
@@ -413,9 +467,12 @@ class StatusActionBar extends ImmutablePureComponent {
       <IconButton className='status__action-bar-button' disabled={expired} title={intl.formatMessage(messages.share)} icon='share-alt' onClick={this.handleShareClick} />
     );
 
+    const referenceDisabled = expired || !referenced && referenceCountLimit || ['limited', 'direct'].includes(status.get('visibility'));
+
     return (
       <div className='status__action-bar'>
         <IconButton className='status__action-bar-button' disabled={expired} title={replyTitle} icon={status.get('in_reply_to_account_id') === status.getIn(['account', 'id']) ? 'reply' : replyIcon} onClick={this.handleReplyClick} counter={status.get('replies_count')} obfuscateCount />
+        {enableStatusReference && me && <IconButton className={classNames('status__action-bar-button link-icon', {referenced, 'context-referenced': contextReferenced})} animate disabled={referenceDisabled} active={referenced} pressed={referenced} title={intl.formatMessage(messages.reference)} icon='link' onClick={this.handleReferenceClick} />}
         <IconButton className={classNames('status__action-bar-button', { reblogPrivate })} disabled={!publicStatus && !reblogPrivate || expired}  active={reblogged} pressed={reblogged} title={reblogTitle} icon='retweet' onClick={this.handleReblogClick} />
         <IconButton className='status__action-bar-button star-icon' animate disabled={!favourited && expired} active={favourited} pressed={favourited} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} />
         {show_quote_button && <IconButton className='status__action-bar-button' disabled={anonymousAccess || !publicStatus || expired} title={!publicStatus ? intl.formatMessage(messages.cannot_quote) : intl.formatMessage(messages.quote)} icon='quote-right' onClick={this.handleQuoteClick} />}

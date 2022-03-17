@@ -2,7 +2,7 @@
   = t('statuses.title', name: display_name(@account), quote: truncate(@status.spoiler_text.presence || @status.text, length: 50, omission: '…', escape: false))
 
 - content_for :header_tags do
-  - if @account.user&.setting_noindex
+  - if noindex?((@ancestors || []) + (@descendants || []))
     %meta{ name: 'robots', content: 'noindex, noarchive' }/
 
   %link{ rel: 'alternate', type: 'application/json+oembed', href: api_oembed_url(url: short_account_status_url(@account, @status), format: 'json') }/
@@ -19,6 +19,11 @@
 
 .grid
   .column-0
+    - unless @references.empty?
+      .status__section-headline
+        = active_link_to t('statuses.thread_with_references'), short_account_status_url(@account, @status)
+        = active_link_to t('statuses.references_only'), references_short_account_status_url(@account, @status)
+
     .activity-stream.h-entry
       = render partial: 'status', locals: { status: @status, include_threads: true }
   .column-1

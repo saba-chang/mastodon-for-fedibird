@@ -60,11 +60,13 @@ ja:
         setting_display_media_show_all: メディアを常に表示する
         setting_enable_limited_timeline: フォロワー限定・サークル・ダイレクトメッセージを表示する限定ホームを有効にします
         setting_enable_reaction: タイムラインでリアクションの表示を有効にし、リアクションボタンを表示する
+        setting_enable_status_reference: 投稿が別の投稿を参照する機能を有効にします
         setting_follow_button_to_list_adder: フォロー・購読ボタンの動作を変更し、フォロー・購読するリストを選択したり、ホームで受け取らないよう設定するダイアログを開きます
         setting_hide_followers_count: フォロワー数をプロフィールページで見られないようにします
         setting_hide_following_count: フォロー数をプロフィールページで見られないようにします
         setting_hide_network: フォローとフォロワーの情報がプロフィールページで見られないようにします
         setting_hide_statuses_count: 投稿数をプロフィールページで見られないようにします
+        setting_match_visibility_of_references: 参照先の投稿がフォロワー限定の場合、投稿の公開範囲をそれに合わせてフォロワー限定とする動作をデフォルトにします
         setting_new_features_policy: Fedibirdに新しい機能が追加された時の受け入れポリシーを設定します。推奨設定は多くの新機能を有効にするので、望ましくない場合は無効に設定してください
         setting_noindex: 公開プロフィールおよび各投稿ページに影響します
         setting_place_tab_bar_at_bottom: タッチデバイス使用時に、タブの操作を指の届く範囲で行えます
@@ -73,7 +75,7 @@ ja:
         setting_show_follow_button_on_timeline: フォロー状態を確認し易くなり、素早くフォローリストを構築できます
         setting_show_navigation_panel: 上級者向け UI の右端にナビゲーションパネルを表示します
         setting_show_quote_button: アクションバーへボタンを表示するかどうかの設定です。引用機能の有効・無効を切り替えるものではありません
-        setting_show_reply_tree_button: オフにした場合、投稿者本人が自分自身にリプライで投稿を連ねている場合にのみ『スレッドを表示』ボタンが表示されます
+        setting_show_reply_tree_button: 別の投稿に対しての返信に青のマーカー、返信のついている投稿に黄色のマーカー、両方の場合は緑のマーカーを表示します
         setting_show_subscribe_button_on_timeline: 購読状態を確認し易くなり、素早く購読リストを構築できます
         setting_show_tab_bar_label: リスト等をタブバーに追加する場合、アイコンだけでは区別がつかないので、ラベルを表示することをおすすめします
         setting_show_followed_by: フォロー状態に応じてフォローボタンの色が変わります（灰色：フォロー関係なし、黄色：フォローされている、青色：フォローしている、緑色：相互フォロー）
@@ -195,6 +197,7 @@ ja:
         otp_attempt: 二段階認証コード
         password: パスワード
         phrase: キーワードまたはフレーズ
+        setting_add_reference_modal: フォロワー限定投稿への参照を追加する前に確認ダイアログを表示する
         setting_advanced_layout: 上級者向け UI を有効にする
         setting_aggregate_reblogs: ブーストをまとめる
         setting_auto_play_gif: アニメーションGIFを自動再生する
@@ -212,25 +215,29 @@ ja:
         setting_display_media_show_all: 表示
         setting_enable_limited_timeline: 限定ホームを有効にする
         setting_enable_reaction: リアクションを有効にする
+        setting_enable_status_reference: 参照を有効にする
         setting_expand_spoilers: 閲覧注意としてマークされた投稿を常に展開する
         setting_follow_button_to_list_adder: フォローボタンでリスト追加ダイアログを開く
         setting_hide_followers_count: フォロワー数を隠す
         setting_hide_following_count: フォロー数を隠す
         setting_hide_network: 繋がりを隠す
         setting_hide_statuses_count: 投稿数を隠す
+        setting_match_visibility_of_references: 投稿の公開範囲を参照先に合わせる
         setting_new_features_policy: 新機能へのポリシー
         setting_new_features_policy_conservative: 無効にしておき、自分で判断する
         setting_new_features_policy_default: 推奨に従う（デフォルト）
         setting_new_features_policy_tester: ベータテストに参加する
         setting_noindex: 検索エンジンによるインデックスを拒否する
         setting_place_tab_bar_at_bottom: タブバーを下に配置する
+        setting_post_reference_modal: 参照を含む投稿をする前に確認ダイアログを表示する
         setting_reduce_motion: アニメーションの動きを減らす
+        setting_unselect_reference_modal: 参照を解除する前に確認ダイアログを表示する
         setting_show_application: 送信したアプリを開示する
         setting_show_bookmark_button: ブックマークボタンをアクションバーに表示する
         setting_show_follow_button_on_timeline: タイムライン上にフォローボタンを表示する
         setting_show_navigation_panel: ナビゲーションパネルを表示する
         setting_show_quote_button: 引用ボタンをアクションバーに表示する
-        setting_show_reply_tree_button: リプライツリーの存在する投稿に『スレッドを表示』ボタンを表示する
+        setting_show_reply_tree_button: リプライ関係の存在する投稿にマーカーを表示する
         setting_show_subscribe_button_on_timeline: タイムライン上に購読ボタンを表示する
         setting_show_tab_bar_label: タブバーにラベルを表示する
         setting_show_followed_by: 被フォロー状態をフォローボタンに反映する
@@ -321,6 +328,7 @@ ja:
         reaction: リアクションされた時
         reblog: 投稿がブーストされた時
         report: 通報を受けた時
+        status_reference: 投稿が参照された時
         trending_tag: 未審査のハッシュタグが人気の時
       rule:
         text: ルール

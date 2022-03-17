@@ -103,6 +103,7 @@ class PostStatusService < BaseService
 
     ProcessHashtagsService.new.call(@status)
     ProcessMentionsService.new.call(@status, @circle)
+    ProcessStatusReferenceService.new.call(@status, status_reference_ids: (@options[:status_reference_ids] || []) + [@quote_id], urls: @options[:status_reference_urls])
   end
 
   def schedule_status!

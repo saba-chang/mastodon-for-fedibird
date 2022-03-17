@@ -37,6 +37,12 @@ import {
   UNPIN_SUCCESS,
 } from '../actions/interactions';
 
+const initialListState = ImmutableMap({
+  next: null,
+  isLoading: false,
+  items: ImmutableList(),
+});
+
 const initialState = ImmutableMap({
   favourites: ImmutableMap({
     next: null,

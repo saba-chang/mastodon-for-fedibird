@@ -64,6 +64,11 @@ class StatusesIndex < Chewy::Index
     data.each.with_object({}) { |(id, name), result| (result[id] ||= []).push(name) }
   end
 
+  crutch :status_references do |collection|
+    data = ::StatusReference.joins(:status).where(target_status_id: collection.map(&:id)).where(status: { account: Account.local }).pluck(:target_status_id, :'status.account_id')
+    data.each.with_object({}) { |(id, name), result| (result[id] ||= []).push(name) }
+  end
+
   root date_detection: false do
     field :id, type: 'long'
     field :account_id, type: 'long'

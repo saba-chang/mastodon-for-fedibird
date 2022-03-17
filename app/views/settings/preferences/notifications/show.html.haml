@@ -19,6 +19,7 @@
       = ff.input :favourite, as: :boolean, wrapper: :with_label
       = ff.input :emoji_reaction, as: :boolean, wrapper: :with_label, fedibird_features: true
       = ff.input :mention, as: :boolean, wrapper: :with_label
+      = ff.input :status_reference, as: :boolean, wrapper: :with_label, fedibird_features: true
 
       - if current_user.staff?
         = ff.input :report, as: :boolean, wrapper: :with_label

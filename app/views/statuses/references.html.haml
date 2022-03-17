@@ -1,0 +1,33 @@
+:ruby
+  og_status      = @references.reverse.find{ |status| status.public_safety? }
+  og_description = og_status.nil? ? I18n.t('statuses.references_private') : "#{I18n.t('statuses.references_others', count: @references.size - 1)}#{reference_description(og_status)}"
+
+- content_for :page_title do
+  = t('statuses.title', name: display_name(@account), quote: truncate(@status.spoiler_text.presence || @status.text, length: 50, omission: '…', escape: false))
+
+- content_for :header_tags do
+  - if noindex?(@references)
+    %meta{ name: 'robots', content: 'noindex, noarchive' }/
+
+  %link{ rel: 'alternate', type: 'application/activity+json', href: ActivityPub::TagManager.instance.references_uri_for(@status) }/
+
+  = opengraph 'og:site_name', site_title
+  = opengraph 'og:type', 'article'
+  = opengraph 'og:title', t('statuses.references_ogp_title', count: @references.size, username: "#{display_name(@account)} (#{acct(@account)})")
+  = opengraph 'og:url', references_short_account_status_url(@account, @status)
+  = opengraph 'og:published_time', @status.created_at.iso8601
+
+  = render 'og_description', description: og_description
+  - unless og_status.nil?
+    = render 'og_image', activity: og_status, account: og_status.account
+
+.grid
+  .column-0
+    .status__section-headline
+      = active_link_to t('statuses.thread_with_references'), short_account_status_url(@account, @status)
+      = active_link_to t('statuses.references_only'), references_short_account_status_url(@account, @status)
+
+    .activity-stream.h-entry
+      = render partial: 'reference_status', locals: { status: @status, max_id: @max_id, min_id: @min_id }
+  .column-1
+    = render 'application/sidebar'

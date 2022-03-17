@@ -32,6 +32,7 @@ class Sanitize
         next true if /^(mention|hashtag)$/.match?(e) # semantic classes
         next true if /^(ellipsis|invisible)$/.match?(e) # link formatting classes
         next true if /^quote-inline$/.match?(e) # quote inline classes
+        next true if /^reference-link-inline$/.match?(e) # reference link inline classes
       end
 
       node['class'] = class_list.join(' ')

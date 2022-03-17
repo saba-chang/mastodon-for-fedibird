@@ -5,12 +5,28 @@ import Audio from 'mastodon/features/audio';
 import { connect } from 'react-redux';
 import ImmutablePureComponent from 'react-immutable-pure-component';
 import Footer from 'mastodon/features/picture_in_picture/components/footer';
+import { addReference, removeReference } from 'mastodon/actions/compose';
+import { makeGetStatus } from 'mastodon/selectors';
 
-const mapStateToProps = (state, { statusId }) => ({
-  accountStaticAvatar: state.getIn(['accounts', state.getIn(['statuses', statusId, 'account']), 'avatar_static']),
-});
+const makeMapStateToProps = () => {
+  const getStatus = makeGetStatus();
+  const getProper = (status) => status.get('reblog', null) !== null && typeof status.get('reblog') === 'object' ? status.get('reblog') : status;
 
-export default @connect(mapStateToProps)
+  const mapStateToProps = (state, props) => {
+    const status         = getStatus(state, { id: props.statusId });
+    const id             = status ? getProper(status).get('id') : null;
+
+    return {
+      referenced: state.getIn(['compose', 'references']).has(id),
+      contextReferenced: state.getIn(['compose', 'context_references']).has(id),
+      accountStaticAvatar: state.getIn(['accounts', state.getIn(['statuses', props.statusId, 'account']), 'avatar_static']),
+    };
+  };
+
+  return mapStateToProps;
+};
+
+export default @connect(makeMapStateToProps)
 class AudioModal extends ImmutablePureComponent {
 
   static propTypes = {
@@ -23,6 +39,14 @@ class AudioModal extends ImmutablePureComponent {
     onClose: PropTypes.func.isRequired,
     onChangeBackgroundColor: PropTypes.func.isRequired,
   };
+
+  handleAddReference = (id, change) => {
+    this.props.dispatch(addReference(id, change));
+  }
+
+  handleRemoveReference = (id) => {
+    this.props.dispatch(removeReference(id));
+  }
 
   render () {
     const { media, accountStaticAvatar, statusId, onClose } = this.props;
