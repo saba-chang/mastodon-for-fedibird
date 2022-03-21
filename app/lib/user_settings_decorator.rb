@@ -78,6 +78,7 @@ class UserSettingsDecorator
     user.settings['theme_instance_ticker']             = theme_instance_ticker if change?('setting_theme_instance_ticker')
     user.settings['enable_status_reference']           = enable_status_reference_preference if change?('setting_enable_status_reference')
     user.settings['match_visibility_of_references']    = match_visibility_of_references_preference if change?('setting_match_visibility_of_references')
+    user.settings['hexagon_avatar']                    = hexagon_avatar_preference if change?('setting_hexagon_avatar')
 end
 
   def merged_notification_emails
@@ -266,6 +267,10 @@ end
 
   def theme_instance_ticker
     settings['setting_theme_instance_ticker']
+  end
+
+  def hexagon_avatar_preference
+    boolean_cast_setting 'setting_hexagon_avatar'
   end
 
   def enable_status_reference_preference

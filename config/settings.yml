@@ -96,6 +96,7 @@ defaults: &defaults
   post_reference_modal: false
   add_reference_modal: true
   unselect_reference_modal: false
+  hexagon_avatar: false
 
 development:
   <<: *defaults

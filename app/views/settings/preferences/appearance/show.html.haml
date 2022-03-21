@@ -21,6 +21,9 @@
     .fields-row__column.fields-row__column-6
       = f.input :setting_theme_instance_ticker, collection: ['none', 'type-0', 'type-1', 'type-2', 'type-3'], label_method: lambda { |item| t("simple_form.hints.defaults.setting_theme_instance_ticker_#{item}") }, wrapper: :with_label, include_blank: false, hint: t('simple_form.hints.defaults.setting_theme_instance_ticker_html'), fedibird_features: true
 
+  .fields-group
+    = f.input :setting_hexagon_avatar, as: :boolean, wrapper: :with_label, hint: true, fedibird_features: true
+
   %h4= t 'appearance.advanced_web_interface'
 
   %p.hint= t 'appearance.advanced_web_interface_hint'

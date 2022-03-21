@@ -1,0 +1,8 @@
+.hexagon-avatar {
+    .account__avatar,
+    .account__avatar-overlay-base,
+    .account__avatar-overlay-overlay {
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20id%3D%22nft-hexagon-mask%22%20data-name%3D%22nft-hexagon-mask%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20400%20400%22%3E%3Cpolygon%20points%3D%22300%2026.8%20100%2026.8%200%20200%20100%20373.2%20300%20373.2%20400%20200%20300%2026.8%22%2F%3E%3C%2Fsvg%3E");
+              mask-image: url("data:image/svg+xml,%3Csvg%20id%3D%22nft-hexagon-mask%22%20data-name%3D%22nft-hexagon-mask%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20400%20400%22%3E%3Cpolygon%20points%3D%22300%2026.8%20100%2026.8%200%20200%20100%20373.2%20300%20373.2%20400%20200%20300%2026.8%22%2F%3E%3C%2Fsvg%3E");
+    }
+}
