@@ -13,7 +13,7 @@ import AccountActionBar from './account_action_bar';
 import Card from '../features/status/components/card';
 import { injectIntl, defineMessages, FormattedMessage } from 'react-intl';
 import ImmutablePureComponent from 'react-immutable-pure-component';
-import { MediaGallery, Video, Audio } from '../features/ui/util/async-components';
+import { MediaGallery, Video, Audio, ThumbnailGallery } from '../features/ui/util/async-components';
 import { HotKeys } from 'react-hotkeys';
 import classNames from 'classnames';
 import Icon from 'mastodon/components/icon';
@@ -271,6 +271,10 @@ class Status extends ImmutablePureComponent {
     return <div className='audio-player' style={{ height: '110px' }} />;
   }
 
+  renderLoadingThumbnailGallery () {
+    return <div className='thumbnail-gallery' style={{ height: '20px' }} />;
+  }
+
   handleOpenVideo = (options) => {
     const status = this._properStatus();
     this.props.onOpenVideo(status.get('id'), status.getIn(['media_attachments', 0]), options);
@@ -469,10 +473,14 @@ class Status extends ImmutablePureComponent {
         media = <PictureInPicturePlaceholder width={this.props.cachedMediaWidth} />;
       } else if (this.props.muted) {
         media = (
-          <AttachmentList
-            compact
-            media={status.get('media_attachments')}
-          />
+          <Bundle fetchComponent={ThumbnailGallery} loading={this.renderLoadingThumbnailGallery}>
+            {Component => (
+              <Component
+                media={status.get('media_attachments')}
+                sensitive={status.get('sensitive')}
+              />
+            )}
+          </Bundle>
         );
       } else if (status.getIn(['media_attachments', 0, 'type']) === 'audio') {
         const attachment = status.getIn(['media_attachments', 0]);
@@ -573,10 +581,14 @@ class Status extends ImmutablePureComponent {
           quote_media = <PictureInPicturePlaceholder width={this.props.cachedMediaWidth} />;
         } else if (this.props.muted) {
           quote_media = (
-            <AttachmentList
-              compact
-              media={quote_status.get('media_attachments')}
-            />
+            <Bundle fetchComponent={ThumbnailGallery} loading={this.renderLoadingThumbnailGallery}>
+              {Component => (
+                <Component
+                  media={quote_status.get('media_attachments')}
+                  sensitive={quote_status.get('sensitive')}
+                />
+              )}
+            </Bundle>
           );
         } else if (quote_status.getIn(['media_attachments', 0, 'type']) === 'audio') {
           const attachment = quote_status.getIn(['media_attachments', 0]);
