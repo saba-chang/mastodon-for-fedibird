@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_05_140844) do
+ActiveRecord::Schema.define(version: 2022_04_13_004654) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -435,7 +435,7 @@ ActiveRecord::Schema.define(version: 2022_04_05_140844) do
     t.index ["domain"], name: "index_email_domain_blocks_on_domain", unique: true
   end
 
-  create_table "emoji_reactions", force: :cascade do |t|
+  create_table "emoji_reactions", id: :bigint, default: -> { "timestamp_id('emoji_reactions'::text)" }, force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "status_id", null: false
     t.string "name", default: "", null: false
