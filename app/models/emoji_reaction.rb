@@ -26,6 +26,9 @@ class EmojiReaction < ApplicationRecord
 
   has_one :notification, as: :activity, dependent: :destroy
 
+  scope :local, -> { where(uri: nil) }
+  scope :remote, -> { where.not(uri: nil) }
+
   validates :name, presence: true
   validates_with EmojiReactionValidator
 
@@ -35,6 +38,10 @@ class EmojiReaction < ApplicationRecord
 
   def sign?
     true
+  end
+
+  def object_type
+    :emoji_reaction
   end
 
   private

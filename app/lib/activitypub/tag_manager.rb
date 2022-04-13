@@ -47,6 +47,8 @@ class ActivityPub::TagManager
       end
     when :emoji
       emoji_url(target)
+    when :emoji_reaction
+      emoji_reaction_url(target)
     when :conversation
       context_url(target)
     end
@@ -76,6 +78,12 @@ class ActivityPub::TagManager
     raise ArgumentError, 'target must be a local activity' unless %i(note comment activity).include?(target.object_type) && target.local?
 
     account_status_references_url(target.account, target, page_params)
+  end
+
+  def emoji_reactions_uri_for(target, page_params = nil)
+    raise ArgumentError, 'target must be a local activity' unless %i(note comment activity).include?(target.object_type) && target.local?
+
+    account_status_emoji_reactions_url(target.account, target, page_params)
   end
 
   # Primary audience of a status

@@ -7,7 +7,7 @@ class ActivityPub::EmojiReactionSerializer < ActivityPub::Serializer
   has_one :custom_emoji ,key: :tag, serializer: ActivityPub::EmojiSerializer, unless: -> { object.custom_emoji.nil? }
 
   def id
-    [ActivityPub::TagManager.instance.uri_for(object.account), '#emoji_reactions/', object.id].join
+    ActivityPub::TagManager.instance.uri_for(object)
   end
 
   def type

@@ -71,6 +71,7 @@ Rails.application.routes.draw do
 
       resources :replies, only: [:index], module: :activitypub
       resources :references, only: [:index], module: :activitypub
+      resources :emoji_reactions, only: [:index], module: :activitypub
     end
 
     resources :followers, only: [:index], controller: :follower_accounts
@@ -183,6 +184,7 @@ Rails.application.routes.draw do
 
   resources :tags,   only: [:show]
   resources :emojis, only: [:show]
+  resources :emoji_reactions, only: [:show]
   resources :invites, only: [:index, :create, :destroy]
   resources :filters, except: [:show]
   resource :relationships, only: [:show, :update]

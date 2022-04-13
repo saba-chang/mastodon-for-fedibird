@@ -7,8 +7,25 @@ class ActivityPub::EmojiSerializer < ActivityPub::Serializer
 
   attributes :id, :type, :name, :updated
 
-  has_one :icon, serializer: ActivityPub::ImageSerializer
+  has_one :icon
 
+  class RemoteImageSerializer < ActivityPub::ImageSerializer
+    def url
+      object.instance.image_remote_url
+    end
+  end
+  
+  def self.serializer_for(model, options)
+    case model.class.name
+    when 'Paperclip::Attachment'
+      if model.instance.local?
+        ActivityPub::ImageSerializer
+      else
+        RemoteImageSerializer
+      end
+    end
+  end
+  
   def id
     ActivityPub::TagManager.instance.uri_for(object)
   end

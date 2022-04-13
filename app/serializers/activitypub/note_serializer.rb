@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ActivityPub::NoteSerializer < ActivityPub::Serializer
-  context_extensions :atom_uri, :conversation, :sensitive, :voters_count, :quote_uri, :expiry, :references
+  context_extensions :atom_uri, :conversation, :sensitive, :voters_count, :quote_uri, :expiry, :references, :emoji_reactions
 
   attributes :id, :type, :summary,
              :in_reply_to, :published, :url,
@@ -22,6 +22,7 @@ class ActivityPub::NoteSerializer < ActivityPub::Serializer
 
   has_one :replies, serializer: ActivityPub::CollectionSerializer, if: :local?
   has_one :references, serializer: ActivityPub::CollectionSerializer, if: :local?
+  has_one :emoji_reactions, if: -> { object.local? && object.emoji_reaction? }
 
   has_many :poll_options, key: :one_of, if: :poll_and_not_multiple?
   has_many :poll_options, key: :any_of, if: :poll_and_multiple?
@@ -83,6 +84,10 @@ class ActivityPub::NoteSerializer < ActivityPub::Serializer
         next: last_id ? ActivityPub::TagManager.instance.references_uri_for(object,  page: true, min_id: last_id) : nil,
       ),
     )
+  end
+
+  def emoji_reactions
+    ActivityPub::TagManager.instance.emoji_reactions_uri_for(object)
   end
 
   def language?
