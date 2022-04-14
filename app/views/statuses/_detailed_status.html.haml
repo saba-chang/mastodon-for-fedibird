@@ -38,6 +38,10 @@
   - elsif status.preview_card
     = render_card_component(status)
 
+  - if status.emoji_reaction?
+    .reactions-bar.emoji-reactions-bar
+      = render partial: 'statuses/reaction_item', collection: status.grouped_emoji_reactions(current_account), as: :reaction_item
+
   .detailed-status__meta
     %data.dt-published{ value: status.created_at.to_time.iso8601 }
 

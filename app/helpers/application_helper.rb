@@ -127,6 +127,20 @@ module ApplicationHelper
     end
   end
 
+  UNICODE_EMOJIS = Oj.load(File.read(Rails.root.join('app', 'javascript', 'mastodon', 'features', 'emoji', 'emoji_map.json'))).freeze
+
+  def grouped_reaction_custom_emoji_tag(reaction, animate = true)
+    unicode_emoji_filename = UNICODE_EMOJIS[reaction['name']]
+
+    if unicode_emoji_filename
+      image_tag("/emoji/#{unicode_emoji_filename}.svg", class: 'emojione', alt: "#{reaction['name']}", draggable: false)
+    elsif animate
+      image_tag(reaction['url'], class: 'emojione', alt: ":#{reaction['name']}:")
+    else
+      image_tag(reaction['static_url'], class: 'emojione custom-emoji', alt: ":#{reaction['name']}", 'data-original' => full_asset_url(reaction['url']), 'data-static' => full_asset_url(reaction['static_url']))
+    end
+  end
+
   def opengraph(property, content)
     tag(:meta, content: content, property: property)
   end

@@ -205,6 +205,10 @@ class Status < ApplicationRecord
     !quote_id.nil? && quote
   end
 
+  def emoji_reaction?
+    status_stat&.emoji_reactions_cache.present?
+  end
+
   def quote_visibility
     quote&.visibility
   end

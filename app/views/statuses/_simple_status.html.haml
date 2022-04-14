@@ -58,6 +58,10 @@
     = link_to ActivityPub::TagManager.instance.url_for(status), class: 'status__content__read-more-button', target: stream_link_target, rel: 'noopener noreferrer' do
       = t 'statuses.show_thread'
 
+  - if status.emoji_reaction?
+    .reactions-bar.emoji-reactions-bar
+      = render partial: 'statuses/reaction_item', collection: status.grouped_emoji_reactions(current_account), as: :reaction_item
+
   .status__action-bar
     = link_to remote_interaction_path(status, type: :reply), class: 'status__action-bar-button icon-button icon-button--with-counter modal-button' do
       - if status.in_reply_to_id.nil?

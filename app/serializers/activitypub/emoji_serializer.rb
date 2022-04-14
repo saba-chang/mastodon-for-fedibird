@@ -23,6 +23,8 @@ class ActivityPub::EmojiSerializer < ActivityPub::Serializer
       else
         RemoteImageSerializer
       end
+    else
+      super
     end
   end
   
