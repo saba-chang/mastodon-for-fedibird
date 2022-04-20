@@ -102,6 +102,23 @@ RSpec.describe NotificationMailer, type: :mailer do
     end
   end
 
+  describe "emoji_reaction" do
+    let(:emoji_reaction) { EmojiReaction.create!(account: sender, status: own_status, name: '😂', custom_emoji: nil) }
+    let(:mail) { NotificationMailer.emoji_reaction(own_status.account, Notification.create!(account: receiver.account, activity: emoji_reaction)) }
+
+    include_examples 'localized subject', 'notification_mailer.emoji_reaction.subject', name: 'bob'
+
+    it "renders the headers" do
+      expect(mail.subject).to eq("bob emoji reactioned your post")
+      expect(mail.to).to eq([receiver.email])
+    end
+
+    it "renders the body" do
+      expect(mail.body.encoded).to match("Your post was emoji reactioned by bob")
+      expect(mail.body.encoded).to include 'The body of the own status'
+    end
+  end
+
   describe 'digest' do
     before do
       mention = Fabricate(:mention, account: receiver.account, status: foreign_status)
