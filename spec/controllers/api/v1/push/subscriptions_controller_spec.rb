@@ -38,6 +38,7 @@ describe Api::V1::Push::SubscriptionsController do
           poll: true,
           status: false,
           emoji_reaction: false,
+          status_reference: false,
         }
       }
     }.with_indifferent_access
@@ -75,7 +76,7 @@ describe Api::V1::Push::SubscriptionsController do
 
       expect(push_subscription.data['policy']).to eq(alerts_payload[:data][:policy])
 
-      %w(follow follow_request favourite reblog mention poll status emoji_reaction).each do |type|
+      %w(follow follow_request favourite reblog mention poll status emoji_reaction status_reference).each do |type|
         expect(push_subscription.data['alerts'][type]).to eq(alerts_payload[:data][:alerts][type.to_sym].to_s)
       end
     end

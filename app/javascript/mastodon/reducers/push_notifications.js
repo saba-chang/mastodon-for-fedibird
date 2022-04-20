@@ -13,6 +13,7 @@ const initialState = Immutable.Map({
     poll: false,
     status: false,
     emoji_reaction: false,
+    status_reference: false,
   }),
   isSubscribed: false,
   browserSupport: false,

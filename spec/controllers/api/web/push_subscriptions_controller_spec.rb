@@ -33,6 +33,7 @@ describe Api::Web::PushSubscriptionsController do
           poll: true,
           status: false,
           emoji_reaction: false,
+          status_reference: false,
         }
       }
     }
@@ -67,7 +68,7 @@ describe Api::Web::PushSubscriptionsController do
 
         expect(push_subscription.data['policy']).to eq 'all'
 
-        %w(follow follow_request favourite reblog mention poll status emoji_reaction).each do |type|
+        %w(follow follow_request favourite reblog mention poll status emoji_reaction status_reference).each do |type|
           expect(push_subscription.data['alerts'][type]).to eq(alerts_payload[:data][:alerts][type.to_sym].to_s)
         end
       end
@@ -90,7 +91,7 @@ describe Api::Web::PushSubscriptionsController do
 
       expect(push_subscription.data['policy']).to eq 'all'
 
-      %w(follow follow_request favourite reblog mention poll status emoji_reaction).each do |type|
+      %w(follow follow_request favourite reblog mention poll status emoji_reaction status_reference).each do |type|
         expect(push_subscription.data['alerts'][type]).to eq(alerts_payload[:data][:alerts][type.to_sym].to_s)
       end
     end

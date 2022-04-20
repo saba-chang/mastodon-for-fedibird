@@ -119,6 +119,23 @@ RSpec.describe NotificationMailer, type: :mailer do
     end
   end
 
+  describe "status_reference" do
+    let(:status_reference) { StatusReference.create!(status: foreign_status, target_status: own_status) }
+    let(:mail) { NotificationMailer.status_reference(own_status.account, Notification.create!(account: receiver.account, activity: status_reference)) }
+
+    include_examples 'localized subject', 'notification_mailer.status_reference.subject', name: 'bob'
+
+    it "renders the headers" do
+      expect(mail.subject).to eq("bob referenced your post")
+      expect(mail.to).to eq([receiver.email])
+    end
+
+    it "renders the body" do
+      expect(mail.body.encoded).to match("Your post was referenced by bob")
+      expect(mail.body.encoded).to include 'The body of the foreign status'
+    end
+  end
+
   describe 'digest' do
     before do
       mention = Fabricate(:mention, account: receiver.account, status: foreign_status)
