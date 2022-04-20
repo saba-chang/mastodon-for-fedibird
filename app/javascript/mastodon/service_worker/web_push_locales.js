@@ -19,6 +19,7 @@ filenames.forEach(filename => {
     'notification.follow_request': full['notification.follow_request'] || '',
     'notification.mention': full['notification.mention'] || '',
     'notification.reblog': full['notification.reblog'] || '',
+    'notification.status': full['notification.status'] || '',
     'notification.poll': full['notification.poll'] || '',
 
     'status.show_more': full['status.show_more'] || '',

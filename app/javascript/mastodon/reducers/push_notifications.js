@@ -11,6 +11,7 @@ const initialState = Immutable.Map({
     reblog: false,
     mention: false,
     poll: false,
+    status: false,
   }),
   isSubscribed: false,
   browserSupport: false,
