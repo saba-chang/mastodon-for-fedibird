@@ -14,6 +14,15 @@ class AccountSearchService < BaseService
     search_service_results.compact.uniq
   end
 
+  def count(query, account = nil, options = {})
+    @acct_hint = query&.start_with?('@')
+    @query     = query&.strip&.gsub(/\A@/, '')
+    @options   = options
+    @account   = account
+
+    from_elasticsearch(true)
+  end
+
   private
 
   def search_service_results
@@ -75,7 +84,7 @@ class AccountSearchService < BaseService
     Account.search_for(terms_for_query, limit_for_non_exact_results, options[:group_only], offset)
   end
 
-  def from_elasticsearch
+  def from_elasticsearch(count = false)
     must_clauses   = [{ multi_match: { query: terms_for_query, fields: likely_acct? ? %w(acct.edge_ngram acct) : %w(acct.edge_ngram acct display_name.edge_ngram display_name), type: 'most_fields', operator: 'and' } }]
     should_clauses = []
 
@@ -99,11 +108,16 @@ class AccountSearchService < BaseService
     query     = { bool: { must: must_clauses, should: should_clauses } }
     functions = [reputation_score_function, followers_score_function, time_distance_function]
 
-    records = AccountsIndex.query(function_score: { query: query, functions: functions, boost_mode: 'multiply', score_mode: 'avg' })
-                           .limit(limit_for_non_exact_results)
-                           .offset(offset)
-                           .objects
-                           .compact
+
+    queried_account_index = AccountsIndex.query(function_score: { query: query, functions: functions, boost_mode: 'multiply', score_mode: 'avg' })
+
+    return queried_account_index.count if count
+
+    records = queried_account_index
+                .limit(limit_for_non_exact_results)
+                .offset(offset)
+                .objects
+                .compact
 
     ActiveRecord::Associations::Preloader.new.preload(records, :account_stat)
 

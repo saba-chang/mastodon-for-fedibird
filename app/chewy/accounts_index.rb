@@ -49,8 +49,8 @@ class AccountsIndex < Chewy::Index
       sudachi_tokenizer: {
         type: 'sudachi_tokenizer',
         discard_punctuation: true,
-        resources_path: '/etc/elasticsearch',
-        settings_path: '/etc/elasticsearch/sudachi.json',
+        resources_path: '/etc/elasticsearch/sudachi',
+        settings_path: '/etc/elasticsearch/sudachi/sudachi.json',
       },
     },
 
@@ -78,6 +78,7 @@ class AccountsIndex < Chewy::Index
     field :actor_type, type: 'keyword', normalizer: 'keyword'
 
     field :text, type: 'text', value: ->(account) { account.index_text } do
+      field :edge_ngram, type: 'text', analyzer: 'edge_ngram', search_analyzer: 'content'
       field :stemmed, type: 'text', analyzer: 'sudachi_content'
     end
 

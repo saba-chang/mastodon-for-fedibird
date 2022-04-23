@@ -44,6 +44,7 @@ export default function search(state = initialState, action) {
       accounts: ImmutableList(action.results.accounts.map(item => item.id)),
       statuses: ImmutableList(action.results.statuses.map(item => item.id)),
       hashtags: fromJS(action.results.hashtags),
+      profiles: ImmutableList(action.results.profiles.map(item => item.id)),
     })).set('submitted', true).set('searchTerm', action.searchTerm);
   case SEARCH_EXPAND_SUCCESS:
     const results = action.searchType === 'hashtags' ? fromJS(action.results.hashtags) : action.results[action.searchType].map(item => item.id);

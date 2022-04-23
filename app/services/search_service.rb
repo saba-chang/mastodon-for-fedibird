@@ -8,6 +8,7 @@ class SearchService < BaseService
     @limit   = limit.to_i
     @offset  = options[:type].blank? ? 0 : options[:offset].to_i
     @resolve = options[:resolve] || false
+    @profile = options[:with_profiles] || false
 
     default_results.tap do |results|
       next if @query.blank? || @limit.zero?
@@ -18,6 +19,20 @@ class SearchService < BaseService
         results[:accounts] = perform_accounts_search! if account_searchable?
         results[:statuses] = perform_statuses_search! if full_text_searchable?
         results[:hashtags] = perform_hashtags_search! if hashtag_searchable?
+        if @profile
+          results[:profiles] = perform_accounts_full_text_search! if account_full_text_searchable?
+        elsif account_full_text_searchable?
+          accounts_count = results[:accounts].count
+
+          if accounts_count == 0
+            @offset -= count_accounts_search!
+            results[:accounts] = perform_accounts_full_text_search!
+          elsif accounts_count < @limit
+            @limit -= accounts_count
+            @offset = 0
+            results[:accounts] = results[:accounts].concat(perform_accounts_full_text_search!)
+          end
+        end
       end
     end
   end
@@ -26,6 +41,23 @@ class SearchService < BaseService
 
   def perform_accounts_search!
     AccountSearchService.new.call(
+      @query,
+      @account,
+      limit: @limit,
+      resolve: @resolve,
+      offset: @offset
+    )
+  end
+
+  def count_accounts_search!
+    AccountSearchService.new.count(
+      @query,
+      @account,
+    )
+  end
+
+  def perform_accounts_full_text_search!
+    AccountFullTextSearchService.new.call(
       @query,
       @account,
       limit: @limit,
@@ -68,7 +100,7 @@ class SearchService < BaseService
   end
 
   def default_results
-    { accounts: [], hashtags: [], statuses: [] }
+    { accounts: [], hashtags: [], statuses: [], profiles: [] }
   end
 
   def url_query?
@@ -93,6 +125,12 @@ class SearchService < BaseService
     statuses_search? && !@account.nil? && !((@query.start_with?('#') || @query.include?('@')) && !@query.include?(' '))
   end
 
+  def account_full_text_searchable?
+    return false unless Chewy.enabled?
+
+    (!@profile && account_search? || profiles_search?) && !@account.nil? && !((@query.start_with?('#') || @query.include?('@')) && !@query.include?(' '))
+  end
+
   def account_searchable?
     account_search? && !(@query.start_with?('#') || (@query.include?('@') && @query.include?(' ')))
   end
@@ -111,6 +149,10 @@ class SearchService < BaseService
 
   def statuses_search?
     @options[:type].blank? || @options[:type] == 'statuses'
+  end
+
+  def profiles_search?
+    @options[:type].blank? || @options[:type] == 'profiles'
   end
 
   def relations_map_for_account(account, account_ids)

@@ -32,7 +32,7 @@ export function submitSearch() {
     const value = getState().getIn(['search', 'value']);
 
     if (value.length === 0) {
-      dispatch(fetchSearchSuccess({ accounts: [], statuses: [], hashtags: [] }, ''));
+      dispatch(fetchSearchSuccess({ accounts: [], statuses: [], hashtags: [], profiles: [] }, ''));
       return;
     }
 
@@ -43,10 +43,15 @@ export function submitSearch() {
         q: value,
         resolve: true,
         limit: 5,
+        with_profiles: true,
       },
     }).then(response => {
       if (response.data.accounts) {
         dispatch(importFetchedAccounts(response.data.accounts));
+      }
+
+      if (response.data.profiles) {
+        dispatch(importFetchedAccounts(response.data.profiles));
       }
 
       if (response.data.statuses) {
@@ -56,6 +61,7 @@ export function submitSearch() {
 
       dispatch(fetchSearchSuccess(response.data, value));
       dispatch(fetchRelationships(response.data.accounts.map(item => item.id)));
+      dispatch(fetchRelationships(response.data.profiles.map(item => item.id)));
     }).catch(error => {
       dispatch(fetchSearchFail(error));
     });
@@ -94,10 +100,15 @@ export const expandSearch = type => (dispatch, getState) => {
       q: value,
       type,
       offset,
+      with_profiles: true,
     },
   }).then(({ data }) => {
     if (data.accounts) {
       dispatch(importFetchedAccounts(data.accounts));
+    }
+
+    if (data.profiles) {
+      dispatch(importFetchedAccounts(data.profiles));
     }
 
     if (data.statuses) {
@@ -107,6 +118,7 @@ export const expandSearch = type => (dispatch, getState) => {
 
     dispatch(expandSearchSuccess(data, value, type));
     dispatch(fetchRelationships(data.accounts.map(item => item.id)));
+    dispatch(fetchRelationships(data.profiles.map(item => item.id)));
   }).catch(error => {
     dispatch(expandSearchFail(error));
   });

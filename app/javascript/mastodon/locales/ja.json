@@ -497,6 +497,7 @@
   "search_popout.tips.user": "ユーザー",
   "search_results.accounts": "人々",
   "search_results.hashtags": "ハッシュタグ",
+  "search_results.profiles": "プロフィールに一致する人々",
   "search_results.statuses": "投稿",
   "search_results.statuses_fts_disabled": "このサーバーでは投稿本文の検索は利用できません。",
   "search_results.total": "{count, number}件の結果",

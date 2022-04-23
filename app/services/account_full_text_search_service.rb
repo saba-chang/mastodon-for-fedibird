@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 class AccountFullTextSearchService < BaseService
-  def call(query, account, limit, options = {})
+  def call(query, account, options = {})
     @query   = query&.strip
     @account = account
     @options = options
-    @limit   = limit.to_i
-    @offset  = options[:offset].to_i
+    @limit   = options.delete(:limit).to_i
+    @offset  = options.delete(:offset).to_i
 
     return if @query.blank? || @limit.zero?
 
@@ -18,7 +18,7 @@ class AccountFullTextSearchService < BaseService
   def perform_account_text_search!
     definition = parsed_query.apply(AccountsIndex.filter(term: { discoverable: true }))
 
-    results             = definition.limit(@limit).offset(@offset).objects.compact
+    results             = definition.order(last_status_at: :desc).limit(@limit).offset(@offset).objects.compact
     account_ids         = results.map(&:id)
     preloaded_relations = relations_map_for_account(@account, account_ids)
 
@@ -39,6 +39,6 @@ class AccountFullTextSearchService < BaseService
   end
 
   def parsed_query
-    SearchQueryTransformer.new.apply(SearchQueryParser.new.parse(@query))
+    AccountSearchQueryTransformer.new.apply(SearchQueryParser.new.parse(@query))
   end
 end

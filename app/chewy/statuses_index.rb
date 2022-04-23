@@ -11,8 +11,8 @@ class StatusesIndex < Chewy::Index
       sudachi_tokenizer: {
         type: 'sudachi_tokenizer',
         discard_punctuation: true,
-        resources_path: '/etc/elasticsearch',
-        settings_path: '/etc/elasticsearch/sudachi.json',
+        resources_path: '/etc/elasticsearch/sudachi',
+        settings_path: '/etc/elasticsearch/sudachi/sudachi.json',
       },
     },
     analyzer: {

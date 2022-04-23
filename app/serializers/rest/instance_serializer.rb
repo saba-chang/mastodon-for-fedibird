@@ -113,7 +113,7 @@ class REST::InstanceSerializer < ActiveModel::Serializer
   end
 
   def fedibird_capabilities
-    [
+    capabilities = [
       :favourite_hashtag,
       :favourite_domain,
       :favourite_list,
@@ -135,6 +135,10 @@ class REST::InstanceSerializer < ActiveModel::Serializer
       :misskey_location,
       :status_reference,
     ]
+
+    capabilities << :profile_search unless Chewy.enabled?
+
+    capabilities
   end
 
   private

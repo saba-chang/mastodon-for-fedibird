@@ -45,6 +45,8 @@ class SearchResults extends ImmutablePureComponent {
 
   handleLoadMoreHashtags = () => this.props.expandSearch('hashtags');
 
+  handleLoadMoreProfiles = () => this.props.expandSearch('profiles');
+
   render () {
     const { intl, results, suggestions, dismissSuggestion, searchTerm } = this.props;
 
@@ -71,7 +73,7 @@ class SearchResults extends ImmutablePureComponent {
       );
     }
 
-    let accounts, statuses, hashtags;
+    let accounts, statuses, hashtags, profiles;
     let count = 0;
 
     if (results.get('accounts') && results.get('accounts').size > 0) {
@@ -83,6 +85,19 @@ class SearchResults extends ImmutablePureComponent {
           {results.get('accounts').map(accountId => <AccountContainer key={accountId} id={accountId} />)}
 
           {results.get('accounts').size >= 5 && <LoadMore visible onClick={this.handleLoadMoreAccounts} />}
+        </div>
+      );
+    }
+
+    if (results.get('profiles') && results.get('profiles').size > 0) {
+      count   += results.get('profiles').size;
+      profiles = (
+        <div className='search-results__section'>
+          <h5><Icon id='users' fixedWidth /><FormattedMessage id='search_results.profiles' defaultMessage='People with matching profiles' /></h5>
+
+          {results.get('profiles').map(accountId => <AccountContainer key={accountId} id={accountId} />)}
+
+          {results.get('profiles').size >= 5 && <LoadMore visible onClick={this.handleLoadMoreProfiles} />}
         </div>
       );
     }
@@ -131,6 +146,7 @@ class SearchResults extends ImmutablePureComponent {
         </div>
 
         {accounts}
+        {profiles}
         {statuses}
         {hashtags}
       </div>
