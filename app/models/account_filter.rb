@@ -7,7 +7,8 @@ class AccountFilter
     by_domain
     active
     pending
-    silenced
+    soft_silenced
+    hard_silenced
     suspended
     username
     display_name
@@ -38,7 +39,7 @@ class AccountFilter
 
   def set_defaults!
     params['local']  = '1' if params['remote'].blank?
-    params['active'] = '1' if params['suspended'].blank? && params['silenced'].blank? && params['pending'].blank?
+    params['active'] = '1' if params['suspended'].blank? && params['soft_silenced'].blank? && params['hard_silenced'].blank? && params['pending'].blank?
     params['order']  = 'recent' if params['order'].blank?
   end
 
@@ -58,6 +59,10 @@ class AccountFilter
       accounts_with_users.merge(User.disabled)
     when 'silenced'
       Account.silenced
+    when 'soft_silenced'
+      Account.soft_silenced
+    when 'hard_silenced'
+      Account.hard_silenced
     when 'suspended'
       Account.suspended
     when 'username'

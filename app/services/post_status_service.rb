@@ -73,6 +73,7 @@ class PostStatusService < BaseService
     @text           = @options.delete(:spoiler_text) if @text.blank? && @options[:spoiler_text].present?
     @visibility     = @options[:visibility] || @account.user&.setting_default_privacy
     @visibility     = :unlisted if @visibility&.to_sym == :public && @account.silenced?
+    @visibility     = :private if %i(public unlisted).include?(@visibility&.to_sym) && @account.hard_silenced?
     @visibility     = :limited if @circle.present?
     @visibility     = :limited if @visibility&.to_sym != :direct && @in_reply_to&.limited_visibility?
     @scheduled_at   = @options[:scheduled_at].is_a?(Time) ? @options[:scheduled_at] : @options[:scheduled_at]&.to_datetime&.to_time

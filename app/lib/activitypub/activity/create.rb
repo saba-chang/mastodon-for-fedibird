@@ -112,7 +112,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
         override_timestamps: @options[:override_timestamps],
         reply: @object['inReplyTo'].present?,
         sensitive: @account.sensitized? || @object['sensitive'] || false,
-        visibility: visibility_from_audience,
+        visibility: visibility_from_audience_with_silence,
         thread: replied_to_status,
         conversation: conversation_from_context,
         media_attachment_ids: process_attachments.take(4).map(&:id),

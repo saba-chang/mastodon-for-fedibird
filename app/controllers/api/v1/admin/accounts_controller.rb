@@ -24,6 +24,7 @@ class Api::V1::Admin::AccountsController < Api::BaseController
     disabled
     sensitized
     silenced
+    hard_silenced
     suspended
     username
     display_name

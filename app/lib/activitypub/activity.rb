@@ -320,6 +320,18 @@ class ActivityPub::Activity
     end
   end
 
+  def visibility_from_audience_with_silence
+    visibility = visibility_from_audience
+
+    if @account.hard_silenced? && %i(public, unlisted).include?(visibility)
+      :private
+    elsif @account.silenced? && %i(public).include?(visibility)
+      :unlisted
+    else
+      visibility
+    end
+  end
+
   def audience_includes?(account)
     uri = ActivityPub::TagManager.instance.uri_for(account)
     audience_to.include?(uri) || audience_cc.include?(uri)

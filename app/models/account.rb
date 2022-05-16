@@ -48,6 +48,7 @@
 #  suspension_origin             :integer
 #  sensitized_at                 :datetime
 #  settings                      :jsonb            default("{}"), not null
+#  silence_mode                  :integer          default(0), not null
 #
 
 class Account < ApplicationRecord
@@ -83,6 +84,7 @@ class Account < ApplicationRecord
 
   enum protocol: [:ostatus, :activitypub]
   enum suspension_origin: [:local, :remote], _prefix: true
+  enum silence_mode: { soft: 0, hard: 1 }, _suffix: :silence_mode
 
   validates :username, presence: true
   validates_with UniqueUsernameValidator, if: -> { will_save_change_to_username? }
@@ -101,6 +103,8 @@ class Account < ApplicationRecord
   scope :local, -> { where(domain: nil) }
   scope :partitioned, -> { order(Arel.sql('row_number() over (partition by domain)')) }
   scope :silenced, -> { where.not(silenced_at: nil) }
+  scope :soft_silenced, -> { where.not(silenced_at: nil).where(silence_mode: :soft) }
+  scope :hard_silenced, -> { where.not(silenced_at: nil).where(silence_mode: :hard) }
   scope :suspended, -> { where.not(suspended_at: nil) }
   scope :sensitized, -> { where.not(sensitized_at: nil) }
   scope :without_suspended, -> { where(suspended_at: nil) }
@@ -233,11 +237,19 @@ class Account < ApplicationRecord
   end
 
   def silence!(date = Time.now.utc)
-    update!(silenced_at: date)
+    update!(silenced_at: date, silence_mode: :soft)
   end
 
   def unsilence!
     update!(silenced_at: nil)
+  end
+
+  def hard_silenced?
+    silenced_at.present? && hard_silence_mode?
+  end
+
+  def hard_silence!(date = Time.now.utc)
+    update!(silenced_at: date, silence_mode: :hard)
   end
 
   def suspended?
