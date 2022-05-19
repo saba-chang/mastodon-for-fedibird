@@ -21,6 +21,10 @@ export default class Header extends ImmutablePureComponent {
     this.context.router.history.push(`/statuses/${this.props.status.get('id')}`);
   };
 
+  handleStatusCloseClick = () => {
+    this.context.router.history.push('/empty');
+  }
+
   render () {
     const { status, hideTabs } = this.props;
 

@@ -217,3 +217,7 @@ export function Trends () {
 export function Suggestions () {
   return import(/* webpackChunkName: "features/suggestions" */'../../suggestions');
 }
+
+export function EmptyColumn () {
+  return import(/* webpackChunkName: "features/empty" */'../../empty');
+}

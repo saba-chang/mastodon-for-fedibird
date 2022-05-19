@@ -65,8 +65,9 @@ import {
   FollowRecommendations,
   Trends,
   Suggestions,
+  EmptyColumn,
 } from './util/async-components';
-import { me } from '../../initial_state';
+import { me, enableEmptyColumn } from '../../initial_state';
 import { closeOnboarding, INTRODUCTION_VERSION } from 'mastodon/actions/onboarding';
 
 // Dummy import, to make sure that <Status /> ends up in the application bundle.
@@ -158,7 +159,7 @@ class SwitchingColumnsArea extends React.PureComponent {
 
   render () {
     const { children, mobile } = this.props;
-    const redirect = mobile ? <Redirect from='/' to='/timelines/home' exact /> : <Redirect from='/' to='/getting-started' exact />;
+    const redirect = mobile ? <Redirect from='/' to='/timelines/home' exact /> : enableEmptyColumn ? <Redirect from='/' to='/empty' exact /> : <Redirect from='/' to='/getting-started' exact />;
 
     return (
       <ColumnsAreaContainer ref={this.setRef} singleColumn={mobile}>
@@ -210,6 +211,8 @@ class SwitchingColumnsArea extends React.PureComponent {
           <WrappedRoute path='/mutes' component={Mutes} content={children} />
           <WrappedRoute path='/lists' component={Lists} content={children} />
           <WrappedRoute path='/circles' component={Circles} content={children} />
+
+          <WrappedRoute path='/empty' component={EmptyColumn} content={children} />
 
           <WrappedRoute component={GenericNotFound} content={children} />
         </WrappedSwitch>

@@ -136,7 +136,7 @@ class User < ApplicationRecord
            :theme_instance_ticker,
            :enable_status_reference, :match_visibility_of_references,
            :post_reference_modal, :add_reference_modal, :unselect_reference_modal,
-           :hexagon_avatar,
+           :hexagon_avatar, :enable_empty_column,
 
            to: :settings, prefix: :setting, allow_nil: false
 

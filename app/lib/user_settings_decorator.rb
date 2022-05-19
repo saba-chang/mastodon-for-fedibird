@@ -79,6 +79,7 @@ class UserSettingsDecorator
     user.settings['enable_status_reference']           = enable_status_reference_preference if change?('setting_enable_status_reference')
     user.settings['match_visibility_of_references']    = match_visibility_of_references_preference if change?('setting_match_visibility_of_references')
     user.settings['hexagon_avatar']                    = hexagon_avatar_preference if change?('setting_hexagon_avatar')
+    user.settings['enable_empty_column']               = enable_empty_column_preference if change?('setting_enable_empty_column')
 end
 
   def merged_notification_emails
@@ -279,6 +280,10 @@ end
 
   def match_visibility_of_references_preference
     boolean_cast_setting 'setting_match_visibility_of_references'
+  end
+
+  def enable_empty_column_preference
+    boolean_cast_setting 'setting_enable_empty_column'
   end
 
   def boolean_cast_setting(key)

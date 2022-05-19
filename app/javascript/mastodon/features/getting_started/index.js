@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import ImmutablePureComponent from 'react-immutable-pure-component';
-import { me, profile_directory, showTrends, enable_limited_timeline } from '../../initial_state';
+import { me, profile_directory, showTrends, enable_limited_timeline, enableEmptyColumn } from '../../initial_state';
 import { fetchFollowRequests } from 'mastodon/actions/accounts';
 import { fetchFavouriteDomains } from 'mastodon/actions/favourite_domains';
 import { fetchFavouriteTags } from 'mastodon/actions/favourite_tags';
@@ -19,6 +19,7 @@ import { getOrderedLists } from 'mastodon/features/ui/components/list_panel';
 import { getOrderedDomains } from 'mastodon/features/ui/components/favourite_domain_panel';
 import { getOrderedTags } from 'mastodon/features/ui/components/favourite_tag_panel';
 import TrendsContainer from './containers/trends_container';
+import ColumnBackButton from 'mastodon/components/column_back_button';
 
 const messages = defineMessages({
   home_timeline: { id: 'tabs_bar.home', defaultMessage: 'Home' },
@@ -270,6 +271,7 @@ class GettingStarted extends ImmutablePureComponent {
               <Icon id='bars' className='column-header__icon' fixedWidth />
               <FormattedMessage id='getting_started.heading' defaultMessage='Getting started' />
             </button>
+            {enableEmptyColumn && <div className='column-header__buttons'><ColumnBackButton multiColumn={multiColumn} /></div>}
           </h1>
         </div>}
 

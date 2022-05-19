@@ -49,5 +49,6 @@ export const new_features_policy = getMeta('new_features_policy');
 export const enableStatusReference = getMeta('enable_status_reference');
 export const maxReferences = initialState?.status_references?.max_references;
 export const matchVisibilityOfReferences = getMeta('match_visibility_of_references');
+export const enableEmptyColumn = getMeta('enable_empty_column');
 
 export default initialState;
