@@ -3,6 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import PropTypes from 'prop-types';
 import Icon from 'mastodon/components/icon';
 import { createPortal } from 'react-dom';
+import { enableEmptyColumn } from 'mastodon/initial_state';
 
 export default class ColumnBackButton extends React.PureComponent {
 
@@ -22,6 +23,10 @@ export default class ColumnBackButton extends React.PureComponent {
     }
   }
 
+  handleCloseClick = () => {
+    this.context.router.history.push('/empty');
+  }
+
   render () {
     const { multiColumn } = this.props;
 
@@ -32,8 +37,15 @@ export default class ColumnBackButton extends React.PureComponent {
       </button>
     );
 
+    const backButton = enableEmptyColumn ? (
+      <button onClick={this.handleCloseClick} className='column-back-button'>
+        <Icon id='chevron-left' className='column-back-button__icon' fixedWidth />
+        <FormattedMessage id='column_close_button.label' defaultMessage='Close' />
+      </button>
+    ) : component;
+
     if (multiColumn) {
-      return component;
+      return backButton;
     } else {
       // The portal container and the component may be rendered to the DOM in
       // the same React render pass, so the container might not be available at

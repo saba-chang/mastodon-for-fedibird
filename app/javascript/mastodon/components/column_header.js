@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import { FormattedMessage, injectIntl, defineMessages } from 'react-intl';
 import Icon from 'mastodon/components/icon';
+import { enableEmptyColumn } from 'mastodon/initial_state';
 
 const messages = defineMessages({
   show: { id: 'column_header.show_settings', defaultMessage: 'Show settings' },
@@ -71,6 +72,10 @@ class ColumnHeader extends React.PureComponent {
     this.historyBack();
   }
 
+  handleCloseClick = () => {
+    this.context.router.history.push('/empty');
+  }
+
   handleTransitionEnd = () => {
     this.setState({ animating: false });
   }
@@ -128,7 +133,12 @@ class ColumnHeader extends React.PureComponent {
     }
 
     if (!pinned && (multiColumn || showBackButton)) {
-      backButton = (
+      backButton = multiColumn && enableEmptyColumn ? (
+        <button onClick={this.handleCloseClick} className='column-header__back-button'>
+          <Icon id='chevron-left' className='column-back-button__icon' fixedWidth />
+          <FormattedMessage id='column_close_button.label' defaultMessage='Close' />
+        </button>
+      ) : (
         <button onClick={this.handleBackClick} className='column-header__back-button'>
           <Icon id='chevron-left' className='column-back-button__icon' fixedWidth />
           <FormattedMessage id='column_back_button.label' defaultMessage='Back' />

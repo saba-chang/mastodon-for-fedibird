@@ -63,6 +63,7 @@ class InitialStateSerializer < ActiveModel::Serializer
       store[:post_reference_modal]              = object.current_account.user.setting_post_reference_modal
       store[:add_reference_modal]               = object.current_account.user.setting_add_reference_modal
       store[:unselect_reference_modal]          = object.current_account.user.setting_unselect_reference_modal
+      store[:enable_empty_column]               = object.current_account.user.setting_enable_empty_column
 
     else
       store[:auto_play_gif] = Setting.auto_play_gif

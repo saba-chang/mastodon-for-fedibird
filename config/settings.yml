@@ -97,6 +97,7 @@ defaults: &defaults
   add_reference_modal: true
   unselect_reference_modal: false
   hexagon_avatar: false
+  enable_empty_column: false
 
 development:
   <<: *defaults

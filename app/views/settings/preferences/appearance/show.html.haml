@@ -31,6 +31,9 @@
   .fields-group
     = f.input :setting_advanced_layout, as: :boolean, wrapper: :with_label, hint: false
 
+  .fields-group
+    = f.input :setting_enable_empty_column, as: :boolean, wrapper: :with_label, fedibird_features: true
+
   %h4= t 'appearance.animations_and_accessibility'
 
   .fields-group

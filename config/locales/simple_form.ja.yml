@@ -58,6 +58,7 @@ ja:
         setting_display_media_default: 閲覧注意としてマークされたメディアは隠す
         setting_display_media_hide_all: メディアを常に隠す
         setting_display_media_show_all: メディアを常に表示する
+        setting_enable_empty_column: 最後のカラムを初期状態で非表示にし、任意に閉じられるようにします
         setting_enable_limited_timeline: フォロワー限定・サークル・ダイレクトメッセージを表示する限定ホームを有効にします
         setting_enable_reaction: タイムラインでリアクションの表示を有効にし、リアクションボタンを表示する
         setting_enable_status_reference: 投稿が別の投稿を参照する機能を有効にします
@@ -214,6 +215,7 @@ ja:
         setting_display_media_default: 標準
         setting_display_media_hide_all: 非表示
         setting_display_media_show_all: 表示
+        setting_enable_empty_column: 最終カラムを閉じられるようにする
         setting_enable_limited_timeline: 限定ホームを有効にする
         setting_enable_reaction: リアクションを有効にする
         setting_enable_status_reference: 参照を有効にする
