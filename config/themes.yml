@@ -13,3 +13,5 @@ mastodon-material-v2-dark: styles/mastodon-material-v2-dark.scss
 mastodon-material-mastodon-light: styles/mastodon-material-mastodon-light.scss
 mastodon-material-mastodon-dark: styles/mastodon-material-mastodon-dark.scss
 mastodon-material-google-plus: styles/mastodon-material-google-plus.scss
+modern-dark: styles/modern-dark.scss
+modern-light: styles/modern-light.scss

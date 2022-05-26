@@ -1482,6 +1482,8 @@ ja:
     missing-contrast: Mastodon-missing (ハイコントラスト)
     missing-light: Mastodon-missing (ライト)
     mobile-small: Mobile 小 / Mastodon (ダーク)
+    modern-dark: モダン（ダーク）
+    modern-light: モダン（ライト）
   thread_mark:
     ancestor: 参照あり
     both: 参照・返信あり

@@ -1579,6 +1579,8 @@ en:
     missing-contrast: Mastodon-missing (High contrast)
     missing-light: Mastodon-missing (Light)
     mobile-small: Mobile Small / Mastodon (Dark)
+    modern-dark: Modern Dark
+    modern-light: Modern Light
   thread_mark:
     ancestor: Has reference
     both: Has reference and reply
