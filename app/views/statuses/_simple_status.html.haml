@@ -4,7 +4,8 @@
   has_ancestor     = has_reference || !hide_show_thread && (current_account.nil? || current_account&.user&.setting_show_reply_tree_button) && status.reply?
   has_descendant   = !hide_show_thread && (current_account.nil? || current_account&.user&.setting_show_reply_tree_button) && status.replies_count > 0
   thread_mark_type = (has_ancestor && has_descendant) ? 'both' : (has_ancestor ? 'ancestor' : (has_descendant ? 'descendant' : ''))
-
+  enable_reaction  = current_account.nil? || current_account&.user&.setting_enable_reaction
+  compact_reaction = !hide_show_thread && !current_account.nil? && current_account&.user&.setting_compact_reaction
 
 .status{ class: "status-#{status.visibility}" }
   .status__info
@@ -58,7 +59,7 @@
     = link_to ActivityPub::TagManager.instance.url_for(status), class: 'status__content__read-more-button', target: stream_link_target, rel: 'noopener noreferrer' do
       = t 'statuses.show_thread'
 
-  - if status.emoji_reaction?
+  - if enable_reaction && !compact_reaction && status.emoji_reaction?
     .reactions-bar.emoji-reactions-bar
       = render partial: 'statuses/reaction_item', collection: status.grouped_emoji_reactions(current_account), as: :reaction_item
 
@@ -78,3 +79,7 @@
         = fa_icon 'envelope fw'
     = link_to remote_interaction_path(status, type: :favourite), class: 'status__action-bar-button icon-button modal-button' do
       = fa_icon 'star fw'
+    - if enable_reaction && compact_reaction && status.emoji_reaction?
+      .status__action-bar-button.icon-button.icon-button--with-counter.disabled
+        = fa_icon 'smile-o'
+        %span.icon-button__counter= obscured_counter status.emoji_reactions_count

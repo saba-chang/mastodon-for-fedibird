@@ -316,6 +316,7 @@ export default class ReactionPickerDropdown extends React.PureComponent {
     onClose: PropTypes.func.isRequired,
     skinTone: PropTypes.number.isRequired,
     frequentlyUsedEmojis: PropTypes.arrayOf(PropTypes.string),
+    counter: PropTypes.number,
   };
 
   static defaultProps = {
@@ -387,7 +388,7 @@ export default class ReactionPickerDropdown extends React.PureComponent {
   }
 
   render () {
-    const { icon, size, title, disabled, dropdownPlacement, openDropdownId, openedViaKeyboard, active, pressed, iconButtonClass } = this.props;
+    const { icon, size, title, disabled, dropdownPlacement, openDropdownId, openedViaKeyboard, active, pressed, iconButtonClass, counter } = this.props;
     const { custom_emojis, onPickEmoji, onSkinTone, skinTone, frequentlyUsedEmojis } = this.props;
     const open = this.state.id === openDropdownId;
 
@@ -406,6 +407,7 @@ export default class ReactionPickerDropdown extends React.PureComponent {
           onMouseDown={this.handleMouseDown}
           onKeyDown={this.handleButtonKeyDown}
           onKeyPress={this.handleKeyPress}
+          counter={counter}
         />
 
         <Overlay show={open} placement={dropdownPlacement} target={this.findTarget}>

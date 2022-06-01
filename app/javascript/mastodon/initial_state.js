@@ -43,6 +43,7 @@ export const place_tab_bar_at_bottom = getMeta('place_tab_bar_at_bottom');
 export const show_tab_bar_label = getMeta('show_tab_bar_label');
 export const enable_limited_timeline = getMeta('enable_limited_timeline');
 export const enableReaction = getMeta('enable_reaction');
+export const compactReaction = getMeta('compact_reaction');
 export const show_reply_tree_button = getMeta('show_reply_tree_button');
 export const disable_joke_appearance = getMeta('disable_joke_appearance');
 export const new_features_policy = getMeta('new_features_policy');

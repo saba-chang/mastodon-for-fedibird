@@ -72,6 +72,7 @@ class Settings::PreferencesController < Settings::BaseController
       :setting_show_target,
       :setting_enable_limited_timeline,
       :setting_enable_reaction,
+      :setting_compact_reaction,
       :setting_show_reply_tree_button,
       :setting_hide_statuses_count,
       :setting_hide_following_count,

@@ -19,7 +19,7 @@ import classNames from 'classnames';
 import Icon from 'mastodon/components/icon';
 import EmojiReactionsBar from 'mastodon/components/emoji_reactions_bar';
 import PictureInPicturePlaceholder from 'mastodon/components/picture_in_picture_placeholder';
-import { displayMedia, enableReaction, show_reply_tree_button, enableStatusReference  } from 'mastodon/initial_state';
+import { displayMedia, enableReaction, compactReaction, show_reply_tree_button, enableStatusReference  } from 'mastodon/initial_state';
 import { List as ImmutableList } from 'immutable';
 
 // We use the component (and not the container) since we do not want
@@ -766,7 +766,7 @@ class Status extends ImmutablePureComponent {
             {quote}
             {media}
 
-            {enableReaction && <EmojiReactionsBar
+            {enableReaction && (contextType == 'thread' || !compactReaction) && <EmojiReactionsBar
               status={status}
               addEmojiReaction={this.props.addEmojiReaction}
               removeEmojiReaction={this.props.removeEmojiReaction}
