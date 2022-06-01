@@ -1,3 +1,7 @@
+:ruby
+  enable_reaction  = current_account.nil? || current_account&.user&.setting_enable_reaction
+  compact_reaction = !current_account.nil? && current_account&.user&.setting_compact_reaction
+
 .detailed-status.detailed-status--flex{ class: "detailed-status-#{status.visibility}" }
   .p-author.h-card
     = link_to ActivityPub::TagManager.instance.url_for(status.account), class: 'detailed-status__display-name u-url', target: stream_link_target, rel: 'noopener' do
@@ -38,7 +42,7 @@
   - elsif status.preview_card
     = render_card_component(status)
 
-  - if status.emoji_reaction?
+  - if enable_reaction && status.emoji_reaction?
     .reactions-bar.emoji-reactions-bar
       = render partial: 'statuses/reaction_item', collection: status.grouped_emoji_reactions(current_account), as: :reaction_item
 

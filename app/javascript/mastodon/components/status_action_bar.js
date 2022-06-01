@@ -6,7 +6,7 @@ import IconButton from './icon_button';
 import DropdownMenuContainer from '../containers/dropdown_menu_container';
 import { defineMessages, injectIntl } from 'react-intl';
 import ImmutablePureComponent from 'react-immutable-pure-component';
-import { me, isStaff, show_bookmark_button, show_quote_button, enableReaction, enableStatusReference, maxReferences, matchVisibilityOfReferences, addReferenceModal } from '../initial_state';
+import { me, isStaff, show_bookmark_button, show_quote_button, enableReaction, compactReaction, enableStatusReference, maxReferences, matchVisibilityOfReferences, addReferenceModal } from '../initial_state';
 import classNames from 'classnames';
 import { openModal } from '../actions/modal';
 
@@ -84,6 +84,7 @@ class StatusActionBar extends ImmutablePureComponent {
     referenceCountLimit: PropTypes.bool,
     selected: PropTypes.bool,
     composePrivacy: PropTypes.string,
+    contextType: PropTypes.string,
     onReply: PropTypes.func,
     onFavourite: PropTypes.func,
     onReblog: PropTypes.func,
@@ -326,7 +327,7 @@ class StatusActionBar extends ImmutablePureComponent {
   }
 
   render () {
-    const { status, relationship, intl, withDismiss, scrollKey, expired, referenced, contextReferenced, referenceCountLimit } = this.props;
+    const { status, relationship, intl, withDismiss, scrollKey, expired, referenced, contextReferenced, referenceCountLimit, contextType } = this.props;
 
     const anonymousAccess    = !me;
     const publicStatus       = ['public', 'unlisted'].includes(status.get('visibility'));
@@ -469,6 +470,8 @@ class StatusActionBar extends ImmutablePureComponent {
 
     const referenceDisabled = expired || !referenced && referenceCountLimit || ['limited', 'direct'].includes(status.get('visibility'));
 
+    const reactionsCounter = compactReaction && contextType != 'thread' && status.get('emoji_reactions_count') > 0 ? status.get('emoji_reactions_count') : undefined;
+
     return (
       <div className='status__action-bar'>
         <IconButton className='status__action-bar-button' disabled={expired} title={replyTitle} icon={status.get('in_reply_to_account_id') === status.getIn(['account', 'id']) ? 'reply' : replyIcon} onClick={this.handleReplyClick} counter={status.get('replies_count')} obfuscateCount />
@@ -479,7 +482,7 @@ class StatusActionBar extends ImmutablePureComponent {
         {shareButton}
         {show_bookmark_button && <IconButton className='status__action-bar-button bookmark-icon' disabled={!bookmarked && expired} active={bookmarked} pressed={bookmarked} title={intl.formatMessage(bookmarked ? messages.removeBookmark : messages.bookmark)} icon='bookmark' onClick={this.handleBookmarkClick} />}
 
-        {enableReaction && <div className='status__action-bar-dropdown'>
+        {enableReaction && <div className={classNames('status__action-bar-dropdown', {'icon-button--with-counter': reactionsCounter})}>
           <ReactionPickerDropdownContainer
             scrollKey={scrollKey}
             disabled={expired}
@@ -492,6 +495,7 @@ class StatusActionBar extends ImmutablePureComponent {
             icon='smile-o'
             size={18}
             direction='right'
+            counter={reactionsCounter}
             onPickEmoji={this.handleEmojiPick}
             onRemoveEmoji={this.handleEmojiRemove}
           />
