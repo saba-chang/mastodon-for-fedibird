@@ -137,6 +137,9 @@ class User < ApplicationRecord
            :enable_status_reference, :match_visibility_of_references,
            :post_reference_modal, :add_reference_modal, :unselect_reference_modal,
            :hexagon_avatar, :enable_empty_column,
+           :content_font_size, :info_font_size, :content_emoji_reaction_size,
+           :multi_column_customize, :multi_column_content_font_size, :multi_column_info_font_size, :multi_column_content_emoji_reaction_size,
+           :mobile_customize, :mobile_content_font_size, :mobile_info_font_size, :mobile_content_emoji_reaction_size,
 
            to: :settings, prefix: :setting, allow_nil: false
 

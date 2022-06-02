@@ -206,6 +206,8 @@ ja:
         setting_auto_play_gif: アニメーションGIFを自動再生する
         setting_boost_modal: ブーストする前に確認ダイアログを表示する
         setting_compact_reaction: リアクションをコンパクトに表示
+        setting_content_emoji_reaction_size: 投稿の絵文字リアクションのサイズ
+        setting_content_font_size: 投稿のフォントサイズ
         setting_crop_images: 投稿の詳細以外では画像を16:9に切り抜く
         setting_default_language: 投稿する言語
         setting_default_privacy: 投稿の公開範囲
@@ -228,6 +230,7 @@ ja:
         setting_hide_following_count: フォロー数を隠す
         setting_hide_network: 繋がりを隠す
         setting_hide_statuses_count: 投稿数を隠す
+        setting_info_font_size: 情報ヘッダのフォントサイズ
         setting_match_visibility_of_references: 投稿の公開範囲を参照先に合わせる
         setting_new_features_policy: 新機能へのポリシー
         setting_new_features_policy_conservative: 無効にしておき、自分で判断する

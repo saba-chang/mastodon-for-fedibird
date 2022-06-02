@@ -60,6 +60,9 @@ defaults: &defaults
   disable_joke_appearance: false
   new_features_policy: 'default'
   enable_status_reference: true
+  content_font_size: 15
+  info_font_size: 15
+  content_emoji_reaction_size: 16
   notification_emails:
     follow: false
     reblog: false
