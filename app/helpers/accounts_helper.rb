@@ -118,6 +118,16 @@ module AccountsHelper
     end.join("\n")
   end
 
+  def account_theme_valiables
+    return if current_user.nil?
+
+    ":root {
+      --content-font-size: #{h(current_user.setting_content_font_size)}px;
+      --info-font-size: #{h(current_user.setting_info_font_size)}px;
+      --content-emoji-reaction-size: #{h(current_user.setting_content_emoji_reaction_size)}px;
+    }"
+  end
+
   def svg_logo
     content_tag(:svg, tag(:use, 'xlink:href' => '#mastodon-svg-logo'), 'viewBox' => '0 0 216.4144 232.00976')
   end

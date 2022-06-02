@@ -543,10 +543,10 @@ $small-breakpoint: 960px;
       }
 
       .display-name {
-        font-size: 15px;
+        font-size: var(--info-font-size, 15px);
 
         &__account {
-          font-size: 14px;
+          font-size: calc(var(--info-font-size, 15px)*0.933);
         }
       }
     }

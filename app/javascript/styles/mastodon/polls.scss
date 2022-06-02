@@ -1,6 +1,6 @@
 .poll {
-  margin-top: 16px;
-  font-size: 14px;
+  margin-top: calc(var(--content-font-size, 15px)*1.067);
+  font-size: calc(var(--content-font-size, 15px)*0.933);
 
   li {
     margin-bottom: 10px;
@@ -53,7 +53,7 @@
     position: relative;
     display: flex;
     padding: 6px 0;
-    line-height: 18px;
+    line-height: calc(var(--content-font-size, 15px)*1.2);
     cursor: default;
     overflow: hidden;
 

@@ -837,8 +837,8 @@
 .reply-indicator__content,
 .quote-indicator__content {
   position: relative;
-  font-size: 15px;
-  line-height: 20px;
+  font-size: var(--content-font-size, 15px);
+  line-height: calc(var(--content-font-size, 15px)*1.33);
   word-wrap: break-word;
   font-weight: 400;
   overflow: hidden;
@@ -859,13 +859,13 @@
   }
 
   .emojione {
-    width: 20px;
-    height: 20px;
+    width: calc(var(--content-font-size, 15px)*1.33);
+    height: calc(var(--content-font-size, 15px)*1.33);
     margin: -3px 0 0;
   }
 
   p {
-    margin-bottom: 20px;
+    margin-bottom: calc(var(--content-font-size, 15px)*1.33);
     white-space: pre-wrap;
     unicode-bidi: plaintext;
 
@@ -939,8 +939,8 @@
   overflow-y: auto;
 
   .emojione {
-    width: 20px;
-    height: 20px;
+    width: calc(var(--content-font-size, 15px)*1.33);
+    height: calc(var(--content-font-size, 15px)*1.33);
     margin: -3px 0 0;
   }
 
@@ -1189,7 +1189,7 @@
 .notification__relative_time {
   color: $dark-text-color;
   float: right;
-  font-size: 14px;
+  font-size: calc(var(--info-font-size, 15px)*0.933);
   padding-bottom: 1px;
 }
 
@@ -1242,7 +1242,7 @@
 }
 
 .status__info {
-  font-size: 15px;
+  font-size: var(--info-font-size, 15px);
 }
 
 .status-check-box {
@@ -1288,7 +1288,7 @@
   color: $dark-text-color;
   padding: 8px 0;
   padding-bottom: 2px;
-  font-size: 14px;
+  font-size: calc(var(--content-font-size, 15px)*0.933);
   position: relative;
 
   .status__display-name strong {
@@ -1364,17 +1364,17 @@
   }
 
   .status__content {
-    font-size: 19px;
-    line-height: 24px;
+    font-size: calc(var(--content-font-size, 15px)*1.27);
+    line-height: calc(var(--content-font-size, 15px)*1.6);
 
     .emojione {
-      width: 24px;
-      height: 24px;
+      width: calc(var(--content-font-size, 15px)*1.6);
+      height: calc(var(--content-font-size, 15px)*1.6);
       margin: -1px 0 0;
     }
 
     .status__content__spoiler-link {
-      line-height: 24px;
+      line-height: calc(var(--content-font-size, 15px)*1.6);
       margin: -1px 0 0;
     }
   }
@@ -1500,7 +1500,7 @@
     color: $darker-text-color;
     overflow: hidden;
     text-decoration: none;
-    font-size: 14px;
+    font-size: calc(var(--info-font-size, 15px)*0.933);
 
     &--with-note {
       strong {
@@ -1563,7 +1563,7 @@
   &__display-name__html {
     color: $black;
     text-decoration: none;
-    font-size: 13px;
+    font-size: calc(var(--info-font-size, 15px)*0.867);
   }
 }
 
@@ -1854,8 +1854,8 @@ a.account__display-name {
   padding: 8px 0 0;
   cursor: default;
   color: $darker-text-color;
-  font-size: 15px;
-  line-height: 22px;
+  font-size: calc(var(--content-font-size, 15px)*0.933);
+  line-height: calc(var(--content-font-size, 15px)*1.467);
   position: relative;
 
   .fa {
@@ -1928,7 +1928,7 @@ a.account__display-name {
 }
 
 .display-name__account {
-  font-size: 14px;
+  font-size: calc(var(--info-font-size, 15px)*0.933);
 }
 
 .status__relative-time,
@@ -6390,7 +6390,7 @@ a.status-card.compact:hover {
         text-align: left;
 
         strong {
-          font-size: 15px;
+          font-size: var(--info-font-size, 15px);
           color: $primary-text-color;
           font-weight: 500;
           overflow: hidden;
@@ -6399,7 +6399,7 @@ a.status-card.compact:hover {
 
         span {
           display: block;
-          font-size: 14px;
+          font-size: calc(var(--info-font-size, 15px)*0.933);
           color: $darker-text-color;
           font-weight: 400;
           overflow: hidden;
@@ -6508,7 +6508,7 @@ a.status-card.compact:hover {
         text-align: left;
 
         strong {
-          font-size: 15px;
+          font-size: var(--info-font-size, 15px);
           color: $primary-text-color;
           font-weight: 500;
           overflow: hidden;
@@ -6517,7 +6517,7 @@ a.status-card.compact:hover {
 
         span {
           display: block;
-          font-size: 14px;
+          font-size: calc(var(--info-font-size, 15px)*0.933);
           color: $darker-text-color;
           font-weight: 400;
           overflow: hidden;
@@ -7448,7 +7448,7 @@ noscript {
       }
 
       h1 {
-        font-size: 16px;
+        font-size: calc(var(--info-font-size, 15px)*1.067);
         line-height: 24px;
         color: $primary-text-color;
         font-weight: 500;
@@ -7458,7 +7458,7 @@ noscript {
 
         small {
           display: block;
-          font-size: 14px;
+          font-size: calc(var(--info-font-size, 15px)*0.933);
           color: $darker-text-color;
           font-weight: 400;
           overflow: hidden;
@@ -7737,20 +7737,20 @@ noscript {
     }
 
     &__relative-time {
-      font-size: 15px;
+      font-size: var(--info-font-size, 15px);
       color: $darker-text-color;
       padding-left: 15px;
     }
 
     &__expiration-time {
-      font-size: 15px;
+      font-size: var(--info-font-size, 15px);
       color: $darker-text-color;
       padding-left: 15px;
     }
 
     &__names {
       color: $darker-text-color;
-      font-size: 15px;
+      font-size: var(--info-font-size, 15px);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -7892,8 +7892,8 @@ noscript {
     &__emoji {
       display: block;
       margin: 3px 0;
-      width: 16px;
-      height: 16px;
+      width: var(--content-emoji-reaction-size, 16px);
+      height: var(--content-emoji-reaction-size, 16px);
 
       img {
         display: block;

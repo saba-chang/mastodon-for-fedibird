@@ -81,6 +81,9 @@ class UserSettingsDecorator
     user.settings['match_visibility_of_references']    = match_visibility_of_references_preference if change?('setting_match_visibility_of_references')
     user.settings['hexagon_avatar']                    = hexagon_avatar_preference if change?('setting_hexagon_avatar')
     user.settings['enable_empty_column']               = enable_empty_column_preference if change?('setting_enable_empty_column')
+    user.settings['content_font_size']                 = content_font_size_preference if change?('setting_content_font_size')
+    user.settings['info_font_size']                    = info_font_size_preference if change?('setting_info_font_size')
+    user.settings['content_emoji_reaction_size']       = content_emoji_reaction_size_preference if change?('setting_content_emoji_reaction_size')
 end
 
   def merged_notification_emails
@@ -289,6 +292,18 @@ end
 
   def enable_empty_column_preference
     boolean_cast_setting 'setting_enable_empty_column'
+  end
+
+  def content_font_size_preference
+    settings['setting_content_font_size']
+  end
+
+  def info_font_size_preference
+    settings['setting_info_font_size']
+  end
+
+  def content_emoji_reaction_size_preference
+    settings['setting_content_emoji_reaction_size']
   end
 
   def boolean_cast_setting(key)
