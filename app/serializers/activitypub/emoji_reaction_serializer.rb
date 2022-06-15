@@ -4,14 +4,14 @@ class ActivityPub::EmojiReactionSerializer < ActivityPub::Serializer
   attributes :id, :type, :actor, :content
   attribute :virtual_object, key: :object
 
-  has_one :custom_emoji ,key: :tag, serializer: ActivityPub::EmojiSerializer, unless: -> { object.custom_emoji.nil? }
+  has_many :virtual_tags, key: :tag, unless: -> { object.custom_emoji.nil? }
 
   def id
     ActivityPub::TagManager.instance.uri_for(object)
   end
 
   def type
-    'Like'
+    object.custom_emoji.nil? ? 'EmojiReact' : 'Like'
   end
 
   def actor
@@ -24,5 +24,11 @@ class ActivityPub::EmojiReactionSerializer < ActivityPub::Serializer
 
   def content
     object.custom_emoji.nil? ? object.name : ":#{object.name}:"
+  end
+  def virtual_tags
+    [object.custom_emoji]
+  end
+
+  class CustomEmojiSerializer < ActivityPub::EmojiSerializer
   end
 end
