@@ -661,6 +661,9 @@ en:
       show_known_fediverse_at_about_page:
         desc_html: When disabled, restricts the public timeline linked from the landing page to showing only local content
         title: Include federated content on unauthenticated public timeline page
+      show_moderator_badge:
+        desc_html: Show a moderator badge on a user page
+        title: Show moderator badge
       show_staff_badge:
         desc_html: Show a staff badge on a user page
         title: Show staff badge

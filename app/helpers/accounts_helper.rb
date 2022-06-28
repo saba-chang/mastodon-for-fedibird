@@ -70,7 +70,7 @@ module AccountsHelper
           content_tag(:div, t('admin.accounts.roles.user'), class: 'account-role')
         elsif account.user_admin?
           content_tag(:div, t('accounts.roles.admin'), class: 'account-role admin')
-        elsif account.user_moderator?
+        elsif Setting.show_moderator_badge && account.user_moderator?
           content_tag(:div, t('accounts.roles.moderator'), class: 'account-role moderator')
         end
       end
