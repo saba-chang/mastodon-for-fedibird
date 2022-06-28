@@ -10,7 +10,7 @@ class NodeInfo::Serializer < ActiveModel::Serializer
   end
 
   def software
-    { name: 'mastodon', version: Mastodon::Version.to_s }
+    { name: 'fedibird', version: Mastodon::Version.fedibird_verson }
   end
 
   def services
@@ -39,12 +39,10 @@ class NodeInfo::Serializer < ActiveModel::Serializer
 
   def metadata
     {
-      forks: [
-        {
-          name: 'fedibird',
-          version: Mastodon::Version.fedibird_verson,
-        },
-      ],
+      upstream: {
+        name: 'mastodon',
+        version: Mastodon::Version.to_s,
+      },
     }
   end
 
