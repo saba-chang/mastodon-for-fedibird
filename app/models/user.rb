@@ -140,6 +140,7 @@ class User < ApplicationRecord
            :content_font_size, :info_font_size, :content_emoji_reaction_size,
            :multi_column_customize, :multi_column_content_font_size, :multi_column_info_font_size, :multi_column_content_emoji_reaction_size,
            :mobile_customize, :mobile_content_font_size, :mobile_info_font_size, :mobile_content_emoji_reaction_size,
+           :hide_bot_on_public_timeline,
 
            to: :settings, prefix: :setting, allow_nil: false
 

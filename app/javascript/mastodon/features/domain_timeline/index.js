@@ -15,12 +15,16 @@ const mapStateToProps = (state, props) => {
   const columns = state.getIn(['settings', 'columns']);
   const index = columns.findIndex(c => c.get('uuid') === uuid);
   const onlyMedia = (props.columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'onlyMedia']) : state.getIn(['settings', 'domain', 'other', 'onlyMedia']);
-  const timelineState = state.getIn(['timelines', `domain${onlyMedia ? ':media' : ''}:${domain}`]);
+  const withoutMedia = (props.columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'withoutMedia']) : state.getIn(['settings', 'domain', 'other', 'withoutMedia']);
+  const withoutBot = (props.columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'withoutBot']) : state.getIn(['settings', 'domain', 'other', 'withoutBot']);
+  const timelineState = state.getIn(['timelines', `domain${withoutBot ? ':nobot' : ':bot'}${withoutMedia ? ':nomedia' : ''}${onlyMedia ? ':media' : ''}:${domain}`]);
   const domain = props.params.domain;
 
   return {
     hasUnread: !!timelineState && timelineState.get('unread') > 0,
     onlyMedia,
+    withoutMedia,
+    withoutBot,
     domain: domain,
   };
 };
@@ -35,6 +39,8 @@ class DomainTimeline extends React.PureComponent {
 
   static defaultProps = {
     onlyMedia: false,
+    withoutMedia: false,
+    withoutBot: false,
   };
 
   static propTypes = {
@@ -45,16 +51,18 @@ class DomainTimeline extends React.PureComponent {
     hasUnread: PropTypes.bool,
     multiColumn: PropTypes.bool,
     onlyMedia: PropTypes.bool,
+    withoutMedia: PropTypes.bool,
+    withoutBot: PropTypes.bool,
     domain: PropTypes.string,
   };
 
   handlePin = () => {
-    const { columnId, dispatch, onlyMedia, domain } = this.props;
+    const { columnId, dispatch, onlyMedia, withoutMedia, withoutBot, domain } = this.props;
 
     if (columnId) {
       dispatch(removeColumn(columnId));
     } else {
-      dispatch(addColumn('DOMAIN', { domain, other: { onlyMedia } }));
+      dispatch(addColumn('DOMAIN', { domain, other: { onlyMedia, withoutMedia, withoutBot } }));
     }
   }
 
@@ -68,19 +76,19 @@ class DomainTimeline extends React.PureComponent {
   }
 
   componentDidMount () {
-    const { dispatch, onlyMedia, domain } = this.props;
+    const { dispatch, onlyMedia, withoutMedia, withoutBot, domain } = this.props;
 
-    dispatch(expandDomainTimeline(domain, { onlyMedia }));
-    this.disconnect = dispatch(connectDomainStream(domain, { onlyMedia }));
+    dispatch(expandDomainTimeline(domain, { onlyMedia, withoutMedia, withoutBot }));
+    this.disconnect = dispatch(connectDomainStream(domain, { onlyMedia, withoutMedia, withoutBot }));
   }
 
   componentDidUpdate (prevProps) {
-    if (prevProps.onlyMedia !== this.props.onlyMedia || prevProps.domain !== this.props.domain) {
-      const { dispatch, onlyMedia, domain } = this.props;
+    if (prevProps.onlyMedia !== this.props.onlyMedia || prevProps.withoutMedia !== this.props.withoutMedia || prevProps.withoutBot !== this.props.withoutBot || prevProps.domain !== this.props.domain) {
+      const { dispatch, onlyMedia, withoutMedia, withoutBot, domain } = this.props;
 
       this.disconnect();
-      dispatch(expandDomainTimeline(domain, { onlyMedia }));
-      this.disconnect = dispatch(connectDomainStream(domain, { onlyMedia }));
+      dispatch(expandDomainTimeline(domain, { onlyMedia, withoutMedia, withoutBot }));
+      this.disconnect = dispatch(connectDomainStream(domain, { onlyMedia, withoutMedia, withoutBot }));
     }
   }
 
@@ -96,13 +104,13 @@ class DomainTimeline extends React.PureComponent {
   }
 
   handleLoadMore = maxId => {
-    const { dispatch, onlyMedia, domain } = this.props;
+    const { dispatch, onlyMedia, withoutMedia, withoutBot, domain } = this.props;
 
-    dispatch(expandDomainTimeline(domain, { maxId, onlyMedia }));
+    dispatch(expandDomainTimeline(domain, { maxId, onlyMedia, withoutMedia, withoutBot }));
   }
 
   render () {
-    const { hasUnread, columnId, multiColumn, onlyMedia, domain } = this.props;
+    const { hasUnread, columnId, multiColumn, onlyMedia, withoutMedia, withoutBot, domain } = this.props;
     const pinned = !!columnId;
 
     return (
@@ -124,10 +132,11 @@ class DomainTimeline extends React.PureComponent {
         <StatusListContainer
           trackScroll={!pinned}
           scrollKey={`domain_timeline-${columnId}`}
-          timelineId={`domain${onlyMedia ? ':media' : ''}:${domain}`}
+          timelineId={`domain${withoutBot ? ':nobot' : ':bot'}${withoutMedia ? ':nomedia' : ''}${onlyMedia ? ':media' : ''}:${domain}`}
           onLoadMore={this.handleLoadMore}
           emptyMessage={<FormattedMessage id='empty_column.domain' defaultMessage='There is nothing here! Manually follow users from other servers to fill it up' />}
           bindToDocument={!multiColumn}
+          showCard={!withoutMedia}
         />
       </Column>
     );

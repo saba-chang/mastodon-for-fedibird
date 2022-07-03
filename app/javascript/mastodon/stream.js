@@ -99,13 +99,13 @@ const sharedCallbacks = {
 
       const streamIdentifier = stream[1];
 
-      if (channelName === 'hashtag') {
+      if (channelName.startsWith('hashtag')) {
         return channelName === streamChannelName && params.tag === streamIdentifier;
-      } else if (channelName === 'list') {
+      } else if (channelName.startsWith('list')) {
         return channelName === streamChannelName && params.list === streamIdentifier;
-      } else if (['public:domain', 'public:domain:media'].includes(channelName)) {
+      } else if (channelName.startsWith('public:domain')) {
         return channelName === streamChannelName && params.domain === streamIdentifier;
-      } else if (['group', 'group:media'].includes(channelName)) {
+      } else if (channelName.startsWith('group')) {
         return channelName === streamChannelName && params.id === streamIdentifier;
       }
 

@@ -34,7 +34,11 @@ class FanOutOnWriteService < BaseService
 
     if !status.reblog? && (!status.reply? || status.in_reply_to_account_id == status.account_id)
       deliver_to_public(status)
-      deliver_to_media(status) if status.media_attachments.any?
+      if status.media_attachments.any?
+        deliver_to_media(status)
+      else
+        deliver_to_nomedia(status)
+      end
     end
 
     deliver_to_domain_subscribers(status)
@@ -180,6 +184,7 @@ class FanOutOnWriteService < BaseService
 
     status.tags.pluck(:name).each do |hashtag|
       Redis.current.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}", @payload)
+      Redis.current.publish("timeline:hashtag:nobot:#{hashtag.mb_chars.downcase}", @payload) unless status.account.bot?
     end
   end
 
@@ -219,6 +224,12 @@ class FanOutOnWriteService < BaseService
       status.tags.pluck(:name).each do |hashtag|
         Redis.current.publish("timeline:group:media:#{status.account.id}:#{hashtag.mb_chars.downcase}", payload)
       end
+    else
+      Redis.current.publish("timeline:group:nomedia:#{status.account.id}", payload)
+
+      status.tags.pluck(:name).each do |hashtag|
+        Redis.current.publish("timeline:group:nomedia:#{status.account.id}:#{hashtag.mb_chars.downcase}", payload)
+      end
     end
   end
 
@@ -226,10 +237,13 @@ class FanOutOnWriteService < BaseService
     Rails.logger.debug "Delivering status #{status.id} to public timeline"
 
     Redis.current.publish('timeline:public', @payload)
+    Redis.current.publish('timeline:public:nobot', @payload) unless status.account.bot?
     if status.local?
     else
       Redis.current.publish('timeline:public:remote', @payload)
+      Redis.current.publish('timeline:public:remote:nobot', @payload) unless status.account.bot?
       Redis.current.publish("timeline:public:domain:#{status.account.domain.mb_chars.downcase}", @payload)
+      Redis.current.publish("timeline:public:domain:nobot:#{status.account.domain.mb_chars.downcase}", @payload) unless status.account.bot?
     end
   end
 
@@ -237,10 +251,27 @@ class FanOutOnWriteService < BaseService
     Rails.logger.debug "Delivering status #{status.id} to media timeline"
 
     Redis.current.publish('timeline:public:media', @payload)
+    Redis.current.publish('timeline:public:nobot:media', @payload) unless status.account.bot?
     if status.local?
     else
       Redis.current.publish('timeline:public:remote:media', @payload)
+      Redis.current.publish('timeline:public:remote:nobot:media', @payload) unless status.account.bot?
       Redis.current.publish("timeline:public:domain:media:#{status.account.domain.mb_chars.downcase}", @payload)
+      Redis.current.publish("timeline:public:domain:nobot:media:#{status.account.domain.mb_chars.downcase}", @payload) unless status.account.bot?
+    end
+  end
+
+  def deliver_to_nomedia(status)
+    Rails.logger.debug "Delivering status #{status.id} to no media timeline"
+
+    Redis.current.publish('timeline:public:nomedia', @payload)
+    Redis.current.publish('timeline:public:nobot:nomedia', @payload) unless status.account.bot?
+    if status.local?
+    else
+      Redis.current.publish('timeline:public:remote:nomedia', @payload)
+      Redis.current.publish('timeline:public:remote:nobot:nomedia', @payload) unless status.account.bot?
+      Redis.current.publish("timeline:public:domain:nomedia:#{status.account.domain.mb_chars.downcase}", @payload)
+      Redis.current.publish("timeline:public:domain:nobot:nomedia:#{status.account.domain.mb_chars.downcase}", @payload) unless status.account.bot?
     end
   end
 

@@ -24,42 +24,28 @@ class Api::V1::Timelines::GroupController < Api::BaseController
   end
 
   def group_statuses
-    if @group.nil?
-      []
-    else
-      statuses = group_timeline_statuses.to_a_paginated_by_id(
-        limit_param(DEFAULT_STATUSES_LIMIT),
-        params_slice(:max_id, :since_id, :min_id)
-      )
-      statuses.merge!(no_replies_scope) if truthy_param?(:exclude_replies)
-      statuses.merge!(hashtag_scope)    if params[:tagged].present?
-
-      if truthy_param?(:only_media)
-        # `SELECT DISTINCT id, updated_at` is too slow, so pluck ids at first, and then select id, updated_at with ids.
-        status_ids = statuses.joins(:media_attachments).distinct(:id).pluck(:id)
-        statuses.where(id: status_ids)
-      else
-        statuses
-      end
-    end
+    group_feed.get(
+      limit_param(DEFAULT_STATUSES_LIMIT),
+      params[:max_id],
+      params[:since_id],
+      params[:min_id]
+    )
   end
 
-  def group_timeline_statuses
-    @group.permitted_group_statuses(current_account)
+  def group_feed
+    GroupFeed.new(
+      @group,
+      current_account,
+      only_media: truthy_param?(:only_media),
+      without_media: truthy_param?(:without_media),
+      without_bot: without_bot?,
+      tagged: params[:tagged],
+      application: doorkeeper_token&.application
+    )
   end
 
-  def no_replies_scope
-    Status.without_replies
-  end
-
-  def hashtag_scope
-    tag = Tag.find_normalized(params[:tagged])
-
-    if tag
-      Status.tagged_with(tag.id)
-    else
-      Status.none
-    end
+  def without_bot?
+    true & (params[:without_bot].nil? && current_user&.setting_hide_bot_on_public_timeline || truthy_param?(:without_bot))
   end
 
   def insert_pagination_headers
@@ -67,7 +53,7 @@ class Api::V1::Timelines::GroupController < Api::BaseController
   end
 
   def pagination_params(core_params)
-    params.slice(:limit, :only_media, :exclude_replies).permit(:limit, :only_media, :exclude_replies).merge(core_params)
+    params.slice(:limit, :only_media, :without_media, :tagged).permit(:limit, :only_media, :without_media, :tagged).merge(core_params)
   end
 
   def next_path

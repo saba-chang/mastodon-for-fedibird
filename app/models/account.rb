@@ -112,6 +112,7 @@ class Account < ApplicationRecord
   scope :without_instance_actor, -> { where.not(id: -99) }
   scope :recent, -> { reorder(id: :desc) }
   scope :bots, -> { where(actor_type: %w(Application Service)) }
+  scope :without_bots, -> { where.not(actor_type: %w(Application Service)) }
   scope :groups, -> { where(actor_type: 'Group') }
   scope :without_groups, -> { where.not(actor_type: 'Group') }
   scope :alphabetic, -> { order(domain: :asc, username: :asc) }

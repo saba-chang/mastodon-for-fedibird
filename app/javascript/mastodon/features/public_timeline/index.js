@@ -19,12 +19,16 @@ const mapStateToProps = (state, { columnId }) => {
   const columns = state.getIn(['settings', 'columns']);
   const index = columns.findIndex(c => c.get('uuid') === uuid);
   const onlyMedia = (columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'onlyMedia']) : state.getIn(['settings', 'public', 'other', 'onlyMedia']);
+  const withoutMedia = (columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'withoutMedia']) : state.getIn(['settings', 'public', 'other', 'withoutMedia']);
+  const withoutBot = (columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'withoutBot']) : state.getIn(['settings', 'public', 'other', 'withoutBot']);
   const onlyRemote = (columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'onlyRemote']) : state.getIn(['settings', 'public', 'other', 'onlyRemote']);
-  const timelineState = state.getIn(['timelines', `public${onlyMedia ? ':media' : ''}`]);
+  const timelineState = state.getIn(['timelines', `public${onlyRemote ? ':remote' : ''}${withoutBot ? ':nobot' : ':bot'}${withoutMedia ? ':nomedia' : ''}${onlyMedia ? ':media' : ''}`]);
 
   return {
     hasUnread: !!timelineState && timelineState.get('unread') > 0,
     onlyMedia,
+    withoutMedia,
+    withoutBot,
     onlyRemote,
   };
 };
@@ -39,6 +43,9 @@ class PublicTimeline extends React.PureComponent {
 
   static defaultProps = {
     onlyMedia: false,
+    withoutMedia: false,
+    withoutBot: false,
+    onlyRemote: false,
   };
 
   static propTypes = {
@@ -48,16 +55,18 @@ class PublicTimeline extends React.PureComponent {
     multiColumn: PropTypes.bool,
     hasUnread: PropTypes.bool,
     onlyMedia: PropTypes.bool,
+    withoutMedia: PropTypes.bool,
+    withoutBot: PropTypes.bool,
     onlyRemote: PropTypes.bool,
   };
 
   handlePin = () => {
-    const { columnId, dispatch, onlyMedia, onlyRemote } = this.props;
+    const { columnId, dispatch, onlyMedia, withoutMedia, withoutBot, onlyRemote } = this.props;
 
     if (columnId) {
       dispatch(removeColumn(columnId));
     } else {
-      dispatch(addColumn(onlyRemote ? 'REMOTE' : 'PUBLIC', { other: { onlyMedia, onlyRemote } }));
+      dispatch(addColumn(onlyRemote ? 'REMOTE' : 'PUBLIC', { other: { onlyMedia, withoutMedia, withoutBot, onlyRemote } }));
     }
   }
 
@@ -71,19 +80,19 @@ class PublicTimeline extends React.PureComponent {
   }
 
   componentDidMount () {
-    const { dispatch, onlyMedia, onlyRemote } = this.props;
+    const { dispatch, onlyMedia, withoutMedia, withoutBot, onlyRemote } = this.props;
 
-    dispatch(expandPublicTimeline({ onlyMedia, onlyRemote }));
-    this.disconnect = dispatch(connectPublicStream({ onlyMedia, onlyRemote }));
+    dispatch(expandPublicTimeline({ onlyMedia, withoutMedia, withoutBot, onlyRemote }));
+    this.disconnect = dispatch(connectPublicStream({ onlyMedia, withoutMedia, withoutBot, onlyRemote }));
   }
 
   componentDidUpdate (prevProps) {
-    if (prevProps.onlyMedia !== this.props.onlyMedia || prevProps.onlyRemote !== this.props.onlyRemote) {
-      const { dispatch, onlyMedia, onlyRemote } = this.props;
+    if (prevProps.onlyMedia !== this.props.onlyMedia || prevProps.withoutMedia !== this.props.withoutMedia || prevProps.withoutBot !== this.props.withoutBot || prevProps.onlyRemote !== this.props.onlyRemote) {
+      const { dispatch, onlyMedia, withoutMedia, withoutBot, onlyRemote } = this.props;
 
       this.disconnect();
-      dispatch(expandPublicTimeline({ onlyMedia, onlyRemote }));
-      this.disconnect = dispatch(connectPublicStream({ onlyMedia, onlyRemote }));
+      dispatch(expandPublicTimeline({ onlyMedia, withoutMedia, withoutBot, onlyRemote }));
+      this.disconnect = dispatch(connectPublicStream({ onlyMedia, withoutMedia, withoutBot, onlyRemote }));
     }
   }
 
@@ -99,13 +108,13 @@ class PublicTimeline extends React.PureComponent {
   }
 
   handleLoadMore = maxId => {
-    const { dispatch, onlyMedia, onlyRemote } = this.props;
+    const { dispatch, onlyMedia, withoutMedia, withoutBot, onlyRemote } = this.props;
 
-    dispatch(expandPublicTimeline({ maxId, onlyMedia, onlyRemote }));
+    dispatch(expandPublicTimeline({ maxId, onlyMedia, withoutMedia, withoutBot, onlyRemote }));
   }
 
   render () {
-    const { intl, columnId, hasUnread, multiColumn, onlyMedia, onlyRemote } = this.props;
+    const { intl, columnId, hasUnread, multiColumn, onlyMedia, withoutMedia, withoutBot, onlyRemote } = this.props;
     const pinned = !!columnId;
 
     return (
@@ -124,12 +133,13 @@ class PublicTimeline extends React.PureComponent {
         </ColumnHeader>
 
         <StatusListContainer
-          timelineId={`public${onlyRemote ? ':remote' : ''}${onlyMedia ? ':media' : ''}`}
+          timelineId={`public${onlyRemote ? ':remote' : ''}${withoutBot ? ':nobot' : ':bot'}${withoutMedia ? ':nomedia' : ''}${onlyMedia ? ':media' : ''}`}
           onLoadMore={this.handleLoadMore}
           trackScroll={!pinned}
           scrollKey={`public_timeline-${columnId}`}
           emptyMessage={<FormattedMessage id='empty_column.public' defaultMessage='There is nothing here! Write something publicly, or manually follow users from other servers to fill it up' />}
           bindToDocument={!multiColumn}
+          showCard={!withoutMedia}
         />
       </Column>
     );

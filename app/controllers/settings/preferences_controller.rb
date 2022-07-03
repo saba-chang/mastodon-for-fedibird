@@ -90,6 +90,7 @@ class Settings::PreferencesController < Settings::BaseController
       :setting_content_font_size,
       :setting_info_font_size,
       :setting_content_emoji_reaction_size,
+      :setting_hide_bot_on_public_timeline,
       notification_emails: %i(follow follow_request reblog favourite emoji_reaction status_reference mention digest report pending_account trending_tag),
       interactions: %i(must_be_follower must_be_following must_be_following_dm)
     )
