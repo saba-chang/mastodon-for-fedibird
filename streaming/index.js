@@ -294,7 +294,7 @@ const startWorker = (workerId) => {
         return;
       }
 
-      client.query('SELECT oauth_access_tokens.id, oauth_access_tokens.resource_owner_id, users.account_id, users.chosen_languages, oauth_access_tokens.scopes, devices.device_id, oauth_applications.name, oauth_applications.website FROM oauth_access_tokens INNER JOIN oauth_applications ON oauth_access_tokens.application_id = oauth_applications.id INNER JOIN users ON oauth_access_tokens.resource_owner_id = users.id LEFT OUTER JOIN devices ON oauth_access_tokens.id = devices.access_token_id WHERE oauth_access_tokens.token = $1 AND oauth_access_tokens.revoked_at IS NULL LIMIT 1', [token], (err, result) => {
+      client.query('SELECT oauth_access_tokens.id, oauth_access_tokens.resource_owner_id, users.account_id, users.chosen_languages, oauth_access_tokens.scopes, devices.device_id, oauth_applications.name, oauth_applications.website, (select settings.value from settings where thing_type = \'User\' and thing_id=users.id and var = \'hide_bot_on_public_timeline\') as bot FROM oauth_access_tokens INNER JOIN oauth_applications ON oauth_access_tokens.application_id = oauth_applications.id INNER JOIN users ON oauth_access_tokens.resource_owner_id = users.id LEFT OUTER JOIN devices ON oauth_access_tokens.id = devices.access_token_id WHERE oauth_access_tokens.token = $1 AND oauth_access_tokens.revoked_at IS NULL LIMIT 1', [token], (err, result) => {
         done();
 
         if (err) {
@@ -314,6 +314,7 @@ const startWorker = (workerId) => {
         req.scopes = result.rows[0].scopes.split(' ');
         req.accountId = result.rows[0].account_id;
         req.chosenLanguages = result.rows[0].chosen_languages;
+        req.bot = result.rows[0].bot;
         req.allowNotifications = req.scopes.some(scope => ['read', 'read:notifications'].includes(scope));
         req.deviceId = result.rows[0].device_id;
         req.applicationName = result.rows[0].name;
@@ -359,6 +360,8 @@ const startWorker = (workerId) => {
   const channelNameFromPath = req => {
     const { path, query } = req;
     const onlyMedia = isTruthy(query.only_media);
+    const withoutMedia = isTruthy(query.without_media);
+    const names = [onlyMedia ? 'media' : null, withoutMedia ? 'nomedia' : null].filter(x => !!x);
 
     switch(path) {
     case '/api/v1/streaming/user':
@@ -366,13 +369,13 @@ const startWorker = (workerId) => {
     case '/api/v1/streaming/user/notification':
       return 'user:notification';
     case '/api/v1/streaming/public':
-      return onlyMedia ? 'public:media' : 'public';
+      return ['public', ...names].join(':');
     case '/api/v1/streaming/public/local':
-      return onlyMedia ? 'public:local:media' : 'public:local';
+      return ['public:local', ...names].join(':');
     case '/api/v1/streaming/public/remote':
-      return onlyMedia ? 'public:remote:media' : 'public:remote';
+      return ['public:remote', ...names].join(':');
     case '/api/v1/streaming/public/domain':
-      return onlyMedia ? 'public:domain:media' : 'public:domain';
+      return ['public:domain', ...names].join(':');
     case '/api/v1/streaming/hashtag':
       return 'hashtag';
     case '/api/v1/streaming/direct':
@@ -386,15 +389,7 @@ const startWorker = (workerId) => {
 
   const PUBLIC_CHANNELS = [
     'public',
-    'public:media',
-    'public:local',
-    'public:local:media',
-    'public:remote',
-    'public:remote:media',
-    'public:domain',
-    'public:domain:media',
     'group',
-    'group:media',
     'hashtag',
   ];
 
@@ -407,7 +402,7 @@ const startWorker = (workerId) => {
     log.silly(req.requestId, `Checking OAuth scopes for ${channelName}`);
 
     // When accessing public channels, no scopes are needed
-    if (PUBLIC_CHANNELS.includes(channelName)) {
+    if (PUBLIC_CHANNELS.includes(channelName.split(':')[0])) {
       resolve();
       return;
     }
@@ -779,6 +774,8 @@ const startWorker = (workerId) => {
    * @property {string} [list]
    * @property {string} [domain]
    * @property {string} [only_media]
+   * @property {string} [without_media]
+   * @property {string} [without_bot]
    * @property {string} [id]
    * @property {string} [tagged]
    */
@@ -790,7 +787,30 @@ const startWorker = (workerId) => {
    * @return {Promise.<{ channelIds: string[], options: { needsFiltering: boolean, notificationOnly: boolean } }>}
    */
   const channelNameToIds = (req, name, params) => new Promise((resolve, reject) => {
-    switch(name) {
+    const convertedName = (() => {
+      const parts = name.split(':');
+
+      if (parts[0] === 'public' && !parts.includes('bot') && !parts.includes('nobot')) {
+        if ((params.without_bot === undefined && req.bot === '--- true\n') ? true : isTruthy(params.without_bot)) {
+          if (parts[parts.length -1] === 'media') {
+            parts.pop();
+            return [...parts, 'nobot', 'media'].join(':');
+          } else if (parts[parts.length -1] === 'nomedia') {
+            parts.pop();
+            return [...parts, 'nobot', 'nomedia'].join(':');
+
+          } else {
+            return [...parts, 'nobot'].join(':');
+          }
+        }
+      } else if (parts[0] === 'public' && parts.includes('bot')) {
+        return parts.filter(x => x !== 'bot').join(':');
+      }
+
+      return name;
+    })();
+
+    switch(convertedName) {
     case 'user':
       resolve({
         channelIds: req.deviceId ? [`timeline:${req.accountId}`, `timeline:${req.accountId}:${req.deviceId}`] : [`timeline:${req.accountId}`],
@@ -812,6 +832,13 @@ const startWorker = (workerId) => {
       });
 
       break;
+    case 'public:nobot':
+      resolve({
+        channelIds: req.applicationName === '◆ Tootdon ◆' ? ['timeline:public:remote:nobot'] : ['timeline:public:nobot'],
+        options: { needsFiltering: true, notificationOnly: false },
+      });
+
+      break;
     case 'public:local':
       if (!isImast(req) && !isMastodonForiOS(req) && !isMastodonForAndroid(req)) {
         reject('No local stream provided');
@@ -823,9 +850,27 @@ const startWorker = (workerId) => {
       });
 
       break;
+    case 'public:local:nobot':
+      if (!isImast(req) && !isMastodonForiOS(req) && !isMastodonForAndroid(req)) {
+        reject('No local stream provided');
+      }
+
+      resolve({
+        channelIds: ['timeline:public:nobot'],
+        options: { needsFiltering: true, notificationOnly: false },
+      });
+
+      break;
     case 'public:remote':
       resolve({
         channelIds: ['timeline:public:remote'],
+        options: { needsFiltering: true, notificationOnly: false },
+      });
+
+      break;
+    case 'public:remote:nobot':
+      resolve({
+        channelIds: ['timeline:public:remote:nobot'],
         options: { needsFiltering: true, notificationOnly: false },
       });
 
@@ -836,6 +881,17 @@ const startWorker = (workerId) => {
       } else {
         resolve({
           channelIds: [`timeline:public:domain:${params.domain.toLowerCase()}`],
+          options: { needsFiltering: true, notificationOnly: false },
+        });
+      }
+
+      break;
+    case 'public:domain:nobot':
+      if (!params.domain || params.domain.length === 0) {
+        reject('No domain for stream provided');
+      } else {
+        resolve({
+          channelIds: [`timeline:public:domain:nobot:${params.domain.toLowerCase()}`],
           options: { needsFiltering: true, notificationOnly: false },
         });
       }
@@ -859,6 +915,13 @@ const startWorker = (workerId) => {
       });
 
       break;
+    case 'public:nobot:media':
+      resolve({
+        channelIds: req.applicationName === '◆ Tootdon ◆' ? ['timeline:public:remote:nobot:media'] : ['timeline:public:nobot:media'],
+        options: { needsFiltering: true, notificationOnly: false },
+      });
+
+      break;
     case 'public:local:media':
       if (!isImast(req) && !isMastodonForiOS(req) && !isMastodonForAndroid(req)) {
         reject('No local media stream provided');
@@ -870,9 +933,27 @@ const startWorker = (workerId) => {
       });
 
       break;
+    case 'public:local:nobot:media':
+      if (!isImast(req) && !isMastodonForiOS(req) && !isMastodonForAndroid(req)) {
+        reject('No local media stream provided');
+      }
+
+      resolve({
+        channelIds: ['timeline:public:nobot:media'],
+        options: { needsFiltering: true, notificationOnly: false },
+      });
+
+      break;
     case 'public:remote:media':
       resolve({
         channelIds: ['timeline:public:remote:media'],
+        options: { needsFiltering: true, notificationOnly: false },
+      });
+
+      break;
+    case 'public:remote:nobot:media':
+      resolve({
+        channelIds: ['timeline:public:remote:nobot:media'],
         options: { needsFiltering: true, notificationOnly: false },
       });
 
@@ -888,12 +969,106 @@ const startWorker = (workerId) => {
       }
 
       break;
+    case 'public:domain:nobot:media':
+      if (!params.domain || params.domain.length === 0) {
+        reject('No domain for stream provided');
+      } else {
+        resolve({
+          channelIds: [`timeline:public:domain:nobot:media:${params.domain.toLowerCase()}`],
+          options: { needsFiltering: true, notificationOnly: false },
+        });
+      }
+
+      break;
+    case 'public:nomedia':
+      resolve({
+        channelIds: req.applicationName === '◆ Tootdon ◆' ? ['timeline:public:remote:nomedia'] : ['timeline:public:nomedia'],
+        options: { needsFiltering: true, notificationOnly: false },
+      });
+
+      break;
+    case 'public:nobot:nomedia':
+      resolve({
+        channelIds: req.applicationName === '◆ Tootdon ◆' ? ['timeline:public:remote:nobot:nomedia'] : ['timeline:public:nobot:nomedia'],
+        options: { needsFiltering: true, notificationOnly: false },
+      });
+
+      break;
+    case 'public:local:nomedia':
+      if (!isImast(req) && !isMastodonForiOS(req) && !isMastodonForAndroid(req)) {
+        reject('No local nomedia stream provided');
+      }
+
+      resolve({
+        channelIds: ['timeline:public:nomedia'],
+        options: { needsFiltering: true, notificationOnly: false },
+      });
+
+      break;
+    case 'public:local:nobot:nomedia':
+      if (!isImast(req) && !isMastodonForiOS(req) && !isMastodonForAndroid(req)) {
+        reject('No local nomedia stream provided');
+      }
+
+      resolve({
+        channelIds: ['timeline:public:nobot:nomedia'],
+        options: { needsFiltering: true, notificationOnly: false },
+      });
+
+      break;
+    case 'public:remote:nomedia':
+      resolve({
+        channelIds: ['timeline:public:remote:nomedia'],
+        options: { needsFiltering: true, notificationOnly: false },
+      });
+
+      break;
+    case 'public:remote:nobot:nomedia':
+      resolve({
+        channelIds: ['timeline:public:remote:nobot:nomedia'],
+        options: { needsFiltering: true, notificationOnly: false },
+      });
+
+      break;
+    case 'public:domain:nomedia':
+      if (!params.domain || params.domain.length === 0) {
+        reject('No domain for stream provided');
+      } else {
+        resolve({
+          channelIds: [`timeline:public:domain:nomedia:${params.domain.toLowerCase()}`],
+          options: { needsFiltering: true, notificationOnly: false },
+        });
+      }
+
+      break;
+    case 'public:domain:nobot:nomedia':
+      if (!params.domain || params.domain.length === 0) {
+        reject('No domain for stream provided');
+      } else {
+        resolve({
+          channelIds: [`timeline:public:domain:nobot:nomedia:${params.domain.toLowerCase()}`],
+          options: { needsFiltering: true, notificationOnly: false },
+        });
+      }
+
+      break;
     case 'group:media':
       if (!params.id || params.id.length === 0) {
         reject('No group id for stream provided');
       } else {
         resolve({
           channelIds: [`timeline:group:media:${params.id}${!!params.tagged && params.tagged.length !== 0 ? `:${params.tagged.toLowerCase()}` : ''}`],
+          options: { needsFiltering: true, notificationOnly: false },
+        });
+      }
+
+      break;
+    case 'group:nomedia':
+      if (!params.id || params.id.length === 0) {
+        reject('No group id for stream provided');
+      } else {
+        resolve({
+          channelIds: [`timeline:group:nomedia:${params.id}${!!params.tagged && params.tagged.length !== 0 ? `:${params.tagged.toLowerCase()}` : ''}`],
           options: { needsFiltering: true, notificationOnly: false },
         });
       }
@@ -943,9 +1118,9 @@ const startWorker = (workerId) => {
       return [channelName, params.list];
     } else if (channelName === 'hashtag') {
       return [channelName, params.tag];
-    } else if (['public:domain', 'public:domain:media'].includes(channelName)) {
+    } else if (channelName.startsWith('public:domain')) {
       return [channelName, params.domain];
-    } else if (['group', 'group:media'].includes(channelName)) {
+    } else if (channelName.startsWith('group')) {
       return [channelName, params.id, params.tagged];
     } else {
       return [channelName];

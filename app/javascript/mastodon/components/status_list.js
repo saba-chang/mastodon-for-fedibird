@@ -25,10 +25,12 @@ export default class StatusList extends ImmutablePureComponent {
     emptyMessage: PropTypes.node,
     alwaysPrepend: PropTypes.bool,
     timelineId: PropTypes.string,
+    showCard: PropTypes.bool,
   };
 
   static defaultProps = {
     trackScroll: true,
+    showCard: true,
   };
 
   getFeaturedStatusCount = () => {
@@ -76,7 +78,7 @@ export default class StatusList extends ImmutablePureComponent {
   }
 
   render () {
-    const { statusIds, featuredStatusIds, onLoadMore, timelineId, ...other }  = this.props;
+    const { statusIds, featuredStatusIds, onLoadMore, timelineId, showCard, ...other }  = this.props;
     const { isLoading, isPartial } = other;
 
     if (isPartial) {
@@ -100,6 +102,7 @@ export default class StatusList extends ImmutablePureComponent {
           contextType={timelineId}
           scrollKey={this.props.scrollKey}
           showThread
+          showCard={showCard}
         />
       ))
     ) : null;
@@ -114,6 +117,7 @@ export default class StatusList extends ImmutablePureComponent {
           onMoveDown={this.handleMoveDown}
           contextType={timelineId}
           showThread
+          showCard={showCard}
         />
       )).concat(scrollableContent);
     }

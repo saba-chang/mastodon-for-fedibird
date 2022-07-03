@@ -103,6 +103,7 @@ defaults: &defaults
   unselect_reference_modal: false
   hexagon_avatar: false
   enable_empty_column: false
+  hide_bot_on_public_timeline: false  
 
 development:
   <<: *defaults

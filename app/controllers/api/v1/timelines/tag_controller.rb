@@ -42,8 +42,14 @@ class Api::V1::Timelines::TagController < Api::BaseController
       none: params[:none],
       local: false,
       remote: truthy_param?(:remote),
-      only_media: truthy_param?(:only_media)
+      only_media: truthy_param?(:only_media),
+      without_media: truthy_param?(:without_media),
+      without_bot: without_bot?
     )
+  end
+
+  def without_bot?
+    true & (params[:without_bot].nil? && current_user&.setting_hide_bot_on_public_timeline || truthy_param?(:without_bot))
   end
 
   def insert_pagination_headers
@@ -51,7 +57,7 @@ class Api::V1::Timelines::TagController < Api::BaseController
   end
 
   def pagination_params(core_params)
-    params.slice(:limit, :only_media).permit(:limit, :only_media).merge(core_params)
+    params.slice(:limit, :only_media, :without_media, :without_bot).permit(:limit, :only_media, :without_media, :without_bot).merge(core_params)
   end
 
   def next_path

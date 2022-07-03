@@ -8,6 +8,8 @@ class PublicFeed
   # @option [Boolean] :local
   # @option [Boolean] :remote
   # @option [Boolean] :only_media
+  # @option [Boolean] :without_media
+  # @option [Boolean] :without_bot
   def initialize(account, options = {})
     @account = account
     @options = options
@@ -29,6 +31,8 @@ class PublicFeed
     scope.merge!(domain_only_scope) if domain_only?
     scope.merge!(account_filters_scope) if account?
     scope.merge!(media_only_scope) if media_only?
+    scope.merge!(without_media_scope) if without_media?
+    scope.merge!(without_bot_scope) if without_bot?
 
     scope.cache_ids.to_a_paginated_by_id(limit, max_id: max_id, since_id: since_id, min_id: min_id)
   end
@@ -46,19 +50,19 @@ class PublicFeed
   end
 
   def local_only?
-    @options[:local]
+    options[:local]
   end
 
   def imast?
-    @options[:application]&.website == 'https://cinderella-project.github.io/iMast/'
+    options[:application]&.website == 'https://cinderella-project.github.io/iMast/'
   end
 
   def mastodon_for_ios?
-    @options[:application]&.name == 'Mastodon for iOS'
+    options[:application]&.name == 'Mastodon for iOS'
   end
 
   def mastodon_for_android?
-    @options[:application]&.name == 'Mastodon for Android'
+    options[:application]&.name == 'Mastodon for Android'
   end
 
   def remote_only?
@@ -66,7 +70,7 @@ class PublicFeed
   end
 
   def domain_only?
-    @options[:domain].present?
+    options[:domain]
   end
 
   def account?
@@ -77,8 +81,16 @@ class PublicFeed
     options[:only_media]
   end
 
+  def without_media?
+    options[:without_media]
+  end
+
+  def without_bot?
+    options[:without_bot]
+  end
+
   def domain
-    @options[:domain]
+    options[:domain]
   end
 
   def public_scope
@@ -107,6 +119,14 @@ class PublicFeed
 
   def media_only_scope
     Status.joins(:media_attachments).group(:id)
+  end
+
+  def without_media_scope
+    Status.left_joins(:media_attachments).where(media_attachments: {status_id: nil})
+  end
+
+  def without_bot_scope
+    Status.joins(:account).merge(Account.without_bots)
   end
 
   def account_filters_scope

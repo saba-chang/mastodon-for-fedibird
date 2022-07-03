@@ -20,7 +20,9 @@ class ColumnSettings extends React.PureComponent {
     return (
       <div>
         <div className='column-settings__row'>
-          <SettingToggle settings={settings} settingPath={['other', 'onlyMedia']} onChange={onChange} label={<FormattedMessage id='community.column_settings.media_only' defaultMessage='Media only' />} />
+          <SettingToggle settings={settings} settingPath={['other', 'onlyMedia']} exclusiveSettingPaths={[['other', 'withoutMedia']]} onChange={onChange} label={<FormattedMessage id='community.column_settings.media_only' defaultMessage='Media only' />} />
+          <SettingToggle settings={settings} settingPath={['other', 'withoutMedia']} exclusiveSettingPaths={[['other', 'onlyMedia']]} onChange={onChange} label={<FormattedMessage id='community.column_settings.without_media' defaultMessage='Without media' />} />
+          <SettingToggle settings={settings} settingPath={['other', 'withoutBot']} onChange={onChange} label={<FormattedMessage id='community.column_settings.without_bot' defaultMessage='Without bot' />} />
         </div>
       </div>
     );

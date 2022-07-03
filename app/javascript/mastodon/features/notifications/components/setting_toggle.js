@@ -9,6 +9,7 @@ export default class SettingToggle extends React.PureComponent {
     prefix: PropTypes.string,
     settings: ImmutablePropTypes.map.isRequired,
     settingPath: PropTypes.array.isRequired,
+    exclusiveSettingPaths: PropTypes.array,
     label: PropTypes.node.isRequired,
     onChange: PropTypes.func.isRequired,
     defaultValue: PropTypes.bool,
@@ -17,6 +18,11 @@ export default class SettingToggle extends React.PureComponent {
 
   onChange = ({ target }) => {
     this.props.onChange(this.props.settingPath, target.checked);
+    if (this.props.exclusiveSettingPaths?.length && target.checked) {
+      this.props.exclusiveSettingPaths.forEach(path => {
+        this.props.onChange(path, false);
+      });
+    }
   }
 
   render () {

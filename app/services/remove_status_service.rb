@@ -44,9 +44,9 @@ class RemoveStatusService < BaseService
           remove_from_mentions
           remove_reblogs
           remove_from_hashtags
-          remove_from_group if status.account.group?
+          remove_from_group if @status.account.group?
           remove_from_public
-          remove_from_media if @status.media_attachments.any?
+          remove_from_media
           remove_media unless mark_expired?
         end
 
@@ -150,6 +150,7 @@ class RemoveStatusService < BaseService
 
     @status.tags.map(&:name).each do |hashtag|
       redis.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}", @payload)
+      redis.publish("timeline:hashtag:nobot:#{hashtag.mb_chars.downcase}", @payload) unless @status.account.bot?
     end
   end
 
@@ -168,6 +169,12 @@ class RemoveStatusService < BaseService
       @status.tags.map(&:name).each do |hashtag|
         redis.publish("timeline:group:media:#{@status.account.id}:#{hashtag.mb_chars.downcase}", payload)
       end
+    else
+      redis.publish("timeline:group:nomedia:#{@status.account.id}", payload)
+
+      @status.tags.map(&:name).each do |hashtag|
+        redis.publish("timeline:group:nomedia:#{@status.account.id}:#{hashtag.mb_chars.downcase}", payload)
+      end
     end
   end
 
@@ -175,21 +182,39 @@ class RemoveStatusService < BaseService
     return unless @status.public_visibility?
 
     redis.publish('timeline:public', @payload)
+    redis.publish('timeline:public:nobot', @payload) unless @status.account.bot?
     if @status.local?
     else
       redis.publish('timeline:public:remote', @payload)
+      redis.publish('timeline:public:remote:nobot', @payload) unless @status.account.bot?
       redis.publish("timeline:public:domain:#{@account.domain.mb_chars.downcase}", @payload)
+      redis.publish("timeline:public:domain:nobot:#{@account.domain.mb_chars.downcase}", @payload) unless @status.account.bot?
     end
   end
 
   def remove_from_media
     return unless @status.public_visibility?
 
-    redis.publish('timeline:public:media', @payload)
-    if @status.local?
+    if @status.media_attachments.any?
+      redis.publish('timeline:public:media', @payload)
+      redis.publish('timeline:public:nobot:media', @payload) unless @status.account.bot?
+      if @status.local?
+      else
+        redis.publish('timeline:public:remote:media', @payload)
+        redis.publish('timeline:public:remote:nobot:media', @payload) unless @status.account.bot?
+        redis.publish("timeline:public:domain:media:#{@account.domain.mb_chars.downcase}", @payload)
+        redis.publish("timeline:public:domain:nobot:media:#{@account.domain.mb_chars.downcase}", @payload) unless @status.account.bot?
+      end
     else
-      redis.publish('timeline:public:remote:media', @payload)
-      redis.publish("timeline:public:domain:media:#{@account.domain.mb_chars.downcase}", @payload)
+      redis.publish('timeline:public:nomedia', @payload)
+      redis.publish('timeline:public:nobot:nomedia', @payload) unless @status.account.bot?
+      if @status.local?
+      else
+        redis.publish('timeline:public:remote:nomedia', @payload)
+        redis.publish('timeline:public:remote:nobot:nomedia', @payload) unless @status.account.bot?
+        redis.publish("timeline:public:domain:nomedia:#{@account.domain.mb_chars.downcase}", @payload)
+        redis.publish("timeline:public:domain:nobot:nomedia:#{@account.domain.mb_chars.downcase}", @payload) unless @status.account.bot?
+      end
     end
   end
 

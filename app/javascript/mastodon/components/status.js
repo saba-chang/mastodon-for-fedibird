@@ -139,6 +139,7 @@ class Status extends ImmutablePureComponent {
     onMoveUp: PropTypes.func,
     onMoveDown: PropTypes.func,
     showThread: PropTypes.bool,
+    showCard: PropTypes.bool,
     getScrollPosition: PropTypes.func,
     updateScrollBottom: PropTypes.func,
     cacheMediaWidth: PropTypes.func,
@@ -153,6 +154,10 @@ class Status extends ImmutablePureComponent {
     emojiMap: ImmutablePropTypes.map,
     addEmojiReaction: PropTypes.func.isRequired,
     removeEmojiReaction: PropTypes.func.isRequired,
+  };
+
+  static defaultProps = {
+    showCard: true,
   };
 
   // Avoid checking props that are functions (and whose equality will always
@@ -385,7 +390,7 @@ class Status extends ImmutablePureComponent {
     let media = null;
     let statusAvatar, prepend, rebloggedByText;
 
-    const { intl, hidden, featured, otherAccounts, unread, showThread, scrollKey, pictureInPicture, contextType, quote_muted, referenced, contextReferenced } = this.props;
+    const { intl, hidden, featured, otherAccounts, unread, showThread, showCard, scrollKey, pictureInPicture, contextType, quote_muted, referenced, contextReferenced } = this.props;
 
     let { status, account, ...other } = this.props;
 
@@ -547,7 +552,7 @@ class Status extends ImmutablePureComponent {
           </Bundle>
         );
       }
-    } else if (status.get('spoiler_text').length === 0 && status.get('card')) {
+    } else if (showCard && status.get('spoiler_text').length === 0 && status.get('card')) {
       media = (
         <Card
           onOpenMedia={this.handleOpenMedia}
@@ -576,7 +581,9 @@ class Status extends ImmutablePureComponent {
       let quote_status = status.get('quote');
 
       let quote_media = null;
-      if (quote_status.get('media_attachments').size > 0) {
+      if (!showCard) {
+        // hide media
+      } else if (quote_status.get('media_attachments').size > 0) {
         if (pictureInPicture.get('inUse')) {
           quote_media = <PictureInPicturePlaceholder width={this.props.cachedMediaWidth} />;
         } else if (this.props.muted) {

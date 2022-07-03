@@ -136,29 +136,34 @@ export const connectUserStream = () =>
  * @param {string} domain
  * @param {Object} options
  * @param {boolean} [options.onlyMedia]
+ * @param {boolean} [options.withoutMedia]
+ * @param {boolean} [options.withoutBot]
  * @return {function(): void}
  */
-export const connectDomainStream = (domain, { onlyMedia } = {}) =>
-  connectTimelineStream(`domain${onlyMedia ? ':media' : ''}:${domain}`, `public:domain${onlyMedia ? ':media' : ''}`, { domain: domain });
+export const connectDomainStream = (domain, { onlyMedia, withoutMedia, withoutBot } = {}) =>
+  connectTimelineStream(`domain${withoutBot ? ':nobot' : ':bot'}${withoutMedia ? ':nomedia' : ''}${onlyMedia ? ':media' : ''}:${domain}`, `public:domain${withoutBot ? ':nobot' : ':bot'}${withoutMedia ? ':nomedia' : ''}${onlyMedia ? ':media' : ''}`, { domain: domain });
 
 /**
  * @param {string} id
  * @param {Object} options
  * @param {boolean} [options.onlyMedia]
+ * @param {boolean} [options.withoutMedia]
  * @param {string} [options.tagged]
  * @return {function(): void}
  */
-export const connectGroupStream = (id, { onlyMedia, tagged } = {}) =>
-  connectTimelineStream(`group:${id}${onlyMedia ? ':media' : ''}${tagged ? `:${tagged}` : ''}`, `group${onlyMedia ? ':media' : ''}`, { id: id, tagged: tagged });
+export const connectGroupStream = (id, { onlyMedia, withoutMedia, tagged } = {}) =>
+  connectTimelineStream(`group:${id}${withoutMedia ? ':nomedia' : ''}${onlyMedia ? ':media' : ''}${tagged ? `:${tagged}` : ''}`, `group${withoutMedia ? ':nomedia' : ''}${onlyMedia ? ':media' : ''}`, { id: id, tagged: tagged });
 
 /**
  * @param {Object} options
  * @param {boolean} [options.onlyRemote]
  * @param {boolean} [options.onlyMedia]
+ * @param {boolean} [options.withoutMedia]
+ * @param {boolean} [options.withoutBot]
  * @return {function(): void}
  */
-export const connectPublicStream = ({ onlyMedia, onlyRemote } = {}) =>
-  connectTimelineStream(`public${onlyRemote ? ':remote' : ''}${onlyMedia ? ':media' : ''}`, `public${onlyRemote ? ':remote' : ''}${onlyMedia ? ':media' : ''}`);
+export const connectPublicStream = ({ onlyMedia, withoutMedia, withoutBot, onlyRemote } = {}) =>
+  connectTimelineStream(`public${onlyRemote ? ':remote' : ''}${withoutBot ? ':nobot' : ':bot'}${withoutMedia ? ':nomedia' : ''}${onlyMedia ? ':media' : ''}`, `public${onlyRemote ? ':remote' : ''}${withoutBot ? ':nobot' : ':bot'}${withoutMedia ? ':nomedia' : ''}${onlyMedia ? ':media' : ''}`);
 
 /**
  * @param {string} columnId
@@ -167,7 +172,7 @@ export const connectPublicStream = ({ onlyMedia, onlyRemote } = {}) =>
  * @return {function(): void}
  */
 export const connectHashtagStream = (columnId, tagName, accept) =>
-  connectTimelineStream(`hashtag:${columnId}`, `hashtag`, { tag: tagName }, { accept });
+  connectTimelineStream(`hashtag:${columnId}`, 'hashtag', { tag: tagName }, { accept });
 
 /**
  * @return {function(): void}

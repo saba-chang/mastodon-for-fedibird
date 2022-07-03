@@ -30,12 +30,14 @@ const makeMapStateToProps = () => {
     const columns = state.getIn(['settings', 'columns']);
     const index = columns.findIndex(c => c.get('uuid') === uuid);
     const onlyMedia = (columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'onlyMedia']) : state.getIn(['settings', 'group', 'other', 'onlyMedia']);
-    const timelineState = state.getIn(['timelines', `group:${id}${onlyMedia ? ':media' : ''}${tagged ? `:${tagged}` : ''}`]);
+    const withoutMedia = (columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'withoutMedia']) : state.getIn(['settings', 'group', 'other', 'withoutMedia']);
+    const timelineState = state.getIn(['timelines', `group:${id}${withoutMedia ? ':nomedia' : ''}${onlyMedia ? ':media' : ''}${tagged ? `:${tagged}` : ''}`]);
     const account = getAccount(state, id);
 
     return {
       hasUnread: !!timelineState && timelineState.get('unread') > 0,
       onlyMedia,
+      withoutMedia,
       account,
     };
   };
@@ -53,6 +55,7 @@ class GroupTimeline extends React.PureComponent {
 
   static defaultProps = {
     onlyMedia: false,
+    withoutMedia: false,
   };
 
   static propTypes = {
@@ -64,6 +67,7 @@ class GroupTimeline extends React.PureComponent {
     hasUnread: PropTypes.bool,
     multiColumn: PropTypes.bool,
     onlyMedia: PropTypes.bool,
+    withoutMedia: PropTypes.bool,
   };
 
   state = {
@@ -72,12 +76,12 @@ class GroupTimeline extends React.PureComponent {
   };
 
   handlePin = () => {
-    const { columnId, dispatch, onlyMedia, params: { id, tagged } } = this.props;
+    const { columnId, dispatch, onlyMedia, withoutMedia, params: { id, tagged } } = this.props;
 
     if (columnId) {
       dispatch(removeColumn(columnId));
     } else {
-      dispatch(addColumn('GROUP', { id: id, other: { onlyMedia, tagged } }));
+      dispatch(addColumn('GROUP', { id: id, other: { onlyMedia, withoutMedia, tagged } }));
     }
   }
 
@@ -91,20 +95,20 @@ class GroupTimeline extends React.PureComponent {
   }
 
   componentDidMount () {
-    const { dispatch, onlyMedia, params: { id, tagged } } = this.props;
+    const { dispatch, onlyMedia, withoutMedia, params: { id, tagged } } = this.props;
 
     dispatch(fetchAccount(id));
-    dispatch(expandGroupTimeline(id, { onlyMedia, tagged }));
-    this.disconnect = dispatch(connectGroupStream(id, { onlyMedia, tagged }));
+    dispatch(expandGroupTimeline(id, { onlyMedia, withoutMedia, tagged }));
+    this.disconnect = dispatch(connectGroupStream(id, { onlyMedia, withoutMedia, tagged }));
   }
 
   componentDidUpdate (prevProps) {
-    const { dispatch, onlyMedia, params: { id, tagged } } = this.props;
+    const { dispatch, onlyMedia, withoutMedia, params: { id, tagged } } = this.props;
 
-    if (prevProps.params.id !== id || prevProps.onlyMedia !== onlyMedia || prevProps.tagged !== tagged) {
+    if (prevProps.params.id !== id || prevProps.onlyMedia !== onlyMedia || prevProps.withoutMedia !== this.props.withoutMedia || prevProps.tagged !== tagged) {
       this.disconnect();
-      dispatch(expandGroupTimeline(id, { onlyMedia, tagged }));
-      this.disconnect = dispatch(connectGroupStream(id, { onlyMedia, tagged }));
+      dispatch(expandGroupTimeline(id, { onlyMedia, withoutMedia, tagged }));
+      this.disconnect = dispatch(connectGroupStream(id, { onlyMedia, withoutMedia, tagged }));
     }
   }
 
@@ -120,9 +124,9 @@ class GroupTimeline extends React.PureComponent {
   }
 
   handleLoadMore = maxId => {
-    const { dispatch, onlyMedia, params: { id, tagged } } = this.props;
+    const { dispatch, onlyMedia, withoutMedia, params: { id, tagged } } = this.props;
 
-    dispatch(expandGroupTimeline(id, { maxId, onlyMedia, tagged }));
+    dispatch(expandGroupTimeline(id, { maxId, onlyMedia, withoutMedia, tagged }));
   }
 
   handleToggleClick = (e) => {
@@ -135,7 +139,7 @@ class GroupTimeline extends React.PureComponent {
   }
 
   render () {
-    const { intl, hasUnread, columnId, multiColumn, onlyMedia, params: { id, tagged }, account } = this.props;
+    const { intl, hasUnread, columnId, multiColumn, onlyMedia, withoutMedia, params: { id, tagged }, account } = this.props;
     const pinned = !!columnId;
 
     const { collapsed, animating } = this.state;
@@ -195,10 +199,11 @@ class GroupTimeline extends React.PureComponent {
         <StatusListContainer
           trackScroll={!pinned}
           scrollKey={`group_timeline-${columnId}`}
-          timelineId={`group:${id}${onlyMedia ? ':media' : ''}${tagged ? `:${tagged}` : ''}`}
+          timelineId={`group:${id}${withoutMedia ? ':nomedia' : ''}${onlyMedia ? ':media' : ''}${tagged ? `:${tagged}` : ''}`}
           onLoadMore={this.handleLoadMore}
           emptyMessage={<FormattedMessage id='empty_column.group' defaultMessage='The group timeline is empty. When members of this group post new toots, they will appear here.' />}
           bindToDocument={!multiColumn}
+          showCard={!withoutMedia}
         />
       </Column>
     );
