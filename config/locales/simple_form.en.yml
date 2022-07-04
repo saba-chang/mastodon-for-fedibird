@@ -55,6 +55,7 @@ en:
         scopes: Which APIs the application will be allowed to access. If you select a top-level scope, you don't need to select individual ones.
         setting_aggregate_reblogs: Do not show new boosts for posts that have been recently boosted (only affects newly-received boosts)
         setting_compact_reaction: Emoji reaction display to be only the number of cases, except for the detail display
+        setting_confirm_follow_from_bot: Manually approve followers from bot accounts 
         setting_default_sensitive: Sensitive media is hidden by default and can be revealed with a click
         setting_disable_joke_appearance: Disable April Fools' Day and other joke functions
         setting_display_media_default: Hide media marked as sensitive
@@ -209,6 +210,7 @@ en:
         setting_auto_play_gif: Auto-play animated GIFs
         setting_boost_modal: Show confirmation dialog before boosting
         setting_compact_reaction: Compact display of reaction
+        setting_confirm_follow_from_bot: Require follow requests from bot
         setting_content_emoji_reaction_size: Emoji reaction size
         setting_content_font_size: Content font size
         setting_crop_images: Crop images in non-expanded posts to 16x9
