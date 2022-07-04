@@ -85,6 +85,7 @@ class UserSettingsDecorator
     user.settings['info_font_size']                    = info_font_size_preference if change?('setting_info_font_size')
     user.settings['content_emoji_reaction_size']       = content_emoji_reaction_size_preference if change?('setting_content_emoji_reaction_size')
     user.settings['hide_bot_on_public_timeline']       = hide_bot_on_public_timeline_preference if change?('setting_hide_bot_on_public_timeline')
+    user.settings['confirm_follow_from_bot']           = confirm_follow_from_bot_preference if change?('setting_confirm_follow_from_bot')
 end
 
   def merged_notification_emails
@@ -309,6 +310,10 @@ end
 
   def hide_bot_on_public_timeline_preference
     boolean_cast_setting 'setting_hide_bot_on_public_timeline'
+  end
+
+  def confirm_follow_from_bot_preference
+    boolean_cast_setting 'setting_confirm_follow_from_bot'
   end
 
   def boolean_cast_setting(key)
