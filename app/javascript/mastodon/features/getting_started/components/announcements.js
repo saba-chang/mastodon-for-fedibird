@@ -23,6 +23,15 @@ const messages = defineMessages({
   next: { id: 'lightbox.next', defaultMessage: 'Next' },
 });
 
+const dateFormatOptions = {
+  hour12: false,
+  year: 'numeric',
+  month: 'short',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+};
+
 class Content extends ImmutablePureComponent {
 
   static contextTypes = {
@@ -333,8 +342,10 @@ class Announcement extends ImmutablePureComponent {
   }
 
   render () {
-    const { announcement } = this.props;
+    const { announcement, intl } = this.props;
     const { unread } = this.state;
+    const publishedAt = announcement.get('published_at') && intl.formatDate(new Date(announcement.get('published_at')), dateFormatOptions);
+    const updatedAt = announcement.get('updated_at') && intl.formatDate(new Date(announcement.get('updated_at')), dateFormatOptions);
     const startsAt = announcement.get('starts_at') && new Date(announcement.get('starts_at'));
     const endsAt = announcement.get('ends_at') && new Date(announcement.get('ends_at'));
     const now = new Date();
@@ -348,6 +359,7 @@ class Announcement extends ImmutablePureComponent {
         <strong className='announcements__item__range'>
           <FormattedMessage id='announcement.announcement' defaultMessage='Announcement' />
           {hasTimeRange && <span> · <FormattedDate value={startsAt} hour12={false} year={(skipYear || startsAt.getFullYear() === now.getFullYear()) ? undefined : 'numeric'} month='short' day='2-digit' hour={skipTime ? undefined : '2-digit'} minute={skipTime ? undefined : '2-digit'} /> - <FormattedDate value={endsAt} hour12={false} year={(skipYear || endsAt.getFullYear() === now.getFullYear()) ? undefined : 'numeric'} month={skipEndDate ? undefined : 'short'} day={skipEndDate ? undefined : '2-digit'} hour={skipTime ? undefined : '2-digit'} minute={skipTime ? undefined : '2-digit'} /></span>}
+          {!hasTimeRange && <span> · <FormattedMessage id='announcement.published_at' defaultMessage='Published {date}' values={{ date: publishedAt }} /></span>}
         </strong>
 
         <Content announcement={announcement} />
@@ -360,6 +372,9 @@ class Announcement extends ImmutablePureComponent {
           emojiMap={this.props.emojiMap}
         />
 
+        <strong className='announcements__item__range'>
+          {updatedAt && publishedAt !== updatedAt && <span><FormattedMessage id='announcement.updated_at' defaultMessage='Updated {date}' values={{ date: updatedAt }} /></span>}
+        </strong>
         {unread && <span className='announcements__item__unread' />}
       </div>
     );
