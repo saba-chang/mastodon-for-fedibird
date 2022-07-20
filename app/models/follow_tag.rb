@@ -12,6 +12,9 @@
 #
 
 class FollowTag < ApplicationRecord
+  include RateLimitable
+  include Paginable
+
   belongs_to :account, inverse_of: :follow_tags, required: true
   belongs_to :tag, inverse_of: :follow_tags, required: true
   belongs_to :list, optional: true
@@ -25,6 +28,10 @@ class FollowTag < ApplicationRecord
   scope :home, -> { where(list_id: nil) }
   scope :list, -> { where.not(list_id: nil) }
   scope :with_media, ->(status) { where(media_only: false) unless status.with_media? }
+
+  accepts_nested_attributes_for :tag
+
+  rate_limit by: :account, family: :follows
 
   def name=(str)
     self.tag = Tag.find_or_create_by_names(str.strip)&.first

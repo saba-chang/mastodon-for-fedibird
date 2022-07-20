@@ -24,13 +24,16 @@ class Tag < ApplicationRecord
   has_many :favourite_tags, dependent: :destroy, inverse_of: :tag
   has_many :featured_tags, dependent: :destroy, inverse_of: :tag
   has_many :follow_tags, dependent: :destroy, inverse_of: :tag
+  has_many :passive_relationships, class_name: 'FollowTag', inverse_of: :tag, dependent: :destroy
+  has_many :followers, through: :passive_relationships, source: :account
 
   HASHTAG_SEPARATORS = "_\u00B7\u200c"
   HASHTAG_NAME_RE    = "([[:word:]_][[:word:]#{HASHTAG_SEPARATORS}]*[[:alpha:]#{HASHTAG_SEPARATORS}][[:word:]#{HASHTAG_SEPARATORS}]*[[:word:]_])|([[:word:]_]*[[:alpha:]][[:word:]_]*)"
   HASHTAG_RE         = /(?:^|[^\/\)\w])#(#{HASHTAG_NAME_RE})/i
 
   validates :name, presence: true, format: { with: /\A(#{HASHTAG_NAME_RE})\z/i }
-  validate :validate_name_change, if: -> { !new_record? && name_changed? }
+  # validates :display_name, format: { with: /\A(#{HASHTAG_NAME_RE})\z/i }
+  # validate :validate_name_change, if: -> { !new_record? && name_changed? }
 
   scope :reviewed, -> { where.not(reviewed_at: nil) }
   scope :unreviewed, -> { where(reviewed_at: nil) }
@@ -109,7 +112,10 @@ class Tag < ApplicationRecord
 
   class << self
     def find_or_create_by_names(name_or_names)
-      Array(name_or_names).map(&method(:normalize)).uniq { |str| str.mb_chars.downcase.to_s }.map do |normalized_name|
+      names = Array(name_or_names).map { |str| [normalize(str), str] }.uniq(&:first)
+
+      names.map do |(normalized_name, display_name)|
+        # tag = matching_name(normalized_name).first || create(name: normalized_name, display_name: display_name.gsub(/[^[:alnum:]#{HASHTAG_SEPARATORS}]/, ''))
         tag = matching_name(normalized_name).first || create(name: normalized_name)
 
         yield tag if block_given?
