@@ -3884,6 +3884,16 @@ a.status-card.compact:hover {
       background: lighten($ui-base-color, 8%);
     }
   }
+
+  &.column-header__follow_button {
+    &.active {
+      color: $highlight-text-color;
+
+      &:hover {
+        color: $highlight-text-color;
+      }
+    }
+  }
 }
 
 .column-header__collapsible {
