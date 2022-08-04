@@ -118,13 +118,15 @@ module AccountsHelper
     end.join("\n")
   end
 
-  def account_theme_valiables
-    return if current_user.nil?
+  def account_theme_valiables(account)
+    user = account&.user&.setting_theme_public && account&.user || current_user
+
+    return if user.nil?
 
     ":root {
-      --content-font-size: #{h(current_user.setting_content_font_size)}px;
-      --info-font-size: #{h(current_user.setting_info_font_size)}px;
-      --content-emoji-reaction-size: #{h(current_user.setting_content_emoji_reaction_size)}px;
+      --content-font-size: #{h(user.setting_content_font_size)}px;
+      --info-font-size: #{h(user.setting_info_font_size)}px;
+      --content-emoji-reaction-size: #{h(user.setting_content_emoji_reaction_size)}px;
     }"
   end
 

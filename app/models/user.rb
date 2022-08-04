@@ -133,7 +133,7 @@ class User < ApplicationRecord
            :show_reply_tree_button,
            :hide_statuses_count, :hide_following_count, :hide_followers_count, :disable_joke_appearance,
            :new_features_policy,
-           :theme_instance_ticker,
+           :theme_instance_ticker, :theme_public,
            :enable_status_reference, :match_visibility_of_references,
            :post_reference_modal, :add_reference_modal, :unselect_reference_modal,
            :hexagon_avatar, :enable_empty_column,

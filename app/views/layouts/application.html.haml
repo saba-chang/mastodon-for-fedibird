@@ -38,7 +38,7 @@
 
     %style{ nonce: request.content_security_policy_nonce }
       != account_cat_styles
-      != account_theme_valiables
+      != account_theme_valiables(@account)
 
     = yield :header_tags
 
