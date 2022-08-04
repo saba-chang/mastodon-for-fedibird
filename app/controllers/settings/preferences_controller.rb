@@ -80,6 +80,7 @@ class Settings::PreferencesController < Settings::BaseController
       :setting_disable_joke_appearance,
       :setting_new_features_policy,
       :setting_theme_instance_ticker,
+      :setting_theme_public,
       :setting_hexagon_avatar,
       :setting_enable_status_reference,
       :setting_match_visibility_of_references,

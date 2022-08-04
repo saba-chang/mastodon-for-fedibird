@@ -59,6 +59,7 @@ class InitialStateSerializer < ActiveModel::Serializer
       store[:disable_joke_appearance]           = object.current_account.user.setting_disable_joke_appearance
       store[:new_features_policy]               = object.current_account.user.setting_new_features_policy
       store[:theme_instance_ticker]             = object.current_account.user.setting_theme_instance_ticker
+      store[:theme_public]                      = object.current_account.user.setting_theme_public
       store[:enable_status_reference]           = object.current_account.user.setting_enable_status_reference
       store[:match_visibility_of_references]    = object.current_account.user.setting_match_visibility_of_references
       store[:post_reference_modal]              = object.current_account.user.setting_post_reference_modal

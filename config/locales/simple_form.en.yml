@@ -93,6 +93,7 @@ en:
         setting_theme_instance_ticker_type-1: Type-1 (Favicon)
         setting_theme_instance_ticker_type-2: Type-2 (Favicon + BG White)
         setting_theme_instance_ticker_type-3: Type-3 (Favicon + BG Black)
+        setting_theme_public: Your public pages will reflect the theme currently in use
         setting_use_blurhash: Gradients are based on the colors of the hidden visuals but obfuscate any details
         setting_use_pending_items: Hide timeline updates behind a click instead of automatically scrolling the feed
         username: Your username will be unique on %{domain}
@@ -260,6 +261,7 @@ en:
         setting_system_font_ui: Use system's default font
         setting_theme: Site theme
         setting_theme_instance_ticker: '#InstanceTicker'
+        setting_theme_public: Reflecting the theme on the public page
         setting_trends: Show today's trends
         setting_unfollow_modal: Show confirmation dialog before unfollowing someone
         setting_unsubscribe_modal: Show confirmation dialog before unsubscribing someone

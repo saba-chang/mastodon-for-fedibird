@@ -49,6 +49,9 @@
   -#   = f.input :setting_mobile_content_font_size, as: :range, input_html: { min: 10, max: 24, list: 'content_font_size_label' },  wrapper: :with_label, hint: false, fedibird_features: true
   -#   = f.input :setting_mobile_content_emoji_reaction_size, as: :range, input_html: { min: 10, max: 48 }, wrapper: :with_label, false: true, fedibird_features: true
 
+  .fields-group
+    = f.input :setting_theme_public, as: :boolean, wrapper: :with_label, hint: true, fedibird_features: true
+
   %h4= t 'appearance.advanced_web_interface'
 
   %p.hint= t 'appearance.advanced_web_interface_hint'

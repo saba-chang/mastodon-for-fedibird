@@ -135,6 +135,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_theme
+    return @account&.user&.setting_theme if @account&.local? && @account&.user&.setting_theme_public && Themes.instance.names.include?(@account&.user&.setting_theme)
     return Setting.theme unless Themes.instance.names.include? current_user&.setting_theme
     current_user.setting_theme
   end
