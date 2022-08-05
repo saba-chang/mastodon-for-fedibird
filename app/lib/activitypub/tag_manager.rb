@@ -167,6 +167,8 @@ class ActivityPub::TagManager
     host = "#{host}:#{uri.port}" if uri.port
 
     !host.nil? && (::TagManager.instance.local_domain?(host) || ::TagManager.instance.web_domain?(host))
+  rescue Addressable::URI::InvalidURIError
+    return false
   end
 
   def uri_to_local_id(uri, param = :id)
