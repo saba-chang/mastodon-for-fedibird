@@ -36,7 +36,7 @@ class ActivityPub::Activity
         ActivityPub::Activity::Delete
       when 'Follow'
         ActivityPub::Activity::Follow
-      when 'Like'
+      when 'Like', 'EmojiReact'
         ActivityPub::Activity::Like
       when 'Block'
         ActivityPub::Activity::Block
@@ -56,8 +56,6 @@ class ActivityPub::Activity
         ActivityPub::Activity::Remove
       when 'Move'
         ActivityPub::Activity::Move
-      when 'EmojiReact'
-        ActivityPub::Activity::EmojiReact
       end
     end
   end

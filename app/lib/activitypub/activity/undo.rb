@@ -15,7 +15,7 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
     when 'Block'
       undo_block
     when 'EmojiReact'
-      undo_react
+      undo_like
     when nil
       handle_reference
     end
@@ -170,10 +170,6 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
         @object['content']&.delete(':')
       end
     end
-  end
-
-  def undo_react
-    @account.emoji_reactions.find_by(uri: object_uri)&.destroy
   end
 
   def undo_block
