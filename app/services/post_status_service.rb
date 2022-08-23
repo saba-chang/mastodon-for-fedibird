@@ -24,6 +24,7 @@ class PostStatusService < BaseService
   # @option [Doorkeeper::Application] :application
   # @option [String] :idempotency Optional idempotency key
   # @option [Boolean] :with_rate_limit
+  # @option [String] :searchability
   # @return [Status]
   def call(account, options = {})
     @account     = account
@@ -75,6 +76,7 @@ class PostStatusService < BaseService
     @visibility     = :unlisted if @visibility&.to_sym == :public && @account.silenced?
     @visibility     = :limited if @circle.present?
     @visibility     = :limited if @visibility&.to_sym != :direct && @in_reply_to&.limited_visibility?
+    @searchability  = searchability
     @scheduled_at   = @options[:scheduled_at].is_a?(Time) ? @options[:scheduled_at] : @options[:scheduled_at]&.to_datetime&.to_time
     @scheduled_at   = nil if scheduled_in_the_past?
     if @quote_id.nil? && md = @text.match(/QT:\s*\[\s*(https:\/\/.+?)\s*\]/)
@@ -83,6 +85,19 @@ class PostStatusService < BaseService
     end
   rescue ArgumentError
     raise ActiveRecord::RecordInvalid
+  end
+
+  def searchability
+    case @options[:searchability]&.to_sym
+    when :public
+      case @visibility&.to_sym when :public then :public when :unlisted, :private then :private else :direct end
+    when :unlisted, :private
+      case @visibility&.to_sym when :public, :unlisted, :private then :private else :direct end
+    when nil
+      @account.searchability
+    else
+      :direct
+    end
   end
 
   def preprocess_quote!
@@ -222,6 +237,7 @@ class PostStatusService < BaseService
       quote_id: @quote_id,
       expires_at: @expires_at,
       expires_action: @expires_action,
+      searchability: @searchability
     }.compact
   end
 
