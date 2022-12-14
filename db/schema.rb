@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_10_14_111931) do
+ActiveRecord::Schema.define(version: 2022_12_14_171836) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1245,7 +1245,7 @@ ActiveRecord::Schema.define(version: 2022_10_14_111931) do
   add_foreign_key "scheduled_statuses", "accounts", on_delete: :cascade
   add_foreign_key "session_activations", "oauth_access_tokens", column: "access_token_id", name: "fk_957e5bda89", on_delete: :cascade
   add_foreign_key "session_activations", "users", name: "fk_e5fda67334", on_delete: :cascade
-  add_foreign_key "status_capability_tokens", "statuses"
+  add_foreign_key "status_capability_tokens", "statuses", on_delete: :cascade
   add_foreign_key "status_expires", "statuses", on_delete: :cascade
   add_foreign_key "status_pins", "accounts", name: "fk_d4cb435b62", on_delete: :cascade
   add_foreign_key "status_pins", "statuses", on_delete: :cascade
