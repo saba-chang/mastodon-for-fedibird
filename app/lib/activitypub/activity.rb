@@ -269,6 +269,12 @@ class ActivityPub::Activity
     as_array(@object['searchableBy']).map { |x| value_or_id(x) }
   end
 
+  def audience_searchable_by
+    return nil if @object['searchableBy'].nil?
+
+    as_array(@object['searchableBy']).map { |x| value_or_id(x) }
+  end
+
   def process_audience
     conversation_uri = value_or_id(@object['context'])
 
@@ -327,8 +333,10 @@ class ActivityPub::Activity
   def visibility_from_audience_with_silence
     visibility = visibility_from_audience
 
-    if @account.silenced? && [:public, :unlisted].include?(visibility)
+    if @account.hard_silenced? && %i(public, unlisted).include?(visibility)
       :private
+    elsif @account.silenced? && %i(public).include?(visibility)
+      :unlisted
     else
       visibility
     end
@@ -337,6 +345,34 @@ class ActivityPub::Activity
   def audience_includes?(account)
     uri = ActivityPub::TagManager.instance.uri_for(account)
     audience_to.include?(uri) || audience_cc.include?(uri)
+  end
+
+  def searchability_from_audience
+    if audience_searchable_by.nil?
+      nil
+    elsif audience_searchable_by.any? { |uri| ActivityPub::TagManager.instance.public_collection?(uri) }
+      :public
+    elsif audience_searchable_by.include?(@account.followers_url)
+      :private
+    else
+      :direct
+    end
+  end
+
+  def searchability
+    searchability = searchability_from_audience
+
+    return nil if searchability.nil?
+
+    visibility    = visibility_from_audience_with_silence
+
+    if searchability === visibility
+      searchability
+    elsif [:public, :private].include?(searchability) && [:public, :unlisted].include?(visibility)
+      :private
+    else
+      :direct
+    end
   end
 
   def searchability_from_audience

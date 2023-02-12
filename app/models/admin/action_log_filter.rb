@@ -40,6 +40,7 @@ class Admin::ActionLogFilter
     resolve_report: { target_type: 'Report', action: 'resolve' }.freeze,
     sensitive_account: { target_type: 'Account', action: 'sensitive' }.freeze,
     silence_account: { target_type: 'Account', action: 'silence' }.freeze,
+    hard_silence_account: { target_type: 'Account', action: 'hard_silence' }.freeze,
     suspend_account: { target_type: 'Account', action: 'suspend' }.freeze,
     unassigned_report: { target_type: 'Report', action: 'unassigned' }.freeze,
     unsensitive_account: { target_type: 'Account', action: 'unsensitive' }.freeze,

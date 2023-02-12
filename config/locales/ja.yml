@@ -133,6 +133,8 @@ ja:
       enabled_msg: "%{username} の無効化を解除しました"
       followers: フォロワー数
       follows: フォロー数
+      hard_silence: ハードサイレンス
+      hard_silenced: ハードサイレンス済み
       header: ヘッダー
       inbox_url: Inbox URL
       invite_request_text: 意気込み
@@ -152,8 +154,10 @@ ja:
       moderation:
         active: アクティブ
         all: すべて
+        hard_silenced: ハードサイレンス済み
         pending: 承認待ち
         silenced: サイレンス済み
+        soft_silenced: ソフトサイレンス済み
         suspended: 停止済み
         title: モデレーション
       moderation_notes: モデレーションメモ
@@ -249,6 +253,7 @@ ja:
         enable_custom_emoji: カスタム絵文字を有効化
         enable_user: ユーザーを有効化
         expire_status: 投稿を公開終了
+        hard_silence_account: アカウントをハードサイレンス
         memorialize_account: 追悼アカウント化
         promote_user: ユーザーを昇格
         remove_avatar_user: アイコンを削除
@@ -293,6 +298,7 @@ ja:
         enable_custom_emoji_html: "%{name} さんがカスタム絵文字 %{target} を有効化しました"
         enable_user_html: "%{name} さんが %{target} さんのログインを有効化しました"
         expire_status_html: "%{name} さんが %{target} さんの投稿を公開終了しました"
+        hard_silence_account_html: "%{name} さんが %{target} さんをハードサイレンスにしました"
         memorialize_account_html: "%{name} さんが %{target} さんを追悼アカウントページに登録しました"
         promote_user_html: "%{name} さんが %{target} さんを昇格しました"
         remove_avatar_user_html: "%{name} さんが %{target} さんのアイコンを削除しました"
@@ -1563,6 +1569,7 @@ ja:
     warning:
       explanation:
         disable: あなたのアカウントはログインが禁止され使用できなくなりました。しかしアカウントのデータはそのまま残っています。
+        hard_silence: あなたのアカウントは制限されましたがそのまま使用できます。ただし既にフォローしている人はあなたの投稿を見ることができますが、様々な公開タイムラインには表示されない場合があります。また他のユーザーは今後も手動であなたをフォローすることができます。
         sensitive: あなたのアップロードしたメディアファイルとリンク先のメディアは、閲覧注意として扱われます。
         silence: あなたのアカウントは制限されましたがそのまま使用できます。ただし既にフォローしている人はあなたの投稿を見ることができますが、様々な公開タイムラインには表示されない場合があります。また他のユーザーは今後も手動であなたをフォローすることができます。
         suspend: あなたのアカウントは使用できなくなりプロフィールやその他データにアクセスできなくなりました。アカウントが完全に削除されるまではログインしてデータのエクスポートをリクエストできます。証拠隠滅を防ぐため一部のデータは削除されず残ります。
@@ -1571,12 +1578,14 @@ ja:
       statuses: '特に次の投稿:'
       subject:
         disable: あなたのアカウント %{acct} は凍結されました
+        hard_silence: あなたのアカウント %{acct} はサイレンスにされました
         none: "%{acct} に対する警告"
         sensitive: あなたのアカウント %{acct} の投稿メディアは閲覧注意とマークされました
         silence: あなたのアカウント %{acct} はサイレンスにされました
         suspend: あなたのアカウント %{acct} は停止されました
       title:
         disable: アカウントが凍結されました
+        hard_silence: アカウントがサイレンスにされました
         none: 警告
         sensitive: あなたのメディアが閲覧注意とマークされました
         silence: アカウントがサイレンスにされました

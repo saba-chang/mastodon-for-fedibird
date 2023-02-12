@@ -141,6 +141,8 @@ en:
       enabled_msg: Successfully unfroze %{username}'s account
       followers: Followers
       follows: Follows
+      hard_silence: Hard limit
+      hard_silenced: Hard limited
       header: Header
       inbox_url: Inbox URL
       invite_request_text: Reasons for joining
@@ -160,6 +162,7 @@ en:
       moderation:
         active: Active
         all: All
+        hard_silenced: Hard limited
         pending: Pending
         silenced: Limited
         suspended: Suspended
@@ -263,6 +266,7 @@ en:
         enable_sign_in_token_auth_user: Enable E-mail Token Authentication for User
         enable_user: Enable User
         expire_status: Close Post
+        hard_silence_account: Hard limit Account
         memorialize_account: Memorialize Account
         promote_user: Promote User
         remove_avatar_user: Remove Avatar
@@ -309,6 +313,7 @@ en:
         enable_sign_in_token_auth_user_html: "%{name} enabled e-mail token authentication for %{target}"
         enable_user_html: "%{name} enabled login for user %{target}"
         expire_status_html: "%{name} closed post by %{target}"
+        hard_silence_account_html: "%{name} hard limited %{target}'s account"
         memorialize_account_html: "%{name} turned %{target}'s account into a memoriam page"
         promote_user_html: "%{name} promoted user %{target}"
         remove_avatar_user_html: "%{name} removed %{target}'s avatar"
@@ -1662,6 +1667,7 @@ en:
       explanation:
         disable: You can no longer login to your account or use it in any other way, but your profile and other data remains intact.
         sensitive: Your uploaded media files and linked media will be treated as sensitive.
+        hard_silence: You can still use your account but only people who are already following you will see your posts on this server, and you may be excluded from various public listings. However, others may still manually follow you.
         silence: You can still use your account but only people who are already following you will see your posts on this server, and you may be excluded from various public listings. However, others may still manually follow you.
         suspend: You can no longer use your account, and your profile and other data are no longer accessible. You can still login to request a backup of your data until the data is fully removed, but we will retain some data to prevent you from evading the suspension.
       get_in_touch: You can reply to this e-mail to get in touch with the staff of %{instance}.
@@ -1669,12 +1675,14 @@ en:
       statuses: 'Specifically, for:'
       subject:
         disable: Your account %{acct} has been frozen
+        hard_silence: Your account %{acct} has been limited
         none: Warning for %{acct}
         sensitive: Your account %{acct} posting media has been marked as sensitive
         silence: Your account %{acct} has been limited
         suspend: Your account %{acct} has been suspended
       title:
         disable: Account frozen
+        hard_silence: Account limited
         none: Warning
         sensitive: Your media has been marked as sensitive
         silence: Account limited

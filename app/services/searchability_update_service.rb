@@ -16,6 +16,8 @@ class SearchabilityUpdateService < BaseService
       statuses.update_all('searchability = 3, updated_at = CURRENT_TIMESTAMP')
     end
 
+    return unless Chewy.enabled?
+
     ids.each_slice(100) do |chunk_ids|
       StatusesIndex.import chunk_ids, update_fields: [:searchability]
     end

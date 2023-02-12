@@ -87,7 +87,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     resolve_references(@status, @mentions, @object['references'])
     resolve_thread(@status)
     fetch_replies(@status)
-    StatusesIndex.import @status
+    StatusesIndex.import @status if Chewy.enabled?
     distribute(@status)
     forward_for_conversation
     forward_for_reply

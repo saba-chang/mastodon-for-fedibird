@@ -2,14 +2,16 @@
 
 class SearchQueryTransformer < Parslet::Transform
   class Query
-    attr_reader :should_clauses, :must_not_clauses, :must_clauses, :filter_clauses
+    attr_reader :should_clauses, :must_not_clauses, :must_clauses, :filter_clauses, :order_clauses
 
-    def initialize(clauses)
+    def initialize(clauses, language)
+      @fields = ['text'].push(%w(ja ko zh).include?(language) ? "text.#{language}_stemmed" : 'text.en_stemmed')
       grouped = clauses.chunk(&:operator).to_h
       @should_clauses = grouped.fetch(:should, [])
       @must_not_clauses = grouped.fetch(:must_not, [])
       @must_clauses = grouped.fetch(:must, [])
       @filter_clauses = grouped.fetch(:filter, [])
+      @order_clauses = grouped.fetch(:order, [])
     end
 
     def apply(search)
@@ -17,6 +19,7 @@ class SearchQueryTransformer < Parslet::Transform
       must_clauses.each { |clause| search = search.query.must(clause_to_query(clause)) }
       must_not_clauses.each { |clause| search = search.query.must_not(clause_to_query(clause)) }
       filter_clauses.each { |clause| search = search.filter(**clause_to_filter(clause)) }
+      order_clauses.each { |clause| search = search.order(**clause_to_order(clause)) }
       search.query.minimum_should_match(1)
     end
 
@@ -25,7 +28,7 @@ class SearchQueryTransformer < Parslet::Transform
     def clause_to_query(clause)
       case clause
       when TermClause
-        { multi_match: { type: 'most_fields', query: clause.term, fields: ['text', 'text.stemmed'] } }
+        { multi_match: { type: 'most_fields', query: clause.term, fields: @fields } }
       when PhraseClause
         { match_phrase: { text: { query: clause.phrase } } }
       else
@@ -37,6 +40,15 @@ class SearchQueryTransformer < Parslet::Transform
       case clause
       when PrefixClause
         { term: { clause.filter => clause.term } }
+      else
+        raise "Unexpected clause type: #{clause}"
+      end
+    end
+
+    def clause_to_order(clause)
+      case clause
+      when PrefixClause
+        { id: clause.term }
       else
         raise "Unexpected clause type: #{clause}"
       end
@@ -83,10 +95,10 @@ class SearchQueryTransformer < Parslet::Transform
   class PrefixClause
     attr_reader :filter, :operator, :term
 
-    def initialize(prefix, term)
-      @operator = :filter
+    def initialize(prefix, operator, term)
       case prefix
       when 'from'
+        @operator = :filter
         @filter = :account_id
         username, domain = term.split('@')
         account = Account.find_remote(username, domain)
@@ -94,6 +106,11 @@ class SearchQueryTransformer < Parslet::Transform
         raise "Account not found: #{term}" unless account
 
         @term = account.id
+      when 'order'
+        raise "Unknown order: #{term}" unless %w(asc desc score).include?(term)
+
+        @operator = :order
+        @term = term
       else
         raise "Unknown prefix: #{prefix}"
       end
@@ -105,7 +122,7 @@ class SearchQueryTransformer < Parslet::Transform
     operator = clause[:operator]&.to_s
 
     if clause[:prefix]
-      PrefixClause.new(prefix, clause[:term].to_s)
+      PrefixClause.new(prefix, operator, clause[:term].to_s)
     elsif clause[:term]
       TermClause.new(prefix, operator, clause[:term].to_s)
     elsif clause[:shortcode]
@@ -117,5 +134,5 @@ class SearchQueryTransformer < Parslet::Transform
     end
   end
 
-  rule(query: sequence(:clauses)) { Query.new(clauses) }
+  rule(query: sequence(:clauses)) { Query.new(clauses, 'ja') }
 end

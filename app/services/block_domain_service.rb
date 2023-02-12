@@ -30,7 +30,7 @@ class BlockDomainService < BaseService
   end
 
   def silence_accounts!
-    blocked_domain_accounts.without_silenced.in_batches.update_all(silenced_at: @domain_block.created_at)
+    blocked_domain_accounts.without_silenced.in_batches.update_all(silenced_at: @domain_block.created_at, silence_mode: :hard)
   end
 
   def suspend_accounts!

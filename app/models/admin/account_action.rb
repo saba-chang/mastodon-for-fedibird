@@ -10,6 +10,7 @@ class Admin::AccountAction
     disable
     sensitive
     silence
+    hard_silence
     suspend
   ).freeze
 
@@ -69,6 +70,8 @@ class Admin::AccountAction
       handle_sensitive!
     when 'silence'
       handle_silence!
+    when 'hard_silence'
+      handle_hard_silence!
     when 'suspend'
       handle_suspend!
     end
@@ -122,6 +125,12 @@ class Admin::AccountAction
     authorize(target_account, :silence?)
     log_action(:silence, target_account)
     target_account.silence!
+  end
+
+  def handle_hard_silence!
+    authorize(target_account, :silence?)
+    log_action(:hard_silence, target_account)
+    target_account.hard_silence!
   end
 
   def handle_suspend!
